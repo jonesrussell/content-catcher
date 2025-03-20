@@ -42,8 +42,10 @@ export type Database = {
           created_at: string
           fts: unknown | null
           id: string
-          user_id: string
+          parent_version_id: string | null
           tags: string[] | null
+          user_id: string
+          version_number: number | null
         }
         Insert: {
           attachments?: string[] | null
@@ -51,8 +53,10 @@ export type Database = {
           created_at?: string
           fts?: unknown | null
           id?: string
-          user_id: string
+          parent_version_id?: string | null
           tags?: string[] | null
+          user_id: string
+          version_number?: number | null
         }
         Update: {
           attachments?: string[] | null
@@ -60,12 +64,72 @@ export type Database = {
           created_at?: string
           fts?: unknown | null
           id?: string
-          user_id?: string
+          parent_version_id?: string | null
           tags?: string[] | null
+          user_id?: string
+          version_number?: number | null
         }
         Relationships: [
           {
+            foreignKeyName: "content_parent_version_id_fkey"
+            columns: ["parent_version_id"]
+            isOneToOne: false
+            referencedRelation: "content"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "content_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      content_versions: {
+        Row: {
+          attachments: string[] | null
+          comment: string | null
+          content: string
+          content_id: string
+          created_at: string
+          id: string
+          tags: string[] | null
+          user_id: string
+          version_number: number
+        }
+        Insert: {
+          attachments?: string[] | null
+          comment?: string | null
+          content: string
+          content_id: string
+          created_at?: string
+          id?: string
+          tags?: string[] | null
+          user_id: string
+          version_number: number
+        }
+        Update: {
+          attachments?: string[] | null
+          comment?: string | null
+          content?: string
+          content_id?: string
+          created_at?: string
+          id?: string
+          tags?: string[] | null
+          user_id?: string
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_versions_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "content"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "content_versions_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
@@ -102,6 +166,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_fts: {
+        Args: {
+          content: string
+          tags: string[]
+        }
+        Returns: unknown
+      }
       gtrgm_compress: {
         Args: {
           "": unknown

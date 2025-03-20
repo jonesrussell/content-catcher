@@ -12,6 +12,29 @@ export interface Content {
   tags: string[];
   user_id: string;
   fts?: unknown;
+  archived?: boolean;
+  updated_at?: string;
+  version_number: number;
+  parent_version_id?: string;
+}
+
+export interface ContentVersion {
+  id: string;
+  content_id: string;
+  content: string;
+  attachments: string[];
+  tags: string[];
+  version_number: number;
+  created_at: string;
+  comment?: string;
+}
+
+export interface ContentUpdate {
+  content?: string;
+  attachments?: string[];
+  tags?: string[];
+  archived?: boolean;
+  updated_at?: string;
 }
 
 export function useContent(userId: string | undefined) {

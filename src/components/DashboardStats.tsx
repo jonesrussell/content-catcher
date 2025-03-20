@@ -36,10 +36,14 @@ export default function DashboardStats({ userId }: { userId: string }) {
     async function fetchStats() {
       try {
         // Fetch total count
-        const { count: totalCount } = await supabase
+        const { count: totalCount, error: countError } = await supabase
           .from("content")
           .select("*", { count: "exact" })
           .eq("user_id", userId);
+
+        if (countError) {
+          throw countError;
+        }
 
         // Fetch content for timeline
         const thirtyDaysAgo = new Date();

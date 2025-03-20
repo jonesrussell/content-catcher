@@ -19,6 +19,25 @@
           ignoreBuildErrors: true,
         },
         webpack: (config, { isServer }) => {
+          if (!isServer) {
+            config.resolve.fallback = {
+              ...config.resolve.fallback,
+              fs: false,
+              net: false,
+              tls: false,
+              crypto: false,
+              path: false,
+              os: false,
+              http: false,
+              https: false,
+              stream: false,
+              util: false,
+              url: false,
+              querystring: false,
+              zlib: false,
+              buffer: false
+            };
+          }
           config.stats = "verbose";
           return config;
         },

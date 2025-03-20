@@ -1,21 +1,36 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { OpenAI } from "openai";
-
-// Initialize OpenAI only on the client side
-const getOpenAIClient = () => {
-  if (typeof window === 'undefined') return null;
-  return new OpenAI({
-    apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
-    dangerouslyAllowBrowser: true
-  });
-};
+import axios from "axios";
 
 export interface AISuggestion {
   id: string;
   suggestion: string;
-  type: 'structure' | 'enhancement' | 'summary';
+  type: 'structure' | 'enhancement' | 'summary' | 'tone' | 'engagement';
+  improvedContent?: string;
+  explanation?: string;
+  analysis?: {
+    readability?: {
+      score: number;
+      level: string;
+      improvements: string[];
+    };
+    tone?: {
+      current: string;
+      suggested: string;
+      reason: string;
+    };
+    structure?: {
+      issues: string[];
+      recommendations: string[];
+    };
+  };
+  example?: {
+    context: string;
+    before: string;
+    after: string;
+    impact: string;
+  };
 }
 
 export function useAISuggestions(content: string) {
@@ -31,36 +46,96 @@ export function useAISuggestions(content: string) {
       setError(null);
 
       try {
-        const client = getOpenAIClient();
-        if (!client) return;
-        
-        const completion = await client.chat.completions.create({
-          messages: [
-            {
-              role: "system",
-              content: "You are a helpful assistant that provides suggestions for structuring and improving content. Provide 3 brief, specific suggestions."
+        const response = await axios.post(
+          "https://openai.getcreatr.xyz/v1/chat/completions",
+          {
+            messages: [
+              {
+                role: "user",
+                content: `You are an expert content editor and writing analyst. Analyze this content deeply and provide intelligent suggestions for improvement. Consider tone, structure, clarity, engagement, and emotional impact. Use this json schema: {
+                  "suggestions": [
+                    {
+                      "id": "string",
+                      "suggestion": "string",
+                      "type": "structure" | "enhancement" | "summary" | "tone" | "engagement",
+                      "improvedContent": "string",
+                      "explanation": "string",
+                      "analysis": {
+                        "readability": {
+                          "score": number,
+                          "level": "string",
+                          "improvements": ["string"]
+                        },
+                        "tone": {
+                          "current": "string",
+                          "suggested": "string",
+                          "reason": "string"
+                        },
+                        "structure": {
+                          "issues": ["string"],
+                          "recommendations": ["string"]
+                        }
+                      },
+                      "example": {
+                        "before": "string",
+                        "after": "string",
+                        "context": "string",
+                        "impact": "string"
+                      }
+                    }
+                  ]
+                }. 
+                
+                Provide 5 suggestions that cover:
+                1. structure: Analyze and improve document organization, flow, and hierarchy
+                2. enhancement: Enhance clarity, precision, and impact of key points
+                3. tone: Adjust tone for better audience engagement and emotional resonance
+                4. engagement: Add elements that increase reader interaction and understanding
+                5. summary: Create a concise version while preserving core message and impact
+
+                For each suggestion:
+                - Provide detailed analysis of current content strengths and weaknesses
+                - Include readability metrics and specific improvement areas
+                - Analyze tone and emotional impact
+                - Suggest structural improvements with clear reasoning
+                - Show before/after examples with explanation of impact
+                - Keep core message intact while enhancing delivery`,
+              },
+              {
+                role: "user",
+                content: content
+              }
+            ],
+            jsonMode: true
+          },
+          {
+            headers: {
+              "x-api-key": "67d49aba0baa5ec70723c474",
+              "Content-Type": "application/json",
             },
-            {
-              role: "user",
-              content: `Analyze this content and provide suggestions for improvement: ${content}`
-            }
-          ],
-          model: "gpt-3.5-turbo",
-        });
+          }
+        );
 
-        const suggestionsText = completion.choices[0]?.message?.content;
-        if (suggestionsText) {
-          const parsedSuggestions = suggestionsText.split('\n')
-            .filter((s: string) => s.trim())
-            .map((suggestion: string, index: number) => ({
-              id: `suggestion-${index}`,
-              suggestion: suggestion.replace(/^\d+\.\s*/, ''),
-              type: (index % 3 === 0 ? 'structure' : 
-                    index % 3 === 1 ? 'enhancement' : 'summary') as AISuggestion['type']
-            }));
-
-          setSuggestions(parsedSuggestions);
+        const jsonContent = response.data?.choices?.[0]?.message?.content;
+        if (!jsonContent) {
+          throw new Error('Invalid API response format');
         }
+        const parsedContent = JSON.parse(jsonContent);
+        
+        if (!parsedContent?.suggestions || !Array.isArray(parsedContent.suggestions)) {
+          throw new Error('Invalid suggestions format received from API');
+        }
+
+        // Transform the suggestions into the expected format
+        const formattedSuggestions = parsedContent.suggestions.map((s: any) => ({
+          id: s.id || `suggestion-${Math.random().toString(36).substr(2, 9)}`,
+          suggestion: s.suggestion,
+          type: s.type || 'structure',
+          explanation: s.explanation,
+          improvedContent: s.improvedContent
+        }));
+
+        setSuggestions(formattedSuggestions);
       } catch (err) {
         setError('Failed to generate suggestions');
         console.error('AI suggestion error:', err);
@@ -73,5 +148,5 @@ export function useAISuggestions(content: string) {
     return () => clearTimeout(debounceTimer);
   }, [content]);
 
-  return { suggestions, loading, error };
+  return { suggestions, loading, error, setSuggestions };
 }

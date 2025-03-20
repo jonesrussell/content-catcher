@@ -5,6 +5,7 @@ import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
 import { AuthProvider } from "@/lib/auth-context";
 import { Toaster } from "react-hot-toast";
+import Header from "@/components/Header";
 
 export const metadata: Metadata = {
   title: "Content Collector",
@@ -19,7 +20,10 @@ export default function RootLayout({
     <html lang="en" className={`${GeistSans.variable}`}>
       <body>
         <AuthProvider>
-          {children}
+          <Header />
+          <div className="pt-16">
+            {children}
+          </div>
           <Toaster position="bottom-right" />
         </AuthProvider>
       </body>

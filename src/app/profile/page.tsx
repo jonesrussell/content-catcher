@@ -5,6 +5,8 @@ import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/lib/supabase";
 import { motion } from "framer-motion";
 import { Edit2, Save, Loader2 } from "lucide-react";
+import ContentList from "@/components/ContentList";
+import EditContentModal from "@/components/EditContentModal";
 import DashboardStats from "@/components/DashboardStats";
 import SearchContent from "@/components/SearchContent";
 import { toast } from "react-hot-toast";
@@ -25,6 +27,8 @@ export default function ProfilePage() {
   const [editing, setEditing] = useState(false);
   const [editedProfile, setEditedProfile] = useState<Profile | null>(null);
   const [saving, setSaving] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingContent, setEditingContent] = useState<Content | null>(null);
 
   useEffect(() => {
     async function loadProfile() {
@@ -184,65 +188,26 @@ export default function ProfilePage() {
 
           <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-xl">
             <h2 className="text-2xl font-bold text-primary mb-6">Saved Content</h2>
-            <div className="space-y-6">
-              {content.map((item) => (
-                <motion.div
-                  key={item.id}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="p-6 bg-white rounded-xl shadow-md"
-                >
-                  <div className="space-y-3">
-                    <p className="text-primary/80 whitespace-pre-wrap">
-                      {item.content}
-                    </p>
-                    {item.tags && item.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-2">
-                        {item.tags.map((tag: string, index: number) => (
-                          <span
-                            key={index}
-                            className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm"
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                  {item.attachments && item.attachments.length > 0 && (
-                    <div className="mt-4">
-                      <p className="text-sm text-muted-foreground mb-2">
-                        Attachments: {item.attachments.length}
-                      </p>
-                      <div className="flex flex-wrap gap-2">
-                        {item.attachments.map((url, index) => (
-                          <a
-                            key={index}
-                            href={url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-primary hover:text-primary/80 underline text-sm"
-                          >
-                            Attachment {index + 1}
-                          </a>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  <p className="text-sm text-muted-foreground mt-4">
-                    {new Date(item.created_at).toLocaleDateString()}
-                  </p>
-                </motion.div>
-              ))}
-              {content.length === 0 && (
-                <p className="text-center text-muted-foreground py-8">
-                  No content saved yet
-                </p>
-              )}
-            </div>
+            <ContentList 
+              content={content} 
+              onEditContent={(item) => {
+                setEditingContent(item);
+                setIsEditModalOpen(true);
+              }}
+            />
           </div>
         </motion.div>
       </div>
+      {editingContent && (
+        <EditContentModal
+          content={editingContent}
+          isOpen={isEditModalOpen}
+          onClose={() => {
+            setIsEditModalOpen(false);
+            setEditingContent(null);
+          }}
+        />
+      )}
     </div>
   );
 }
