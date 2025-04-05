@@ -1,9 +1,3 @@
-"use client";
-
-import ReactDiffViewer from 'react-diff-viewer-continued';
-import { motion } from 'framer-motion';
-import type { ContentVersion } from '@/hooks/useContent';
-
 interface DiffViewerProps {
   oldVersion: ContentVersion;
   newVersion: ContentVersion;
