@@ -90,3 +90,39 @@
 nextjs-portal {
   display: none;
 }
+
+@keyframes highlightContent {
+  0% {
+    background-color: rgba(var(--primary), 0.1);
+    transform: translateY(10px);
+  }
+  100% {
+    background-color: transparent;
+    transform: translateY(0);
+  }
+}
+
+.highlight-new-content {
+  animation: highlightContent 1s ease-out forwards;
+}
+
+.saved-content-enter {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.saved-content-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 500ms ease-in-out, transform 500ms ease-in-out;
+}
+
+.saved-content-exit {
+  opacity: 1;
+}
+
+.saved-content-exit-active {
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: opacity 500ms ease-in-out, transform 500ms ease-in-out;
+}

@@ -46,89 +46,151 @@ export function useAdvancedTagging(content: string) {
 
       setLoading(true);
       try {
-        // 1. Local NLP Analysis
-        const tokens = tokenizer.tokenize(content);
-        tfidf.addDocument(content);
-        const doc = compromise(content);
+        let nlpTags: TagAnalysis[] = [];
         
-        // Detect language
-        const detectedLang = natural.PorterStemmer.stem(content.slice(0, 100));
-        setLanguage(detectedLang === content.slice(0, 100) ? 'unknown' : 'english');
-
-        // 2. AI Analysis
-        const response = await axios.post(
-          "https://openai.getcreatr.xyz/v1/chat/completions",
-          {
-            messages: [
-              {
-                role: "user",
-                content: `Analyze this content and provide comprehensive tag suggestions. Consider multiple aspects including topics, entities, sentiment, and structure. Use this json schema: {
-                  "suggestions": [
-                    {
-                      "tag": "string",
-                      "confidence": number,
-                      "category": "topic" | "tone" | "structure" | "entity" | "language" | "sentiment",
-                      "source": "ai",
-                      "metadata": {
-                        "frequency": number,
-                        "importance": number,
-                        "context": "string",
-                        "language": "string",
-                        "sentiment": number
-                      },
-                      "explanation": "string"
-                    }
-                  ],
-                  "analysis": {
-                    "mainTopics": ["string"],
-                    "entityTypes": {"person": ["string"], "organization": ["string"], "location": ["string"]},
-                    "contentStructure": "string",
-                    "languageStyle": "string",
-                    "recommendedCategories": ["string"]
-                  }
-                }. Content to analyze: ${content}`
-              }
-            ],
-            jsonMode: true
-          },
-          {
-            headers: {
-              "x-api-key": "67d49aba0baa5ec70723c474",
-              "Content-Type": "application/json",
-            },
+        try {
+          // 1. Local NLP Analysis with error handling
+          const tokens = tokenizer.tokenize(content);
+          tfidf.addDocument(content);
+          const nlp = compromise(content);
+          
+          // Improved language detection
+          try {
+            const detectedLang = natural.PorterStemmer.stem(content.slice(0, 100));
+            const isEnglish = detectedLang !== content.slice(0, 100);
+            setLanguage(isEnglish ? 'english' : 'unknown');
+          } catch (langError) {
+            console.error("Language detection error:", langError);
+            setLanguage('unknown');
           }
+          
+          // Get entities safely using compromise.js proper methods
+          const entities = [
+            ...nlp.match('#Organization').out('array'),
+            ...nlp.match('#Person').out('array'),
+            ...nlp.match('#Place').out('array')
+          ].filter(Boolean);
+          
+          // Generate NLP tags with error handling
+          nlpTags = generateNLPTags(tokens, entities);
+        } catch (nlpError) {
+          console.error("NLP analysis error:", nlpError);
+          // Continue with AI analysis even if NLP fails
+        }
+
+        // 2. AI Analysis with timeout and retry
+        const response = await Promise.race<{data: {choices: Array<{message: {content: string}}>}}>([
+          axios.post<{choices: Array<{message: {content: string}}>}>(
+            "https://openai.getcreatr.xyz/v1/chat/completions",
+            {
+              messages: [
+                {
+                  role: "user",
+                  content: `Analyze this content and provide tag suggestions. Focus on key topics, entities, sentiment, and structure. Use this json schema: {
+                    "suggestions": [
+                      {
+                        "tag": "string",
+                        "confidence": number,
+                        "category": "topic" | "tone" | "structure" | "entity" | "language" | "sentiment",
+                        "source": "ai",
+                        "metadata": {
+                          "frequency": number,
+                          "importance": number,
+                          "context": "string",
+                          "language": "string",
+                          "sentiment": number
+                        },
+                        "explanation": "string"
+                      }
+                    ]
+                  }. Keep suggestions concise and relevant. Content to analyze: ${content.slice(0, 1000)}`
+                }
+              ],
+              jsonMode: true
+            },
+            {
+              headers: {
+                "x-api-key": "67d49aba0baa5ec70723c474",
+                "Content-Type": "application/json",
+              },
+            }
+          ),
+          new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('AI analysis timeout')), 30000) // Increased timeout to 30 seconds
+          )
+        ]);
+
+        const jsonContent = response.data?.choices?.[0]?.message?.content;
+        if (!jsonContent) {
+          throw new Error('Invalid API response format');
+        }
+
+        let aiAnalysis;
+        try {
+          aiAnalysis = JSON.parse(jsonContent);
+          if (!Array.isArray(aiAnalysis?.suggestions)) {
+            throw new Error('Invalid suggestions format');
+          }
+        } catch (parseError) {
+          console.error("Error parsing AI response:", parseError);
+          aiAnalysis = { suggestions: [] };
+        }
+
+        // 3. Combine AI and NLP results with validation
+        const validatedSuggestions = [
+          ...(aiAnalysis.suggestions || []),
+          ...nlpTags
+        ].filter(suggestion => 
+          suggestion && 
+          typeof suggestion.tag === 'string' &&
+          typeof suggestion.confidence === 'number' &&
+          suggestion.confidence >= 0 &&
+          suggestion.confidence <= 1
         );
 
-        const aiAnalysis = JSON.parse(response.data.choices[0].message.content);
-
-        // 3. Combine AI and NLP results
-        const combinedSuggestions = [
-          ...aiAnalysis.suggestions,
-          ...generateNLPTags(tokens, doc)
-        ];
-
-        // 4. Calculate statistics
-        const stats = calculateTagStats(combinedSuggestions);
+        // 4. Calculate statistics with error handling
+        const stats = calculateTagStats(validatedSuggestions);
         
-        setSuggestions(combinedSuggestions);
+        setSuggestions(validatedSuggestions);
         setStats(stats);
       } catch (error) {
         console.error("Error in advanced tag analysis:", error);
-        toast.error("Failed to analyze content for tags");
+        toast.error(
+          error instanceof Error 
+            ? `Analysis error: ${error.message}` 
+            : "Failed to analyze content for tags"
+        );
+        
+        // Set fallback values
+        setSuggestions([]);
+        setStats({
+          totalTags: 0,
+          categoryCounts: {},
+          accuracyScore: 0,
+          languageBreakdown: {},
+          topCooccurrences: []
+        });
       } finally {
         setLoading(false);
       }
     };
 
-    const debounceTimer = setTimeout(analyzeContent, 1000);
+    // Only analyze if content is long enough
+    const debounceTimer = setTimeout(
+      () => {
+        if (content && content.length >= 50) {
+          analyzeContent();
+        }
+      }, 
+      1000
+    );
     return () => clearTimeout(debounceTimer);
   }, [content]);
 
-  const generateNLPTags = (tokens: string[], doc: any): TagAnalysis[] => {
+  const generateNLPTags = (tokens: string[], entities: string[]): TagAnalysis[] => {
     const nlpTags: TagAnalysis[] = [];
     
-    // Extract entities
-    const entities = doc.entities().out('array');
+    // Extract entities safely
     entities.forEach((entity: string) => {
       nlpTags.push({
         tag: entity,

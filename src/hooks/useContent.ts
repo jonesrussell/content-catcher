@@ -15,7 +15,7 @@ export interface Content {
   archived?: boolean;
   updated_at?: string;
   version_number: number;
-  parent_version_id?: string;
+  parent_version_id?: string | null;
 }
 
 export interface ContentVersion {
@@ -70,6 +70,52 @@ export function useContent(userId: string | undefined) {
     }
 
     loadContent();
+
+    // Set up real-time subscription
+    const channel = supabase
+      .channel('content_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'content',
+          filter: `user_id=eq.${userId}`
+        },
+        async (payload) => {
+          console.log('Change received!', payload);
+          
+          switch (payload.eventType) {
+            case 'INSERT':
+              setContent(prev => [payload.new as Content, ...prev]);
+              toast.success('New content added!');
+              break;
+              
+            case 'UPDATE':
+              setContent(prev => 
+                prev.map(item => 
+                  item.id === payload.new.id ? 
+                  { ...payload.new, tags: payload.new.tags || [] } as Content : 
+                  item
+                )
+              );
+              toast.success('Content updated!');
+              break;
+              
+            case 'DELETE':
+              setContent(prev => 
+                prev.filter(item => item.id !== payload.old.id)
+              );
+              toast.success('Content deleted!');
+              break;
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [userId]);
 
   return { content, loading };

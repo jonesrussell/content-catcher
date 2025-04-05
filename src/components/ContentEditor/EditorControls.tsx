@@ -32,7 +32,7 @@ export function EditorControls({
   onRedo
 }: EditorControlsProps) {
   return (
-    <div className="absolute bottom-6 right-6 flex items-center gap-3">
+    <div className="fixed md:absolute bottom-4 md:bottom-6 right-4 md:right-6 flex items-center gap-2 md:gap-3 z-10">
       <div className="flex items-center gap-2">
         <button
           onClick={onUndo}

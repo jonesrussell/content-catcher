@@ -63,10 +63,11 @@ export function SuggestionsPanel({
                     ref={provided.innerRef}
                     {...provided.draggableProps}
                     {...provided.dragHandleProps}
-                    className={`p-4 bg-white rounded-lg shadow-sm 
-                      transition-all cursor-pointer transform
-                      ${snapshot.isDragging ? 'shadow-xl scale-105' : 'hover:shadow-md hover:bg-primary/5'}
-                      group relative`}
+                    className={`px-4 py-2 bg-white/90 rounded-full shadow-sm 
+                      transition-all cursor-pointer hover:shadow-md hover:bg-white
+                      flex items-center gap-3 group ${
+                        snapshot.isDragging ? 'shadow-xl scale-105' : ''
+                      }`}
                     onClick={() => {
                       if (!suggestion.improvedContent) {
                         toast.error("No improved content available");
@@ -76,39 +77,23 @@ export function SuggestionsPanel({
                       toast.success("Content updated with suggestion!");
                     }}
                   >
-                    <div className="flex items-start gap-2 flex-wrap">
-                      <span className={`px-2 py-1 text-xs rounded-full ${
-                        suggestion.type === 'structure' ? 'bg-blue-100 text-blue-700' :
-                        suggestion.type === 'enhancement' ? 'bg-green-100 text-green-700' :
-                        suggestion.type === 'tone' ? 'bg-yellow-100 text-yellow-700' :
-                        suggestion.type === 'engagement' ? 'bg-pink-100 text-pink-700' :
-                        'bg-purple-100 text-purple-700'
-                      }`}>
-                        {suggestion.type}
-                      </span>
-                    </div>
+                    <span className={`w-2 h-2 rounded-full ${
+                      suggestion.type === 'structure' ? 'bg-blue-500' :
+                      suggestion.type === 'enhancement' ? 'bg-green-500' :
+                      suggestion.type === 'tone' ? 'bg-yellow-500' :
+                      suggestion.type === 'engagement' ? 'bg-pink-500' :
+                      'bg-purple-500'
+                    }`} />
+                      
+                    <p className="text-sm text-primary/80 truncate">
+                      {suggestion.suggestion}
+                    </p>
 
-                    <div className="space-y-3">
-                      <p className="text-sm text-primary/80">
-                        {suggestion.suggestion}
-                      </p>
-                      {suggestion.explanation && (
-                        <p className="text-xs text-primary/60 italic">
-                          {suggestion.explanation}
-                        </p>
-                      )}
-                      {suggestion.analysis && (
-                        <div className="mt-4 space-y-3">
-                          <div className="p-3 bg-primary/5 rounded-lg">
-                            <h4 className="text-sm font-medium text-primary mb-2">
-                              Content Analysis
-                            </h4>
-                            <ReadabilityMeter analysis={suggestion.analysis} />
-                            <ToneAnalysis analysis={suggestion.analysis} />
-                          </div>
-                          <ExampleSection example={suggestion.example} />
-                        </div>
-                      )}
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="absolute left-4 bottom-full mb-2 p-3 bg-white rounded-lg shadow-lg 
+                        w-64 z-10 text-xs text-primary/70">
+                        {suggestion.explanation}
+                      </div>
                     </div>
                   </div>
                 )}

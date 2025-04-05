@@ -1,8 +1,9 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { X, History, RotateCcw } from "lucide-react";
+import { DiffViewer } from "./ContentEditor/DiffViewer";
 import { useContentVersions } from "@/hooks/useContentVersions";
 import type { ContentVersion } from "@/hooks/useContent";
 import { toast } from "react-hot-toast";
@@ -18,30 +19,81 @@ interface EditContentModalProps {
 export default function EditContentModal({ content, isOpen, onClose }: EditContentModalProps) {
   const [showVersions, setShowVersions] = useState(false);
   const [versionComment, setVersionComment] = useState("");
-  const { versions, loading: versionsLoading, createVersion, revertToVersion } = useContentVersions(content?.id);
+  const { versions, loading: versionsLoading, createVersion, revertToVersion, compareVersions } = useContentVersions(content?.id);
 
   if (!isOpen) return null;
 
+  const [selectedVersions, setSelectedVersions] = useState<string[]>([]);
+  const [diffVersions, setDiffVersions] = useState<{
+    oldVersion: ContentVersion;
+    newVersion: ContentVersion;
+  } | null>(null);
+
   const handleSave = async () => {
+    if (!content.content.trim()) {
+      toast.error("Cannot save empty content");
+      return;
+    }
+
     try {
-      const { error } = await supabase
+      const { error: updateError } = await supabase
         .from('content')
         .update({
           content: content.content,
-          version_number: (content.version_number || 1) + 1,
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
+          tags: content.tags ?? [],
+          attachments: content.attachments ?? [],
+          version_number: (content.version_number ?? 0) + 1
         })
         .eq('id', content.id);
 
-      if (error) throw error;
+      if (updateError) {
+        console.error("Update error:", updateError);
+        if (updateError.code === "23505") {
+          toast.error("This content already exists");
+        } else if (updateError.code === "23503") {
+          toast.error("User profile not found. Please try logging in again.");
+        } else {
+          toast.error(`Failed to update: ${updateError.message}`);
+        }
+        return;
+      }
       
-      await createVersion(content, versionComment);
-      toast.success('Content updated and version saved');
-      onClose();
-      window.location.reload();
+      try {
+        await createVersion(content, versionComment);
+        toast.success('Content updated and version saved');
+        onClose();
+        window.location.reload();
+      } catch (versionError) {
+        console.error("Version creation error:", versionError);
+        toast.error("Content updated but failed to save version");
+      }
     } catch (error) {
-      toast.error('Failed to update content');
+      console.error("Save error:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to update content");
     }
+  };
+
+  const handleCompareVersions = () => {
+    if (selectedVersions.length !== 2) {
+      toast.error('Please select exactly 2 versions to compare');
+      return;
+    }
+
+    const versionA = versions.find(v => v.id === selectedVersions[0]);
+    const versionB = versions.find(v => v.id === selectedVersions[1]);
+
+    if (!versionA || !versionB) {
+      toast.error('Selected versions not found');
+      return;
+    }
+
+    // Ensure older version is first
+    const [oldVersion, newVersion] = versionA.version_number < versionB.version_number 
+      ? [versionA, versionB] 
+      : [versionB, versionA];
+
+    setDiffVersions({ oldVersion, newVersion });
   };
 
   const handleRevert = async (version: ContentVersion) => {
@@ -102,26 +154,68 @@ export default function EditContentModal({ content, isOpen, onClose }: EditConte
             ) : versions.length === 0 ? (
               <div className="p-4 text-center text-primary/60">No previous versions</div>
             ) : (
-              <div className="divide-y">
-                {versions.map((version) => (
-                  <div key={version.id} className="p-4 hover:bg-primary/5 flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-primary/80">
-                        Version {version.version_number} - {new Date(version.created_at).toLocaleString()}
-                      </p>
-                      {version.comment && (
-                        <p className="text-sm text-primary/60 mt-1">{version.comment}</p>
-                      )}
-                    </div>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="text-sm font-medium text-primary">Version History</h4>
+                  {selectedVersions.length === 2 && (
                     <button
-                      onClick={() => handleRevert(version)}
-                      className="px-3 py-1 text-primary hover:bg-primary/10 rounded-lg transition-colors flex items-center gap-2"
+                      onClick={handleCompareVersions}
+                      className="px-3 py-1 bg-primary text-white rounded-lg text-sm hover:bg-primary/90 transition-colors"
                     >
-                      <RotateCcw className="w-4 h-4" />
-                      Revert
+                      Compare Selected
                     </button>
-                  </div>
-                ))}
+                  )}
+                </div>
+
+                <div className="divide-y">
+                  {versions.map((version) => (
+                    <div key={version.id} className="p-4 hover:bg-primary/5">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <input
+                            type="checkbox"
+                            checked={selectedVersions.includes(version.id)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                if (selectedVersions.length < 2) {
+                                  setSelectedVersions([...selectedVersions, version.id]);
+                                }
+                              } else {
+                                setSelectedVersions(selectedVersions.filter(id => id !== version.id));
+                              }
+                            }}
+                            className="rounded border-primary/20"
+                          />
+                          <div>
+                            <p className="text-sm text-primary/80">
+                              Version {version.version_number} - {new Date(version.created_at).toLocaleString()}
+                            </p>
+                            {version.comment && (
+                              <p className="text-sm text-primary/60 mt-1">{version.comment}</p>
+                            )}
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => handleRevert(version)}
+                          className="px-3 py-1 text-primary hover:bg-primary/10 rounded-lg transition-colors flex items-center gap-2"
+                        >
+                          <RotateCcw className="w-4 h-4" />
+                          Revert
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <AnimatePresence>
+                  {diffVersions && (
+                    <DiffViewer
+                      oldVersion={diffVersions.oldVersion}
+                      newVersion={diffVersions.newVersion}
+                      onClose={() => setDiffVersions(null)}
+                    />
+                  )}
+                </AnimatePresence>
               </div>
             )}
           </div>

@@ -12,11 +12,11 @@ export default function Header() {
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-sm border-b border-primary/10">
       <div className="container mx-auto px-4">
         <div className="h-16 flex items-center justify-between">
-          <Link href="/" className="text-2xl font-bold text-primary hover:text-primary/80 transition-colors">
+          <Link href="/" className="text-lg md:text-2xl font-bold text-primary hover:text-primary/80 transition-colors">
             Collector
           </Link>
 
-          <nav className="flex items-center gap-6">
+          <nav className="flex items-center gap-2 sm:gap-6">
             <Link 
               href="/" 
               className="text-primary/80 hover:text-primary transition-colors"

@@ -3,12 +3,13 @@
 import ContentEditor from "@/components/ContentEditor";
 import { motion } from "framer-motion";
 import { Toaster } from "react-hot-toast";
+import { SavedContentSection } from "@/components/SavedContent/SavedContentSection";
 
 export default function HomePage() {
   return (
     <main className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <Toaster position="bottom-right" />
-      <div className="container mx-auto px-4 py-12">
+      <div className="container mx-auto px-4 py-8 sm:py-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -24,6 +25,8 @@ export default function HomePage() {
           </p>
         </motion.div>
         <ContentEditor />
+        
+        <SavedContentSection />
       </div>
     </main>
   );

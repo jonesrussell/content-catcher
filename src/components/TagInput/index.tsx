@@ -17,6 +17,7 @@ interface TagInputProps {
     topCooccurrences: Array<[string, string, number]>;
   } | null;
   language: string;
+  onUpdateSuggestions?: (suggestions: TagAnalysis[]) => void;
 }
 
 export function TagInput({
@@ -25,7 +26,8 @@ export function TagInput({
   tagSuggestions,
   tagSuggestionsLoading,
   tagStats,
-  language
+  language,
+  onUpdateSuggestions
 }: TagInputProps) {
   const [tagInput, setTagInput] = useState("");
 
@@ -111,6 +113,16 @@ export function TagInput({
                 onClick={() => {
                   if (!tags.includes(suggestion.tag)) {
                     setTags([...tags, suggestion.tag]);
+                    // Filter out the used suggestion
+                    const updatedSuggestions = tagSuggestions.filter(
+                      (s) => s.tag !== suggestion.tag
+                    );
+                    // Update the suggestions state through parent
+                    if (onUpdateSuggestions) {
+                      onUpdateSuggestions(tagSuggestions.filter(
+                        (s) => s.tag !== suggestion.tag
+                      ));
+                    }
                     toast.success(`Added tag: ${suggestion.tag}`);
                   }
                 }}

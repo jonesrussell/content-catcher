@@ -10,6 +10,7 @@ interface TagSectionProps {
   tagSuggestionsLoading: boolean;
   tagStats: any;
   language: string;
+  onUpdateSuggestions: (suggestions: TagAnalysis[]) => void;
 }
 
 export function TagSection({
@@ -18,7 +19,8 @@ export function TagSection({
   tagSuggestions,
   tagSuggestionsLoading,
   tagStats,
-  language
+  language,
+  onUpdateSuggestions
 }: TagSectionProps) {
   return (
     <div className="mb-4">
@@ -29,6 +31,12 @@ export function TagSection({
         tagSuggestionsLoading={tagSuggestionsLoading}
         tagStats={tagStats}
         language={language}
+        onUpdateSuggestions={(suggestions) => {
+          // Pass through to parent
+          if (typeof onUpdateSuggestions === 'function') {
+            onUpdateSuggestions(suggestions);
+          }
+        }}
       />
     </div>
   );

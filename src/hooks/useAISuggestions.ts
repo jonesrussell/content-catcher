@@ -127,7 +127,8 @@ export function useAISuggestions(content: string) {
         }
 
         // Transform the suggestions into the expected format
-        const formattedSuggestions = parsedContent.suggestions.map((s: any) => ({
+        // Limit to 3 suggestions
+        const formattedSuggestions = parsedContent.suggestions.slice(0, 3).map((s: any) => ({
           id: s.id || `suggestion-${Math.random().toString(36).substr(2, 9)}`,
           suggestion: s.suggestion,
           type: s.type || 'structure',

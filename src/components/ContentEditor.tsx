@@ -1,24 +1,39 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect, KeyboardEvent } from "react";
-import { SuggestionsPanel } from "./ContentEditor/SuggestionsPanel";
+import { useState, useCallback, useRef, KeyboardEvent, useEffect } from "react";
+import { InlineSuggestions } from "./ContentEditor/InlineSuggestions";
 import { useContentHistory } from "@/hooks/useContentHistory";
 import { useAISuggestions } from "@/hooks/useAISuggestions";
+import { TitleSection } from "./ContentEditor/TitleSection";
+import { TitleGenerator } from "./ContentEditor/TitleGenerator";
 import { useAdvancedTagging } from "@/hooks/useAdvancedTagging";
 import { TagInput } from "@/components/TagInput";
 import { AIPanel } from "./AIPanel";
-import { useTagSuggestions, type TagSuggestion } from "@/hooks/useTagSuggestions";
+import { useTagSuggestions } from "@/hooks/useTagSuggestions";
 import { EditorControls } from "./ContentEditor/EditorControls";
+import { MainEditor } from "./ContentEditor/MainEditor";
+import { AIFeaturesSection } from "./ContentEditor/AIFeaturesSection";
 import TextareaAutosize from "react-textarea-autosize";
 import { motion, AnimatePresence } from "framer-motion";
-import { X } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth-context";
 
 export default function ContentEditor() {
   const { user } = useAuth();
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // State management
   const [content, setContent] = useState("");
+  const [title, setTitle] = useState("");
+  const [isGeneratingTitle, setIsGeneratingTitle] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [attachments, setAttachments] = useState<string[]>([]);
+  const [tags, setTags] = useState<string[]>([]);
+
+  // Custom hooks
   const {
     currentContent,
     pushContent,
@@ -27,21 +42,25 @@ export default function ContentEditor() {
     canUndo,
     canRedo
   } = useContentHistory(content);
-  const [isSaving, setIsSaving] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [attachments, setAttachments] = useState<string[]>([]);
-  const [tags, setTags] = useState<string[]>([]);
-  const { 
-    suggestions: tagSuggestions, 
+
+  const {
+    suggestions: initialTagSuggestions,
     stats: tagStats,
     loading: tagSuggestionsLoading,
-    language 
+    language
   } = useAdvancedTagging(content);
-  const { suggestions, loading: suggestionsLoading, setSuggestions } = useAISuggestions(content ?? "");
-  const [selectedSuggestion, setSelectedSuggestion] = useState<string | null>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const [showApplyBar, setShowApplyBar] = useState(false);
+
+  const [tagSuggestions, setTagSuggestions] = useState<typeof initialTagSuggestions>(initialTagSuggestions);
+
+  useEffect(() => {
+    setTagSuggestions(initialTagSuggestions);
+  }, [initialTagSuggestions]);
+
+  const {
+    suggestions,
+    loading: suggestionsLoading,
+    setSuggestions
+  } = useAISuggestions(content);
 
   const handleSave = useCallback(async () => {
     if (!user) {
@@ -49,20 +68,92 @@ export default function ContentEditor() {
       return;
     }
 
+    if (!content.trim()) {
+      toast.error("Cannot save empty content");
+      return;
+    }
+
     setIsSaving(true);
+    
+    // Subscribe to real-time updates for this content
+    const channel = supabase.channel(`content:${Date.now()}`); // Use timestamp as temporary ID until saved
+    channel.subscribe((status) => {
+      if (status === 'SUBSCRIBED') {
+        console.log('Subscribed to content updates');
+      }
+    });
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from("content")
-        .insert([{ user_id: user.id, content, attachments, tags }]);
-      
-      if (error) throw error;
+        .insert([{ 
+          user_id: user.id, 
+          content, 
+          attachments: attachments ?? [], 
+          tags: tags ?? [],
+          created_at: new Date().toISOString(),
+          version_number: 1,
+          updated_at: new Date().toISOString()
+        }])
+        .select('*')
+        .single();
+        
+      if (error) {
+        console.error("Supabase error:", error);
+        if (error.code === "23505") {
+          toast.error("This content already exists");
+        } else if (error.code === "23503") {
+          toast.error("User profile not found. Please try logging in again.");
+        } else {
+          toast.error(`Failed to save: ${error.message}`);
+        }
+        return;
+      }
+
+      if (!data) {
+        throw new Error('No data returned from insert');
+      }
+
+      const savedContent = {
+        id: data.id,
+        content,
+        tags,
+        attachments,
+        created_at: new Date().toISOString(),
+        user_id: user.id,
+        version_number: 1
+      };
+
+      // Show success animation and scroll to saved content
+      const savedContentSection = document.querySelector('.saved-content-section');
+      if (savedContentSection) {
+        savedContentSection.classList.add('highlight-new-content');
+        savedContentSection.scrollIntoView({ 
+          behavior: 'smooth',
+          block: 'start'
+        });
+        setTimeout(() => {
+          savedContentSection.classList.remove('highlight-new-content');
+        }, 2000);
+      }
+
       toast.success("Content saved successfully!");
+      
+      // Clear form with a slight delay for better UX
+      setTimeout(() => {
+        setContent("");
+        setTitle("");
+        setTags([]);
+        setAttachments([]);
+        setSuggestions([]); // Clear AI suggestions
+        setTagSuggestions([]); // Clear tag suggestions
+      }, 300);
     } catch (error) {
-      toast.error("Failed to save content");
+      console.error("Save error:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to save content");
     } finally {
       setIsSaving(false);
     }
-  }, [content, attachments, user]);
+  }, [content, attachments, tags, title, user]);
 
   const handleFileUpload = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -117,77 +208,99 @@ export default function ContentEditor() {
   );
 
   return (
-    <div className="relative w-full max-w-4xl mx-auto">
-      <div className="space-y-4 relative">
-        <AnimatePresence>
-          {suggestions.length > 0 && (
-            <AIPanel
-              suggestions={suggestions}
-              loading={suggestionsLoading}
-              onClose={() => setSuggestions([])}
-              onApplySuggestion={(newContent) => {
-                setContent(newContent);
-                pushContent(newContent);
-                setSuggestions([]);
-              }}
-              textareaRef={textareaRef}
-            />
-          )}
-        </AnimatePresence>
-        
-        <div className="space-y-4">
-          <TagInput
-            tags={tags}
-            setTags={setTags}
-            tagSuggestions={tagSuggestions}
-            tagSuggestionsLoading={tagSuggestionsLoading}
-            tagStats={tagStats}
-            language={language}
+    <div className="relative w-full max-w-6xl mx-auto px-4">
+      <div className="flex flex-col md:grid md:grid-cols-[1fr,400px] gap-6">
+        {/* Main Content Column */}
+        <div className="relative w-full min-h-[300px]">
+          {/* Title Area */}
+          <div className={`mb-3 sm:mb-4 transition-all duration-500 ${content.length >= 100 ? 'opacity-100' : 'opacity-40'}`}>
+            <div className="relative w-full bg-white/30 backdrop-blur-sm rounded-xl border-2 border-primary/5 p-3 sm:p-4">
+              {content.length >= 100 ? (
+                <TitleSection
+                  title={title}
+                  setTitle={setTitle}
+                  content={content}
+                  isGeneratingTitle={isGeneratingTitle}
+                  setIsGeneratingTitle={setIsGeneratingTitle}
+                  disabled={!user}
+                />
+              ) : (
+                <p className="text-primary/30 text-lg font-medium">Title will appear here...</p>
+              )}
+            </div>
+          </div>
+          
+          <MainEditor
+            content={content}
+            setContent={setContent}
+            pushContent={pushContent}
+            handleKeyDown={handleKeyDown}
+            user={user}
+            textareaRef={textareaRef}
+            contentId={undefined} // Will be set after content is saved
           />
-          <div className="relative w-full">
-            <TextareaAutosize
-              ref={textareaRef}
-              value={content}
-              onChange={(e) => {
-                const newContent = e.target.value;
-                setContent(newContent);
-                pushContent(newContent);
-              }}
-              onKeyDown={handleKeyDown}
-              placeholder={user ? "Start typing or paste your content here..." : "Please login to start adding content..."}
-              className="w-full p-6 text-lg bg-white/50 backdrop-blur-sm border-2 border-primary/10 rounded-xl shadow-xl focus:outline-none focus:border-primary/30 transition-all duration-300 min-h-[300px] resize-none"
-              autoFocus
-              disabled={!user}
-            />
-          </div>
-          </div>
-        <input
-          type="file"
-          ref={fileInputRef}
-          onChange={handleFileUpload}
-          className="hidden"
-          accept="image/*,.pdf,.doc,.docx"
-        />
 
-        <EditorControls
-          user={user}
-          content={content}
-          attachments={attachments}
-          isUploading={isUploading}
-          isSaving={isSaving}
-          canUndo={canUndo}
-          canRedo={canRedo}
-          onUpload={() => fileInputRef.current?.click()}
-          onSave={handleSave}
-          onUndo={() => {
-            const previousContent = undo();
-            setContent(previousContent);
-          }}
-          onRedo={() => {
-            const nextContent = redo();
-            setContent(nextContent);
-          }}
-        />
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileUpload}
+            className="hidden"
+            accept="image/*,.pdf,.doc,.docx"
+          />
+
+          <EditorControls
+            user={user}
+            content={content}
+            attachments={attachments}
+            isUploading={isUploading}
+            isSaving={isSaving}
+            canUndo={canUndo}
+            canRedo={canRedo}
+            onUpload={() => fileInputRef.current?.click()}
+            onSave={handleSave}
+            onUndo={() => {
+              const previousContent = undo();
+              setContent(previousContent);
+            }}
+            onRedo={() => {
+              const nextContent = redo();
+              setContent(nextContent);
+            }}
+          />
+        </div>
+
+        {/* Right Column */}
+        <div className={`space-y-6 transition-all duration-500`}>
+
+          <AnimatePresence>
+            {content.length >= 100 && (
+              <AIFeaturesSection
+                content={content}
+                title={title}
+                setTitle={setTitle}
+                isGeneratingTitle={isGeneratingTitle}
+                setIsGeneratingTitle={setIsGeneratingTitle}
+                tags={tags}
+                setTags={setTags}
+                tagSuggestions={tagSuggestions}
+                tagSuggestionsLoading={tagSuggestionsLoading}
+                tagStats={tagStats}
+                language={language}
+                suggestions={suggestions}
+                suggestionsLoading={suggestionsLoading}
+                setSuggestions={setSuggestions}
+                setTagSuggestions={setTagSuggestions}
+                onApplySuggestion={(newContent: string) => {
+                  setContent(newContent);
+                  pushContent(newContent);
+                  setSuggestions([]);
+                }}
+                textareaRef={textareaRef}
+                disabled={!user}
+              />
+            )}
+          </AnimatePresence>
+        </div>
       </div>
     </div>
   );

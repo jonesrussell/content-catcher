@@ -53,23 +53,47 @@ export function useContentVersions(contentId: string | undefined) {
 
   const createVersion = async (content: Content, comment?: string) => {
     try {
-      const { error } = await supabase.from('content_versions').insert({
+      // First update the content's version number
+      const newVersionNumber = (content.version_number || 0) + 1;
+      
+      const { error: contentError } = await supabase
+        .from('content')
+        .update({ 
+          version_number: newVersionNumber,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', content.id);
+
+      if (contentError) throw contentError;
+
+      // Then create the version record
+      const { error: versionError } = await supabase.from('content_versions').insert({
         content_id: content.id,
         user_id: content.user_id,
         content: content.content,
-        attachments: content.attachments,
-        tags: content.tags,
-        version_number: content.version_number,
+        attachments: content.attachments || [],
+        tags: content.tags || [],
+        version_number: newVersionNumber,
         comment
       });
 
-      if (error) throw error;
+      if (versionError) throw versionError;
       toast.success("Version saved successfully");
     } catch (error) {
       console.error("Error creating version:", error);
       toast.error("Failed to save version");
       throw error;
     }
+  };
+
+  const compareVersions = async (versionA: ContentVersion, versionB: ContentVersion) => {
+    return {
+      contentDiff: versionA.content !== versionB.content,
+      tagsDiff: JSON.stringify(versionA.tags) !== JSON.stringify(versionB.tags),
+      attachmentsDiff: JSON.stringify(versionA.attachments) !== JSON.stringify(versionB.attachments),
+      olderVersion: versionA.version_number < versionB.version_number ? versionA : versionB,
+      newerVersion: versionA.version_number > versionB.version_number ? versionA : versionB
+    };
   };
 
   const revertToVersion = async (version: ContentVersion) => {
@@ -98,6 +122,7 @@ export function useContentVersions(contentId: string | undefined) {
     versions,
     loading,
     createVersion,
-    revertToVersion
+    revertToVersion,
+    compareVersions
   };
 }
