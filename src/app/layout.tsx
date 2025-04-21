@@ -6,11 +6,27 @@ import { type Metadata } from "next";
 import { AuthProvider } from "@/lib/auth-context";
 import { Toaster } from "react-hot-toast";
 import Header from "@/components/Header";
+import {
+  AnalyticsTracker,
+  ErrorBoundaryClient,
+  DOMInspector,
+  Branding,
+} from "@/utils/creatr.scripts";
+import { GlobalErrorHandler } from "@/utils/global-error-handler";
 
 export const metadata: Metadata = {
   title: "Content Collector",
   description: "A beautiful content collection app",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
+};
+
+
+const ErrorBoundaryWrapper: React.FC<{ children: React.ReactNode }> = (
+  props,
+) => {
+  const ErrorBoundaryComponent =
+    ErrorBoundaryClient as unknown as React.ComponentType<any>;
+  return <ErrorBoundaryComponent {...props} />;
 };
 
 export default function RootLayout({
@@ -22,7 +38,14 @@ export default function RootLayout({
         <AuthProvider>
           <Header />
           <div className="pt-16">
+            <GlobalErrorHandler />
+        <DOMInspector>
+          <ErrorBoundaryWrapper>
             {children}
+            <Branding />
+          </ErrorBoundaryWrapper>
+          <AnalyticsTracker siteKey="${siteKey}" />
+        </DOMInspector>
           </div>
           <Toaster position="bottom-right" />
         </AuthProvider>

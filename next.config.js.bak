@@ -1,47 +1,24 @@
-
-      /** @type {import("next").NextConfig} */
-      const config = {
-        trailingSlash: true,
-        images: {
-          unoptimized: true,
-          remotePatterns: [
-            {
-              protocol: 'https',
-              hostname: '*',
-              pathname: '**',
-            },
-          ],
-        },
-        eslint: {
-          ignoreDuringBuilds: true,
-        },
-        typescript: {
-          ignoreBuildErrors: true,
-        },
-        webpack: (config, { isServer }) => {
-          if (!isServer) {
-            config.resolve.fallback = {
-              ...config.resolve.fallback,
-              fs: false,
-              net: false,
-              tls: false,
-              crypto: false,
-              path: false,
-              os: false,
-              http: false,
-              https: false,
-              stream: false,
-              util: false,
-              url: false,
-              querystring: false,
-              zlib: false,
-              buffer: false,
-              dns: false
-            };
-          }
-          config.stats = "verbose";
-          return config;
-        },
-        output: "export"
-      };
-      export default config;
+/** @type {import("next").NextConfig} */
+const config = {
+    trailingSlash: true,
+    images: {
+        unoptimized: true,
+        remotePatterns: [{
+            protocol: 'https',
+            hostname: '*',
+            pathname: '**',
+        }, ],
+    },
+    eslint: {
+        ignoreDuringBuilds: true,
+    },
+    typescript: {
+        ignoreBuildErrors: true,
+    },
+    missingSuspenseWithCSRBailout: false,
+    webpack: (config, { isServer }) => {
+        config.stats = "verbose";
+        return config;
+    },
+};
+export default config;
