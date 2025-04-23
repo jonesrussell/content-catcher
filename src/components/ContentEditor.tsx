@@ -225,7 +225,26 @@ export default function ContentEditor() {
                   disabled={!user}
                 />
               ) : (
-                <p className="text-primary/30 text-lg font-medium">Title will appear here...</p>
+                <div className="space-y-6 transition-all duration-500">
+                  <div className="flex flex-col gap-2">
+                    <label className="text-sm font-medium text-primary/30">Title</label>
+                    <input
+                      type="text"
+                      placeholder="Enter a title..."
+                      className="w-full px-3 py-2 bg-white/50 border border-primary/10 rounded-lg text-primary/30 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                      disabled
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      className="px-3 py-1.5 text-sm font-medium text-primary/30 bg-primary/5 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                      disabled
+                    >
+                      Generate Title
+                    </button>
+                    <span className="text-xs text-primary/30">Type more content to enable title generation</span>
+                  </div>
+                </div>
               )}
             </div>
           </div>
@@ -271,35 +290,59 @@ export default function ContentEditor() {
 
         {/* Right Column */}
         <div className={`space-y-6 transition-all duration-500`}>
-
-          <AnimatePresence>
-            {content.length >= 100 && (
-              <AIFeaturesSection
-                content={content}
-                title={title}
-                setTitle={setTitle}
-                isGeneratingTitle={isGeneratingTitle}
-                setIsGeneratingTitle={setIsGeneratingTitle}
-                tags={tags}
-                setTags={setTags}
-                tagSuggestions={tagSuggestions}
-                tagSuggestionsLoading={tagSuggestionsLoading}
-                tagStats={tagStats}
-                language={language}
-                suggestions={suggestions}
-                suggestionsLoading={suggestionsLoading}
-                setSuggestions={setSuggestions}
-                setTagSuggestions={setTagSuggestions}
-                onApplySuggestion={(newContent: string) => {
-                  setContent(newContent);
-                  pushContent(newContent);
-                  setSuggestions([]);
-                }}
-                textareaRef={textareaRef}
-                disabled={!user}
-              />
-            )}
-          </AnimatePresence>
+          {content.length >= 100 ? (
+            <AIFeaturesSection
+              content={content}
+              title={title}
+              setTitle={setTitle}
+              isGeneratingTitle={isGeneratingTitle}
+              setIsGeneratingTitle={setIsGeneratingTitle}
+              tags={tags}
+              setTags={setTags}
+              tagSuggestions={tagSuggestions}
+              tagSuggestionsLoading={tagSuggestionsLoading}
+              tagStats={tagStats}
+              language={language}
+              suggestions={suggestions}
+              suggestionsLoading={suggestionsLoading}
+              setSuggestions={setSuggestions}
+              setTagSuggestions={setTagSuggestions}
+              onApplySuggestion={(newContent: string) => {
+                setContent(newContent);
+                pushContent(newContent);
+                setSuggestions([]);
+              }}
+              textareaRef={textareaRef}
+              disabled={!user}
+            />
+          ) : (
+            <div className="space-y-6">
+              <div className="bg-white/20 backdrop-blur-sm rounded-xl border-2 border-primary/5 p-4 opacity-50 cursor-not-allowed">
+                <h3 className="text-lg font-medium text-primary/20 mb-4">AI Features</h3>
+                <div className="space-y-4">
+                  <div className="flex flex-col gap-2">
+                    <label className="text-sm font-medium text-primary/20">Tags</label>
+                    <div className="flex flex-wrap gap-2 p-2 bg-white/30 border border-primary/5 rounded-lg min-h-[40px]">
+                      <span className="text-xs text-primary/20">Tags will appear here...</span>
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <label className="text-sm font-medium text-primary/20">AI Suggestions</label>
+                    <div className="p-4 bg-white/30 border border-primary/5 rounded-lg">
+                      <p className="text-sm text-primary/20">Type more content to enable AI suggestions</p>
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <label className="text-sm font-medium text-primary/20">Content Analysis</label>
+                    <div className="p-4 bg-white/30 border border-primary/5 rounded-lg">
+                      <p className="text-sm text-primary/20">Content analysis will appear here...</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="absolute inset-0 bg-gradient-to-br from-transparent to-white/5 rounded-xl pointer-events-none" />
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
