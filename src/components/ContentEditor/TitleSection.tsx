@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import axios from "axios";
 import { toast } from "react-hot-toast";
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useRef } from "react";
 import { TitleGenerator } from "./TitleGenerator";
 
 interface TitleSectionProps {
@@ -23,6 +23,8 @@ export function TitleSection({
   setIsGeneratingTitle,
   disabled
 }: TitleSectionProps) {
+  const hasGeneratedInitialTitle = useRef(false);
+
   const generateTitle = useCallback(async () => {
     if (!content || content.length < 100) return;
     
@@ -58,7 +60,11 @@ export function TitleSection({
       }
       
       setTitle(parsed.title);
-      toast.success("Title generated successfully!");
+      if (!hasGeneratedInitialTitle.current) {
+        hasGeneratedInitialTitle.current = true;
+      } else {
+        toast.success("Title generated successfully!");
+      }
     } catch (error) {
       console.error("Error generating title:", error);
       toast.error(error instanceof Error ? error.message : "Failed to generate title");
@@ -69,7 +75,7 @@ export function TitleSection({
 
   useEffect(() => {
     // Auto-generate title when content is long enough and no title exists
-    if (content.length >= 100 && !title) {
+    if (content.length >= 100 && !title && !hasGeneratedInitialTitle.current) {
       generateTitle();
     }
   }, [content, generateTitle, title]);
