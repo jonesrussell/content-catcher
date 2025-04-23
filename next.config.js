@@ -20,6 +20,20 @@ const config = {
   watchOptions: {
     pollIntervalMs: 10000,
   },
+  // Turbopack configuration
+  turbopack: {
+    // Configure file extensions to resolve
+    resolveExtensions: ['.tsx', '.ts', '.jsx', '.js', '.mjs', '.json'],
+    // Configure rules for specific file types
+    rules: {
+      // Example: Configure SVG files to be processed by @svgr/webpack
+      '*.svg': {
+        loaders: ['@svgr/webpack'],
+        as: '*.js',
+      },
+    },
+  },
+  // Keep Webpack configuration for backward compatibility
   webpack: (config, { isServer }) => {
     config.stats = "verbose";
     if (!isServer) {
