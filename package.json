@@ -84,11 +84,14 @@
   "ct3aMetadata": {
     "initVersion": "7.38.1"
   },
-  "packageManager": "pnpm@9.6.0",
+  "packageManager": "bun@1.0.0",
   "overrides": {
     "drizzle-orm": "0.41.0-29155cc"
   },
   "devDependencies": {
     "@svgr/webpack": "^8.1.0"
-  }
+  },
+  "trustedDependencies": [
+    "unrs-resolver"
+  ]
 }
