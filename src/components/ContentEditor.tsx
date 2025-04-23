@@ -248,16 +248,63 @@ export default function ContentEditor() {
               )}
             </div>
           </div>
-          
-          <MainEditor
-            content={content}
-            setContent={setContent}
-            pushContent={pushContent}
-            handleKeyDown={handleKeyDown}
-            user={user}
-            textareaRef={textareaRef}
-            contentId={undefined} // Will be set after content is saved
-          />
+
+          {/* AI Features Section */}
+          <div className={`space-y-6 transition-all duration-500 ${content.length >= 100 ? 'opacity-100' : 'opacity-50'}`}>
+            {content.length >= 100 ? (
+              <AIFeaturesSection
+                content={content}
+                title={title}
+                setTitle={setTitle}
+                isGeneratingTitle={isGeneratingTitle}
+                setIsGeneratingTitle={setIsGeneratingTitle}
+                tags={tags}
+                setTags={setTags}
+                tagSuggestions={tagSuggestions}
+                tagSuggestionsLoading={tagSuggestionsLoading}
+                tagStats={tagStats}
+                language={language}
+                suggestions={suggestions}
+                suggestionsLoading={suggestionsLoading}
+                setSuggestions={setSuggestions}
+                setTagSuggestions={setTagSuggestions}
+                onApplySuggestion={(newContent: string) => {
+                  setContent(newContent);
+                  pushContent(newContent);
+                  setSuggestions([]);
+                }}
+                textareaRef={textareaRef}
+                disabled={!user}
+              />
+            ) : (
+              <div className="space-y-6">
+                <div className="bg-white/20 backdrop-blur-sm rounded-xl border-2 border-primary/5 p-4 opacity-50 cursor-not-allowed">
+                  <h3 className="text-lg font-medium text-primary/20 mb-4">AI Features</h3>
+                  <div className="space-y-4">
+                    <div className="flex flex-col gap-2">
+                      <label className="text-sm font-medium text-primary/20">Tags</label>
+                      <div className="flex flex-wrap gap-2 p-2 bg-white/30 border border-primary/5 rounded-lg min-h-[40px]">
+                        <span className="text-xs text-primary/20">Tags will appear here...</span>
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <label className="text-sm font-medium text-primary/20">AI Suggestions</label>
+                      <div className="p-4 bg-white/30 border border-primary/5 rounded-lg">
+                        <p className="text-sm text-primary/20">Type more content to enable AI suggestions</p>
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <label className="text-sm font-medium text-primary/20">Content Analysis</label>
+                      <div className="p-4 bg-white/30 border border-primary/5 rounded-lg">
+                        <p className="text-sm text-primary/20">Content analysis will appear here...</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="absolute inset-0 bg-gradient-to-br from-transparent to-white/5 rounded-xl pointer-events-none" />
+                </div>
+              </div>
+            )}
+          </div>
 
           <input
             type="file"
@@ -266,83 +313,63 @@ export default function ContentEditor() {
             className="hidden"
             accept="image/*,.pdf,.doc,.docx"
           />
-
-          <EditorControls
-            user={user}
-            content={content}
-            attachments={attachments}
-            isUploading={isUploading}
-            isSaving={isSaving}
-            canUndo={canUndo}
-            canRedo={canRedo}
-            onUpload={() => fileInputRef.current?.click()}
-            onSave={handleSave}
-            onUndo={() => {
-              const previousContent = undo();
-              setContent(previousContent);
-            }}
-            onRedo={() => {
-              const nextContent = redo();
-              setContent(nextContent);
-            }}
-          />
         </div>
 
-        {/* Right Column */}
-        <div className={`space-y-6 transition-all duration-500`}>
-          {content.length >= 100 ? (
-            <AIFeaturesSection
-              content={content}
-              title={title}
-              setTitle={setTitle}
-              isGeneratingTitle={isGeneratingTitle}
-              setIsGeneratingTitle={setIsGeneratingTitle}
-              tags={tags}
-              setTags={setTags}
-              tagSuggestions={tagSuggestions}
-              tagSuggestionsLoading={tagSuggestionsLoading}
-              tagStats={tagStats}
-              language={language}
-              suggestions={suggestions}
-              suggestionsLoading={suggestionsLoading}
-              setSuggestions={setSuggestions}
-              setTagSuggestions={setTagSuggestions}
-              onApplySuggestion={(newContent: string) => {
-                setContent(newContent);
-                pushContent(newContent);
-                setSuggestions([]);
-              }}
-              textareaRef={textareaRef}
-              disabled={!user}
-            />
-          ) : (
-            <div className="space-y-6">
-              <div className="bg-white/20 backdrop-blur-sm rounded-xl border-2 border-primary/5 p-4 opacity-50 cursor-not-allowed">
-                <h3 className="text-lg font-medium text-primary/20 mb-4">AI Features</h3>
-                <div className="space-y-4">
-                  <div className="flex flex-col gap-2">
-                    <label className="text-sm font-medium text-primary/20">Tags</label>
-                    <div className="flex flex-wrap gap-2 p-2 bg-white/30 border border-primary/5 rounded-lg min-h-[40px]">
-                      <span className="text-xs text-primary/20">Tags will appear here...</span>
-                    </div>
-                  </div>
-                  <div className="flex flex-col gap-2">
-                    <label className="text-sm font-medium text-primary/20">AI Suggestions</label>
-                    <div className="p-4 bg-white/30 border border-primary/5 rounded-lg">
-                      <p className="text-sm text-primary/20">Type more content to enable AI suggestions</p>
-                    </div>
-                  </div>
-                  <div className="flex flex-col gap-2">
-                    <label className="text-sm font-medium text-primary/20">Content Analysis</label>
-                    <div className="p-4 bg-white/30 border border-primary/5 rounded-lg">
-                      <p className="text-sm text-primary/20">Content analysis will appear here...</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="absolute inset-0 bg-gradient-to-br from-transparent to-white/5 rounded-xl pointer-events-none" />
-              </div>
+        {/* Right Column - Textarea and Controls */}
+        <div className="relative w-full flex flex-col gap-4">
+          <MainEditor
+            content={content}
+            setContent={setContent}
+            pushContent={pushContent}
+            handleKeyDown={handleKeyDown}
+            user={user}
+            textareaRef={textareaRef}
+            contentId={undefined}
+          />
+          <div className="flex items-center gap-2 md:gap-3">
+            <div className="flex items-center gap-2">
+              <button
+                disabled={!canUndo}
+                onClick={() => {
+                  const previousContent = undo();
+                  setContent(previousContent);
+                }}
+                className="p-2 bg-white text-primary rounded-lg shadow-lg hover:bg-white/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Undo (Ctrl+Z)"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 7v6h6"></path>
+                  <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"></path>
+                </svg>
+              </button>
+              <button
+                disabled={!canRedo}
+                onClick={() => {
+                  const nextContent = redo();
+                  setContent(nextContent);
+                }}
+                className="p-2 bg-white text-primary rounded-lg shadow-lg hover:bg-white/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Redo (Ctrl+Y)"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 7v6h-6"></path>
+                  <path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13"></path>
+                </svg>
+              </button>
             </div>
-          )}
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
+              className="px-4 py-2 bg-white text-primary rounded-lg shadow-lg hover:bg-white/90 transition-colors flex items-center gap-2 disabled:opacity-50"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-upload w-4 h-4">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" x2="12" y1="3" y2="15"></line>
+              </svg>
+              Upload
+            </button>
+          </div>
         </div>
       </div>
     </div>
