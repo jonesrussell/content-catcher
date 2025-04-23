@@ -1,66 +1,30 @@
 "use client";
 
 import { useState } from "react";
-import axios from "axios";
 import { toast } from "react-hot-toast";
 
 interface TitleGeneratorProps {
   content: string;
   onTitleGenerated: (title: string) => void;
+  isGenerating: boolean;
+  setIsGenerating: (loading: boolean) => void;
 }
 
-export function TitleGenerator({ content, onTitleGenerated }: TitleGeneratorProps) {
-  const [isGenerating, setIsGenerating] = useState(false);
-
-  const generateTitle = async () => {
-    if (!content || content.length < 50) {
-      toast.error("Please add more content first (at least 50 characters)");
-      return;
-    }
-    setIsGenerating(true);
-    try {
-      const response = await axios.post(
-        "https://openai.getcreatr.xyz/v1/chat/completions",
-        {
-          messages: [
-            {
-              role: "user",
-              content: `You are a professional content writer. Generate a concise, engaging, and descriptive title for this content. The title should be between 4-10 words and capture the main theme. Use this json schema: {
-                "title": "string"
-              }. Content: ${content.slice(0, 1000)}`
-            }
-          ],
-          jsonMode: true
-        },
-        {
-          headers: {
-            "x-api-key": "67d49aba0baa5ec70723c474",
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      
-      const jsonContent = response.data?.choices?.[0]?.message?.content;
-      if (!jsonContent) throw new Error('Invalid API response');
-      
-      const parsed = JSON.parse(jsonContent);
-      if (!parsed?.title || typeof parsed.title !== 'string') {
-        throw new Error('Invalid title format received');
-      }
-      
-      onTitleGenerated(parsed.title);
-      toast.success("Title generated successfully!");
-    } catch (error) {
-      console.error("Error generating title:", error);
-      toast.error(error instanceof Error ? error.message : "Failed to generate title");
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
+export function TitleGenerator({ 
+  content, 
+  onTitleGenerated, 
+  isGenerating,
+  setIsGenerating 
+}: TitleGeneratorProps) {
   return (
     <button
-      onClick={generateTitle}
+      onClick={() => {
+        if (!content || content.length < 50) {
+          toast.error("Please add more content first (at least 50 characters)");
+          return;
+        }
+        onTitleGenerated(content);
+      }}
       className={`absolute right-4 top-1/2 -translate-y-1/2 px-4 py-2 
         bg-primary text-white rounded-lg text-sm hover:bg-primary/90 
         transition-all duration-200 flex items-center gap-2

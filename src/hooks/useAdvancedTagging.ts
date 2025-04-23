@@ -95,6 +95,12 @@ export function useAdvancedTagging(content: string) {
               model: "gpt-4",
               temperature: 0.7,
               max_tokens: 1000,
+            },
+            {
+              headers: {
+                "x-api-key": process.env.NEXT_PUBLIC_OPENAI_API_KEY,
+                "Content-Type": "application/json",
+              },
             }
           ),
           new Promise((_, reject) =>
