@@ -17,9 +17,6 @@ const config = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  watchOptions: {
-    pollIntervalMs: 10000,
-  },
   // Turbopack configuration
   turbopack: {
     // Configure file extensions to resolve
