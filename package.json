@@ -90,7 +90,9 @@
     "drizzle-orm": "0.41.0-29155cc"
   },
   "devDependencies": {
-    "@svgr/webpack": "^8.1.0"
+    "@svgr/webpack": "^8.1.0",
+    "@swc/jest": "^0.2.38",
+    "jest": "^29.7.0"
   },
   "trustedDependencies": [
     "unrs-resolver"
