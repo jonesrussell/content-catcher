@@ -8,6 +8,9 @@ import importPlugin from 'eslint-plugin-import';
 export default [
   eslint.configs.recommended,
   {
+    ignores: ['**/.next/**/*']
+  },
+  {
     files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
     languageOptions: {
       parser: tsParser,
@@ -49,7 +52,17 @@ export default [
         ReactDiffViewer: 'readonly',
         Content: 'readonly',
         ContentVersion: 'readonly',
-        contentId: 'readonly'
+        contentId: 'readonly',
+        // Vitest globals
+        global: 'readonly',
+        vi: 'readonly',
+        describe: 'readonly',
+        it: 'readonly',
+        expect: 'readonly',
+        beforeEach: 'readonly',
+        afterEach: 'readonly',
+        beforeAll: 'readonly',
+        afterAll: 'readonly'
       }
     },
     plugins: {
