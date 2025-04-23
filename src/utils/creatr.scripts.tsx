@@ -246,48 +246,6 @@ export class ErrorBoundaryClient extends React.Component<
 }
 
 /******************
- * Branding
- ******************/
-export function Branding() {
-	const [isVisible, setIsVisible] = useState(true);
-
-	useEffect(() => {
-		// Handle incoming messages
-		const handleMessage = (event: MessageEvent) => {
-			if (event.data.type === "TOGGLE_BRANDING") {
-				setIsVisible(event.data.visible);
-			}
-		};
-
-		// Check if running in iframe
-		const isInIframe = window !== window.parent;
-		if (isInIframe) {
-			setIsVisible(false);
-		}
-
-		// Add message listener
-		window.addEventListener("message", handleMessage);
-
-		// Cleanup
-		return () => window.removeEventListener("message", handleMessage);
-	}, []);
-
-	if (!isVisible) return null;
-
-	return (
-		<a
-			href="https://getcreatr.com"
-			target="_blank"
-			rel="noopener noreferrer"
-			className="group fixed bottom-4 right-4 z-50 flex items-center rounded-md bg-black/90 px-2.5 py-1.5 font-sans text-xs text-white shadow-lg backdrop-blur-sm transition-all duration-300 ease-in-out hover:scale-105 hover:bg-black hover:shadow-xl"
-		>
-			<span className="mr-1.5">Powered by</span>
-			<span className="font-semibold">Creatr</span>
-		</a>
-	);
-}
-
-/******************
  * DOM Inspector
  ******************/
 interface ElementMetadata {

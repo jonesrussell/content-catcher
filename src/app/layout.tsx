@@ -9,7 +9,6 @@ import Header from "@/components/Header";
 import {
   ErrorBoundaryClient,
   DOMInspector,
-  Branding,
 } from "@/utils/creatr.scripts";
 import { GlobalErrorHandler } from "@/utils/global-error-handler";
 
@@ -40,7 +39,6 @@ export default function RootLayout({
             <DOMInspector>
               <ErrorBoundaryWrapper>
                 {children}
-                <Branding />
               </ErrorBoundaryWrapper>
             </DOMInspector>
           </div>
