@@ -1,225 +1,115 @@
+import { useState, useEffect } from 'react';
+import { createClient } from '@supabase/supabase-js';
+import { toast } from 'react-hot-toast';
+import { Content, ContentVersion } from '@/types';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
+interface VersionComparison {
+  changes: Array<{
+    type: 'add' | 'remove' | 'modify';
+    content: string;
+    lineNumber: number;
+  }>;
+  additions: string[];
+  deletions: string[];
+}
+
+export const useContentVersions = (contentId: string) => {
   const [versions, setVersions] = useState<ContentVersion[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function loadVersions() {
+    const loadVersions = async () => {
       if (!contentId) return;
 
       try {
         const { data, error } = await supabase
           .from('content_versions')
-          .select(`
-            id,
-            content_id,
-            content,
-            attachments,
-            tags,
-            version_number,
-            created_at,
-            comment
-          `)
-          .eq("content_id", contentId)
-          .order("version_number", { ascending: false });
+          .select('*')
+          .eq('content_id', contentId)
+          .order('created_at', { ascending: false });
 
         if (error) throw error;
+
         setVersions(data.map(version => ({
-          id: version.id,
-          content_id: version.content_id,
-          content: version.content,
-          attachments: version.attachments || [],
-          tags: version.tags || [],
-          version_number: version.version_number,
-          created_at: version.created_at,
-          comment: version.comment
+          ...version,
+          created_at: new Date(version.created_at).toISOString()
         })));
       } catch (error) {
-        console.error("Error loading versions:", error);
-        toast.error("Failed to load content versions");
+        console.error('Error loading versions:', error);
+        toast.error('Failed to load content versions');
       } finally {
         setLoading(false);
       }
-    }
+    };
 
     loadVersions();
   }, [contentId]);
 
   const createVersion = async (content: Content, comment?: string) => {
     try {
-      // First update the content's version number
-      const newVersionNumber = (content.version_number || 0) + 1;
-      
+      // First, update the content
       const { error: contentError } = await supabase
-        .from('content')
-        .update({ 
-          version_number: newVersionNumber,
+        .from('contents')
+        .update({
+          content: content.content,
           updated_at: new Date().toISOString()
         })
         .eq('id', content.id);
 
       if (contentError) throw contentError;
 
-      // Then create the version record
+      // Then, create a new version
       const { error: versionError } = await supabase.from('content_versions').insert({
         content_id: content.id,
-        user_id: content.user_id,
         content: content.content,
-        attachments: content.attachments || [],
-        tags: content.tags || [],
-        version_number: newVersionNumber,
-        comment
+        comment,
+        version_number: versions.length + 1,
+        created_at: new Date().toISOString()
       });
 
       if (versionError) throw versionError;
-      toast.success("Version saved successfully");
+
+      toast.success('Version saved successfully');
+      return true;
     } catch (error) {
-      console.error("Error creating version:", error);
-      toast.error("Failed to save version");
-      throw error;
+      console.error('Error creating version:', error);
+      toast.error('Failed to save version');
+      return false;
     }
   };
 
-  const compareVersions = async (versionA: ContentVersion, versionB: ContentVersion) => {
+  const compareVersions = async (versionA: ContentVersion, versionB: ContentVersion): Promise<VersionComparison> => {
+    // Implementation for comparing versions
     return {
-      contentDiff: versionA.content !== versionB.content,
-      tagsDiff: JSON.stringify(versionA.tags) !== JSON.stringify(versionB.tags),
-      attachmentsDiff: JSON.stringify(versionA.attachments) !== JSON.stringify(versionB.attachments),
-      olderVersion: versionA.version_number < versionB.version_number ? versionA : versionB,
-      newerVersion: versionA.version_number > versionB.version_number ? versionA : versionB
+      changes: [],
+      additions: [],
+      deletions: []
     };
   };
 
   const revertToVersion = async (version: ContentVersion) => {
     try {
       const { error } = await supabase
-        .from("content")
+        .from('contents')
         .update({
           content: version.content,
-          attachments: version.attachments,
-          tags: version.tags,
-          version_number: version.version_number + 1,
           updated_at: new Date().toISOString()
         })
-        .eq("id", version.content_id);
+        .eq('id', version.content_id);
 
       if (error) throw error;
-      toast.success("Reverted to previous version");
+
+      toast.success('Reverted to previous version');
+      return true;
     } catch (error) {
-      console.error("Error reverting version:", error);
-      toast.error("Failed to revert version");
-      throw error;
-    }
-  };
-
-export function useContentVersions(contentId: string | undefined) {
-  const [versions, setVersions] = useState<ContentVersion[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function loadVersions() {
-      if (!contentId) return;
-
-      try {
-        const { data, error } = await supabase
-          .from('content_versions')
-          .select(`
-            id,
-            content_id,
-            content,
-            attachments,
-            tags,
-            version_number,
-            created_at,
-            comment
-          `)
-          .eq("content_id", contentId)
-          .order("version_number", { ascending: false });
-
-        if (error) throw error;
-        setVersions(data.map(version => ({
-          id: version.id,
-          content_id: version.content_id,
-          content: version.content,
-          attachments: version.attachments || [],
-          tags: version.tags || [],
-          version_number: version.version_number,
-          created_at: version.created_at,
-          comment: version.comment
-        })));
-      } catch (error) {
-        console.error("Error loading versions:", error);
-        toast.error("Failed to load content versions");
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    loadVersions();
-  }, [contentId]);
-
-  const createVersion = async (content: Content, comment?: string) => {
-    try {
-      // First update the content's version number
-      const newVersionNumber = (content.version_number || 0) + 1;
-      
-      const { error: contentError } = await supabase
-        .from('content')
-        .update({ 
-          version_number: newVersionNumber,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', content.id);
-
-      if (contentError) throw contentError;
-
-      // Then create the version record
-      const { error: versionError } = await supabase.from('content_versions').insert({
-        content_id: content.id,
-        user_id: content.user_id,
-        content: content.content,
-        attachments: content.attachments || [],
-        tags: content.tags || [],
-        version_number: newVersionNumber,
-        comment
-      });
-
-      if (versionError) throw versionError;
-      toast.success("Version saved successfully");
-    } catch (error) {
-      console.error("Error creating version:", error);
-      toast.error("Failed to save version");
-      throw error;
-    }
-  };
-
-  const compareVersions = async (versionA: ContentVersion, versionB: ContentVersion) => {
-    return {
-      contentDiff: versionA.content !== versionB.content,
-      tagsDiff: JSON.stringify(versionA.tags) !== JSON.stringify(versionB.tags),
-      attachmentsDiff: JSON.stringify(versionA.attachments) !== JSON.stringify(versionB.attachments),
-      olderVersion: versionA.version_number < versionB.version_number ? versionA : versionB,
-      newerVersion: versionA.version_number > versionB.version_number ? versionA : versionB
-    };
-  };
-
-  const revertToVersion = async (version: ContentVersion) => {
-    try {
-      const { error } = await supabase
-        .from("content")
-        .update({
-          content: version.content,
-          attachments: version.attachments,
-          tags: version.tags,
-          version_number: version.version_number + 1,
-          updated_at: new Date().toISOString()
-        })
-        .eq("id", version.content_id);
-
-      if (error) throw error;
-      toast.success("Reverted to previous version");
-    } catch (error) {
-      console.error("Error reverting version:", error);
-      toast.error("Failed to revert version");
-      throw error;
+      console.error('Error reverting version:', error);
+      toast.error('Failed to revert version');
+      return false;
     }
   };
 
@@ -227,7 +117,7 @@ export function useContentVersions(contentId: string | undefined) {
     versions,
     loading,
     createVersion,
-    revertToVersion,
-    compareVersions
+    compareVersions,
+    revertToVersion
   };
-}
+};

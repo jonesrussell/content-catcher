@@ -4,18 +4,10 @@ import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { supabase } from "@/lib/supabase";
 import { useContentVersions } from "@/hooks/useContentVersions";
-import type { Content } from "@/hooks/useContent";
+import { Content, ContentVersion } from "@/types";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, History, RotateCcw } from "lucide-react";
 import { DiffViewer } from "./ContentEditor/DiffViewer";
-
-interface ContentVersion {
-  id: string;
-  version_number: number;
-  created_at: string;
-  comment?: string;
-  content: string;
-}
 
 interface EditContentModalProps {
   content: Content;
@@ -31,14 +23,9 @@ export default function EditContentModal({ content, isOpen, onClose }: EditConte
     oldVersion: ContentVersion;
     newVersion: ContentVersion;
   } | null>(null);
-  const { versions, loading: versionsLoading, createVersion, revertToVersion } = useContentVersions(content?.id);
+  const { versions, loading: versionsLoading, createVersion, revertToVersion } = useContentVersions(content.id);
 
   const handleSave = async () => {
-    if (!content.content.trim()) {
-      toast.error("Cannot save empty content");
-      return;
-    }
-
     try {
       const { error: updateError } = await supabase
         .from('content')
@@ -52,29 +39,24 @@ export default function EditContentModal({ content, isOpen, onClose }: EditConte
         .eq('id', content.id);
 
       if (updateError) {
-        console.error("Update error:", updateError);
-        if (updateError.code === "23505") {
-          toast.error("This content already exists");
-        } else if (updateError.code === "23503") {
-          toast.error("User profile not found. Please try logging in again.");
+        console.error('Update error:', updateError);
+        if (updateError.code === '23505') {
+          toast.error('This content already exists');
+        } else if (updateError.code === '23503') {
+          toast.error('User profile not found. Please try logging in again.');
         } else {
           toast.error(`Failed to update: ${updateError.message}`);
         }
         return;
       }
-      
-      try {
-        await createVersion(content, versionComment);
-        toast.success('Content updated and version saved');
-        onClose();
-        window.location.reload();
-      } catch (versionError) {
-        console.error("Version creation error:", versionError);
-        toast.error("Content updated but failed to save version");
-      }
+
+      await createVersion(content, versionComment);
+      setVersionComment('');
+      onClose();
+      window.location.reload();
     } catch (error) {
-      console.error("Save error:", error);
-      toast.error(error instanceof Error ? error.message : "Failed to update content");
+      console.error('Error saving content:', error);
+      toast.error('Failed to update content');
     }
   };
 
@@ -133,8 +115,7 @@ export default function EditContentModal({ content, isOpen, onClose }: EditConte
         <textarea
           value={content.content}
           onChange={(e) => {
-            const newContent = { ...content, content: e.target.value };
-            Object.assign(content, newContent);
+            content.content = e.target.value;
           }}
           className="w-full p-4 border rounded-lg min-h-[200px] mb-4 focus:outline-none focus:ring-2 focus:ring-primary/20"
         />

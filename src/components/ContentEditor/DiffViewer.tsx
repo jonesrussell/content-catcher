@@ -1,3 +1,7 @@
+import { motion } from 'framer-motion';
+import ReactDiffViewer from 'react-diff-viewer';
+import { ContentVersion } from '@/types';
+
 interface DiffViewerProps {
   oldVersion: ContentVersion;
   newVersion: ContentVersion;
@@ -80,8 +84,8 @@ export function DiffViewer({ oldVersion, newVersion, onClose }: DiffViewerProps)
                 <div className="flex flex-wrap gap-2">
                   {oldVersion.tags?.map((tag, index) => (
                     <span
-                      key={index}
-                      className="px-2 py-1 bg-red-50 text-red-700 rounded-full text-xs"
+                      key={`old-${index}`}
+                      className="bg-gray-100 text-gray-800 px-2 py-1 rounded text-sm"
                     >
                       {tag}
                     </span>
@@ -93,8 +97,8 @@ export function DiffViewer({ oldVersion, newVersion, onClose }: DiffViewerProps)
                 <div className="flex flex-wrap gap-2">
                   {newVersion.tags?.map((tag, index) => (
                     <span
-                      key={index}
-                      className="px-2 py-1 bg-green-50 text-green-700 rounded-full text-xs"
+                      key={`new-${index}`}
+                      className="bg-gray-100 text-gray-800 px-2 py-1 rounded text-sm"
                     >
                       {tag}
                     </span>
