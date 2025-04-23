@@ -84,7 +84,7 @@
   "ct3aMetadata": {
     "initVersion": "7.38.1"
   },
-  "packageManager": "bun@1.0.0",
+  "packageManager": "bun@1.2.10",
   "overrides": {
     "drizzle-orm": "0.41.0-29155cc"
   },
