@@ -89,12 +89,13 @@ export function useAdvancedTagging(content: string) {
                         "explanation": "string"
                       }
                     ]
-                  }`,
-                },
+                  }. Return ONLY valid JSON, no additional text or explanation. Content to analyze: ${content.slice(0, 1000)}`
+                }
               ],
               model: "gpt-4",
               temperature: 0.7,
               max_tokens: 1000,
+              response_format: { type: "json_object" }
             },
             {
               headers: {
@@ -108,7 +109,22 @@ export function useAdvancedTagging(content: string) {
           ),
         ]);
 
-        const aiTags = JSON.parse(response.data.choices[0].message.content).suggestions;
+        const jsonContent = response.data.choices[0].message.content;
+        if (!jsonContent) throw new Error('Invalid API response');
+        
+        let parsed;
+        try {
+          parsed = JSON.parse(jsonContent);
+        } catch (e) {
+          console.error("Failed to parse JSON:", jsonContent);
+          throw new Error("Invalid JSON response from API");
+        }
+
+        if (!parsed?.suggestions || !Array.isArray(parsed.suggestions)) {
+          throw new Error('Invalid suggestions format received');
+        }
+
+        const aiTags = parsed.suggestions;
 
         // Combine and deduplicate tags
         const allTags = [...nlpTags, ...aiTags];
