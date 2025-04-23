@@ -17,6 +17,9 @@ db.sqlite
 /.next/
 /out/
 next-env.d.ts
+.next-internal/
+.config/
+@supabase/
 
 # production
 /build
