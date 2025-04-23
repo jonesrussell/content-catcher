@@ -16,6 +16,12 @@ export const metadata: Metadata = {
   title: "Content Collector",
   description: "A beautiful content collection app",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+  },
 };
 
 const ErrorBoundaryWrapper: React.FC<{ children: React.ReactNode }> = (
@@ -31,17 +37,17 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${GeistSans.variable}`}>
-      <body>
+      <body className="min-h-screen flex flex-col">
         <AuthProvider>
           <Header />
-          <div className="pt-16">
+          <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-8">
             <GlobalErrorHandler />
             <DOMInspector>
               <ErrorBoundaryWrapper>
                 {children}
               </ErrorBoundaryWrapper>
             </DOMInspector>
-          </div>
+          </main>
           <Toaster position="bottom-right" />
         </AuthProvider>
       </body>
