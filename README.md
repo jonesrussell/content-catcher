@@ -1,4 +1,4 @@
-# Content Forge
+# Content Catcher
 
 A modern web application built with Next.js, TypeScript, and Supabase for content management and collaboration.
 
@@ -37,8 +37,8 @@ A modern web application built with Next.js, TypeScript, and Supabase for conten
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/content-forge-5.git
-cd content-forge-5
+git clone https://github.com/jonesrussell/content-catcher.git
+cd content-catcher
 ```
 
 2. Install dependencies:
