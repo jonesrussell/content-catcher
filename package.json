@@ -87,5 +87,8 @@
   "packageManager": "pnpm@9.6.0",
   "overrides": {
     "drizzle-orm": "0.41.0-29155cc"
+  },
+  "devDependencies": {
+    "@svgr/webpack": "^8.1.0"
   }
 }
