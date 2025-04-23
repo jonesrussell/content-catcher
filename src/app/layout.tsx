@@ -16,12 +16,13 @@ export const metadata: Metadata = {
   title: "Content Collector",
   description: "A beautiful content collection app",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
-  },
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 const ErrorBoundaryWrapper: React.FC<{ children: React.ReactNode }> = (
