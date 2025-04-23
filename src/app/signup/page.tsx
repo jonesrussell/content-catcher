@@ -19,12 +19,20 @@ export default function SignupPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      await signUp(email, password);
-      await signIn(email, password);
-      toast.success("Account created successfully!");
-      router.push("/");
-    } catch (error) {
-      toast.error("Failed to create account");
+      const { error } = await signUp(email, password);
+      if (error) {
+        if (error.message.includes("email_not_confirmed")) {
+          toast.success("Please check your email to confirm your account");
+          router.push("/login");
+        } else {
+          throw error;
+        }
+      } else {
+        toast.success("Account created successfully! Please check your email to confirm your account");
+        router.push("/login");
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Failed to create account");
     } finally {
       setLoading(false);
     }
@@ -52,8 +60,8 @@ export default function SignupPage() {
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-3 rounded-lg border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
               required
-              autoComplete="username"
-              name="username"
+              autoComplete="email"
+              name="email"
             />
           </div>
           <div>
@@ -67,7 +75,7 @@ export default function SignupPage() {
               className="w-full px-4 py-3 rounded-lg border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
               required
               autoComplete="new-password"
-              name="password"
+              name="new-password"
             />
           </div>
           <button
