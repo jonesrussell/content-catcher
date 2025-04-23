@@ -27,10 +27,20 @@ export default function LoginPage() {
       router.push("/");
     } catch (error: any) {
       let errorMessage = "Failed to login";
-      if (error.message.includes("email_not_confirmed")) {
-        errorMessage = "Please confirm your email before logging in. Check your inbox for the confirmation link.";
-      } else if (error.message.includes("Invalid login credentials")) {
-        errorMessage = "Invalid email or password. Please try again.";
+      if (error.message) {
+        if (error.message.includes("email_not_confirmed")) {
+          errorMessage = "Please confirm your email before logging in. Check your inbox for the confirmation link.";
+        } else if (error.message.includes("Invalid login credentials")) {
+          errorMessage = "Invalid email or password. Please try again.";
+        } else if (error.message.includes("Email not found")) {
+          errorMessage = "No account found with this email. Please sign up first.";
+        } else if (error.message.includes("Invalid email")) {
+          errorMessage = "Please enter a valid email address.";
+        } else if (error.message.includes("Password is too weak")) {
+          errorMessage = "The password you entered is too weak. Please try again.";
+        } else {
+          errorMessage = error.message;
+        }
       }
       setError(errorMessage);
       toast.error(errorMessage, { duration: 5000 });
