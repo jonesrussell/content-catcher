@@ -7,7 +7,6 @@ import { AuthProvider } from "@/lib/auth-context";
 import { Toaster } from "react-hot-toast";
 import Header from "@/components/Header";
 import {
-  AnalyticsTracker,
   ErrorBoundaryClient,
   DOMInspector,
   Branding,
@@ -19,7 +18,6 @@ export const metadata: Metadata = {
   description: "A beautiful content collection app",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
-
 
 const ErrorBoundaryWrapper: React.FC<{ children: React.ReactNode }> = (
   props,
@@ -39,13 +37,12 @@ export default function RootLayout({
           <Header />
           <div className="pt-16">
             <GlobalErrorHandler />
-        <DOMInspector>
-          <ErrorBoundaryWrapper>
-            {children}
-            <Branding />
-          </ErrorBoundaryWrapper>
-          <AnalyticsTracker siteKey="${siteKey}" />
-        </DOMInspector>
+            <DOMInspector>
+              <ErrorBoundaryWrapper>
+                {children}
+                <Branding />
+              </ErrorBoundaryWrapper>
+            </DOMInspector>
           </div>
           <Toaster position="bottom-right" />
         </AuthProvider>
