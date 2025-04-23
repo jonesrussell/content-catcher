@@ -6,19 +6,23 @@ import { useAuth } from "@/lib/auth-context";
 import { toast } from "react-hot-toast";
 import { UserPlus, ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const { signUp } = useAuth();
+  const { signUp, signIn } = useAuth();
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
       await signUp(email, password);
+      await signIn(email, password);
       toast.success("Account created successfully!");
+      router.push("/");
     } catch (error) {
       toast.error("Failed to create account");
     } finally {
@@ -48,6 +52,8 @@ export default function SignupPage() {
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-3 rounded-lg border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
               required
+              autoComplete="username"
+              name="username"
             />
           </div>
           <div>
@@ -60,6 +66,8 @@ export default function SignupPage() {
               onChange={(e) => setPassword(e.target.value)}
               className="w-full px-4 py-3 rounded-lg border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
               required
+              autoComplete="new-password"
+              name="password"
             />
           </div>
           <button

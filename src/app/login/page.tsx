@@ -52,6 +52,8 @@ export default function LoginPage() {
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-3 rounded-lg border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
               required
+              autoComplete="username"
+              name="username"
             />
           </div>
           <div>
@@ -64,6 +66,8 @@ export default function LoginPage() {
               onChange={(e) => setPassword(e.target.value)}
               className="w-full px-4 py-3 rounded-lg border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
               required
+              autoComplete="current-password"
+              name="password"
             />
           </div>
           <button
