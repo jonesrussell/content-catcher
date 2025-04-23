@@ -45,7 +45,7 @@ export function SuggestionsPanel({
         }, 0);
       }}
     >
-      <Droppable droppableId="suggestions">
+      <Droppable droppableId="suggestions" isDropDisabled={false} isCombineEnabled={false}>
         {(provided) => (
           <div 
             className="space-y-3" 
