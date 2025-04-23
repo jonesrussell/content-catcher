@@ -7,7 +7,7 @@
     "build": "next build",
     "check": "next lint && tsc --noEmit",
     "dev": "next dev --turbo",
-    "lint": "eslint",
+    "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "preview": "next build && next start",
     "start": "WATCHPACK_POLLING=true NEXT_TELEMETRY_DISABLED=1 next start",
