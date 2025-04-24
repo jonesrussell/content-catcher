@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import { RotateCcw } from "lucide-react";
 import type { ContentVersion } from "@/hooks/useContent";
 import { DiffViewer } from "./DiffViewer";

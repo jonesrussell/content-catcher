@@ -113,10 +113,6 @@ export function TagInput({
                 onClick={() => {
                   if (!tags.includes(suggestion.tag)) {
                     setTags([...tags, suggestion.tag]);
-                    // Filter out the used suggestion
-                    const updatedSuggestions = tagSuggestions.filter(
-                      (s) => s.tag !== suggestion.tag
-                    );
                     // Update the suggestions state through parent
                     if (onUpdateSuggestions) {
                       onUpdateSuggestions(tagSuggestions.filter(

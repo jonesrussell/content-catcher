@@ -33,10 +33,6 @@ interface APISuggestion {
   };
 }
 
-interface APIResponse {
-  suggestions: APISuggestion[];
-}
-
 export interface AISuggestion {
   id: string;
   suggestion: string;

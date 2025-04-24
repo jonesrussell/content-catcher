@@ -8,6 +8,11 @@ import { MasonryGrid } from "./MasonryGrid";
 import { Loader2 } from "lucide-react";
 import type { Content } from "@/hooks/useContent";
 
+interface DatabaseContent extends Omit<Content, 'updated_at'> {
+  updated_at: string | null;
+  created_at: string;
+}
+
 export function SavedContentSection() {
   const { user } = useAuth();
   const [content, setContent] = useState<Content[]>([]);
@@ -39,7 +44,7 @@ export function SavedContentSection() {
           ...item,
           tags: item.tags || [],
           attachments: item.attachments || [],
-          updated_at: (item as any).updated_at || item.created_at,
+          updated_at: (item as DatabaseContent).updated_at || item.created_at,
           version_number: item.version_number || 1
         }));
 

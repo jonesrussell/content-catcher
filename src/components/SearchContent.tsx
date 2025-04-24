@@ -21,9 +21,9 @@ export default function SearchContent() {
   const [loading, setLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
 
-  const searchContent = useCallback(
-    debounce(async (searchQuery: string) => {
-      if (!user || !searchQuery.trim()) {
+  const debouncedSearch = useCallback(
+    debounce(async (searchQuery: string, userId: string, tags: string[]) => {
+      if (!searchQuery.trim()) {
         setResults([]);
         return;
       }
@@ -33,13 +33,13 @@ export default function SearchContent() {
         const query = supabase
           .from("content")
           .select("*")
-          .eq("user_id", user.id)
+          .eq("user_id", userId)
           .textSearch("fts", searchQuery, {
             config: "english",
           });
 
-        if (selectedTags.length > 0) {
-          query.contains('tags', selectedTags);
+        if (tags.length > 0) {
+          query.contains('tags', tags);
         }
 
         const { data, error } = await query.limit(5);
@@ -49,20 +49,26 @@ export default function SearchContent() {
         // Ensure tags are always an array
         const processedData = (data || []).map(item => ({
           ...item,
-          tags: item.tags || []
+          tags: item.tags || [],
+          attachments: item.attachments || [],
+          version_number: item.version_number || 1
         })) as SearchResult[];
-        
+
         setResults(processedData);
       } catch (error) {
-        console.error("Search error:", error);
-        toast.error("Failed to search content");
+        console.error('Search error:', error);
+        toast.error('Failed to search content');
       } finally {
         setLoading(false);
       }
     }, 300),
-    [user, selectedTags]
+    []
   );
 
+  const searchContent = useCallback((searchQuery: string) => {
+    if (!user) return;
+    debouncedSearch(searchQuery, user.id, selectedTags);
+  }, [user, selectedTags, debouncedSearch]);
 
   useEffect(() => {
     searchContent(query);
