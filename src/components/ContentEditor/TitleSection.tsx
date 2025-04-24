@@ -101,7 +101,6 @@ export function TitleSection({
           content={content}
           onTitleGenerated={generateTitle}
           isGenerating={isGeneratingTitle}
-          setIsGenerating={setIsGeneratingTitle}
         />
       </motion.div>
     </div>
