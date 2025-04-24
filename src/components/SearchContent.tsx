@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Loader2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
@@ -21,48 +21,49 @@ export default function SearchContent() {
   const [loading, setLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
 
-  const debouncedSearch = useCallback(
-    debounce(async (searchQuery: string, userId: string, tags: string[]) => {
-      if (!searchQuery.trim()) {
-        setResults([]);
-        return;
+  const performSearch = useCallback(async (searchQuery: string, userId: string, tags: string[]) => {
+    if (!searchQuery.trim()) {
+      setResults([]);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const query = supabase
+        .from("content")
+        .select("*")
+        .eq("user_id", userId)
+        .textSearch("fts", searchQuery, {
+          config: "english",
+        });
+
+      if (tags.length > 0) {
+        query.contains('tags', tags);
       }
 
-      setLoading(true);
-      try {
-        const query = supabase
-          .from("content")
-          .select("*")
-          .eq("user_id", userId)
-          .textSearch("fts", searchQuery, {
-            config: "english",
-          });
+      const { data, error } = await query.limit(5);
 
-        if (tags.length > 0) {
-          query.contains('tags', tags);
-        }
+      if (error) throw error;
+      
+      const processedData = (data || []).map(item => ({
+        ...item,
+        tags: item.tags || [],
+        attachments: item.attachments || [],
+        version_number: item.version_number || 1
+      })) as SearchResult[];
 
-        const { data, error } = await query.limit(5);
+      setResults(processedData);
+    } catch (error) {
+      console.error('Search error:', error);
+      toast.error('Failed to search content');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-        if (error) throw error;
-        
-        // Ensure tags are always an array
-        const processedData = (data || []).map(item => ({
-          ...item,
-          tags: item.tags || [],
-          attachments: item.attachments || [],
-          version_number: item.version_number || 1
-        })) as SearchResult[];
-
-        setResults(processedData);
-      } catch (error) {
-        console.error('Search error:', error);
-        toast.error('Failed to search content');
-      } finally {
-        setLoading(false);
-      }
-    }, 300),
-    []
+  const debouncedSearch = useMemo(
+    () => debounce(performSearch, 300),
+    [performSearch]
   );
 
   const searchContent = useCallback((searchQuery: string) => {
@@ -72,7 +73,10 @@ export default function SearchContent() {
 
   useEffect(() => {
     searchContent(query);
-  }, [query, selectedTags, searchContent]);
+    return () => {
+      debouncedSearch.cancel();
+    };
+  }, [query, selectedTags, searchContent, debouncedSearch]);
 
   const highlightMatch = (text: string, query: string) => {
     if (!query) return text;
