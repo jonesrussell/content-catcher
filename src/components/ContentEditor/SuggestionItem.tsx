@@ -8,12 +8,14 @@ import { ExampleSection } from "../AIPanel/ExampleSection";
 
 interface SuggestionItemProps {
   suggestion: AISuggestion;
+  onApply: (content: string) => void;
   provided: DraggableProvided;
   snapshot: DraggableStateSnapshot;
 }
 
 export function SuggestionItem({
   suggestion,
+  onApply,
   provided,
   snapshot
 }: SuggestionItemProps) {

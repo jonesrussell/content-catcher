@@ -224,10 +224,6 @@ export default function ContentEditor() {
             {content.length >= 100 ? (
               <AIFeaturesSection
                 content={content}
-                title={title}
-                setTitle={setTitle}
-                isGeneratingTitle={isGeneratingTitle}
-                setIsGeneratingTitle={setIsGeneratingTitle}
                 tags={tags}
                 setTags={setTags}
                 tagSuggestions={tagSuggestions}
@@ -235,16 +231,12 @@ export default function ContentEditor() {
                 tagStats={tagStats}
                 language={language}
                 suggestions={suggestions}
-                suggestionsLoading={suggestionsLoading}
-                setSuggestions={setSuggestions}
-                setTagSuggestions={setTagSuggestions}
                 onApplySuggestion={(newContent: string) => {
                   setContent(newContent);
                   pushContent(newContent);
                   setSuggestions([]);
                 }}
                 textareaRef={textareaRef}
-                disabled={!user}
               />
             ) : (
               <div className="space-y-6">
