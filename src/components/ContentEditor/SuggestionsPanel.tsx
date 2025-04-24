@@ -10,7 +10,7 @@ import { ExampleSection } from "../AIPanel/ExampleSection";
 interface SuggestionsPanelProps {
   suggestions: AISuggestion[];
   onApplySuggestion: (content: string) => void;
-  textareaRef: React.RefObject<HTMLTextAreaElement>;
+  textareaRef: React.RefObject<HTMLTextAreaElement | null>;
 }
 
 export function SuggestionsPanel({

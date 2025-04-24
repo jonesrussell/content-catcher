@@ -10,7 +10,7 @@ interface MainEditorProps {
   pushContent: (content: string) => void;
   handleKeyDown: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
   user: User | null;
-  textareaRef: React.RefObject<HTMLTextAreaElement>;
+  textareaRef: React.RefObject<HTMLTextAreaElement | null>;
   contentId?: string;
 }
 
@@ -25,7 +25,7 @@ export function MainEditor({
   textareaRef,
   contentId
 }: MainEditorProps) {
-  const { collaborators, updatePresence, broadcastContentUpdate } = useCollaboration(contentId, user);
+  const { collaborators, updatePresence, broadcastContentUpdate } = useCollaboration(contentId ?? '', user);
 
   const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
     e.preventDefault();

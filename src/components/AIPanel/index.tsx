@@ -14,7 +14,7 @@ interface AIPanelProps {
   loading: boolean;
   onClose: () => void;
   onApplySuggestion: (content: string) => void;
-  textareaRef: React.RefObject<HTMLTextAreaElement>;
+  textareaRef: React.RefObject<HTMLTextAreaElement | null>;
 }
 
 export function AIPanel({

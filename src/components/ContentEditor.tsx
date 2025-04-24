@@ -1,41 +1,31 @@
 "use client";
 
 import { useState, useCallback, useRef, KeyboardEvent, useEffect } from "react";
-import { InlineSuggestions } from "./ContentEditor/InlineSuggestions";
 import { useContentHistory } from "@/hooks/useContentHistory";
 import { useAISuggestions } from "@/hooks/useAISuggestions";
 import { TitleSection } from "./ContentEditor/TitleSection";
-import { TitleGenerator } from "./ContentEditor/TitleGenerator";
 import { useAdvancedTagging } from "@/hooks/useAdvancedTagging";
-import { TagInput } from "@/components/TagInput";
-import { AIPanel } from "./AIPanel";
-import { useTagSuggestions } from "@/hooks/useTagSuggestions";
-import { EditorControls } from "./ContentEditor/EditorControls";
 import { MainEditor } from "./ContentEditor/MainEditor";
 import { AIFeaturesSection } from "./ContentEditor/AIFeaturesSection";
-import TextareaAutosize from "react-textarea-autosize";
-import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-hot-toast";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth-context";
 
 export default function ContentEditor() {
   const { user } = useAuth();
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // State management
   const [content, setContent] = useState("");
   const [title, setTitle] = useState("");
   const [isGeneratingTitle, setIsGeneratingTitle] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [attachments, setAttachments] = useState<string[]>([]);
   const [tags, setTags] = useState<string[]>([]);
 
   // Custom hooks
   const {
-    currentContent,
     pushContent,
     undo,
     redo,
@@ -73,15 +63,6 @@ export default function ContentEditor() {
       return;
     }
 
-    setIsSaving(true);
-    
-    // Subscribe to real-time updates for this content
-    const channel = supabase.channel(`content:${Date.now()}`); // Use timestamp as temporary ID until saved
-    channel.subscribe((status) => {
-      if (status === 'SUBSCRIBED') {
-        console.log('Subscribed to content updates');
-      }
-    });
     try {
       const { data, error } = await supabase
         .from("content")
@@ -113,16 +94,6 @@ export default function ContentEditor() {
         throw new Error('No data returned from insert');
       }
 
-      const savedContent = {
-        id: data.id,
-        content,
-        tags,
-        attachments,
-        created_at: new Date().toISOString(),
-        user_id: user.id,
-        version_number: 1
-      };
-
       // Show success animation and scroll to saved content
       const savedContentSection = document.querySelector('.saved-content-section');
       if (savedContentSection) {
@@ -147,13 +118,11 @@ export default function ContentEditor() {
         setSuggestions([]); // Clear AI suggestions
         setTagSuggestions([]); // Clear tag suggestions
       }, 300);
-    } catch (error) {
-      console.error("Save error:", error);
-      toast.error(error instanceof Error ? error.message : "Failed to save content");
-    } finally {
-      setIsSaving(false);
+    } catch {
+      console.error("Save error");
+      toast.error("Failed to save content");
     }
-  }, [content, attachments, tags, title, user]);
+  }, [content, attachments, tags, user, setSuggestions]);
 
   const handleFileUpload = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];

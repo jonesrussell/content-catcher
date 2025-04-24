@@ -24,7 +24,7 @@ interface AIFeaturesSectionProps {
   setSuggestions: (suggestions: AISuggestion[]) => void;
   setTagSuggestions: (suggestions: TagAnalysis[]) => void;
   onApplySuggestion: (content: string) => void;
-  textareaRef: React.RefObject<HTMLTextAreaElement>;
+  textareaRef: React.RefObject<HTMLTextAreaElement | null>;
   disabled?: boolean;
 }
 
