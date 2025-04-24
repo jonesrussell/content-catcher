@@ -1,0 +1,31 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Testing Setup Guide
+
+This project uses Vitest as the primary testing framework. We've moved away from Jest to align better with our Vite-based build system.
+
+## Key Testing Files
+- `vitest.config.ts` - Contains the Vitest configuration
+- `src/__tests__/` - Main directory for test files
+- Test files follow the naming pattern: `*.test.ts` or `*.test.tsx`
+
+## Testing Guidelines
+1. Place test files close to the components they test
+2. Use `.test.tsx` extension for React component tests
+3. Use `.test.ts` for utility and helper function tests
+4. Include snapshot tests for UI components when appropriate
+
+## Running Tests
+- Use `npm run test` to run all tests
+- Use `npm run test:watch` for watch mode during development
+- Use `npm run coverage` to generate coverage reports
+
+## Best Practices
+- Write tests before implementing features (TDD approach)
+- Keep test files organized alongside their corresponding components
+- Use meaningful test descriptions
+- Follow the Arrange-Act-Assert pattern
+- Mock external dependencies appropriately
