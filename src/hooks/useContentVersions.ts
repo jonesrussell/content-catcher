@@ -84,11 +84,34 @@ export const useContentVersions = (contentId: string) => {
   };
 
   const compareVersions = async (versionA: ContentVersion, versionB: ContentVersion): Promise<VersionComparison> => {
-    // Implementation for comparing versions
+    const contentA = versionA.content.split('\n');
+    const contentB = versionB.content.split('\n');
+    const changes: VersionComparison['changes'] = [];
+    const additions: string[] = [];
+    const deletions: string[] = [];
+
+    // Compare line by line
+    for (let i = 0; i < Math.max(contentA.length, contentB.length); i++) {
+      const lineA = contentA[i] || '';
+      const lineB = contentB[i] || '';
+
+      if (lineA !== lineB) {
+        if (!lineA) {
+          changes.push({ type: 'add', content: lineB, lineNumber: i + 1 });
+          additions.push(lineB);
+        } else if (!lineB) {
+          changes.push({ type: 'remove', content: lineA, lineNumber: i + 1 });
+          deletions.push(lineA);
+        } else {
+          changes.push({ type: 'modify', content: lineB, lineNumber: i + 1 });
+        }
+      }
+    }
+
     return {
-      changes: [],
-      additions: [],
-      deletions: []
+      changes,
+      additions,
+      deletions
     };
   };
 

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { toast } from "react-hot-toast";
 import type { User } from "@supabase/supabase-js";
+import type { RealtimeChannel } from '@supabase/supabase-js';
 
 interface CollaboratorPresence {
   user_id: string;
@@ -14,9 +15,20 @@ interface CollaboratorPresence {
   selection_end: number | null;
 }
 
+interface PresenceState {
+  [key: string]: Array<{
+    user_id: string;
+    username: string | null;
+    last_active: string;
+    cursor_position: number | null;
+    selection_start: number | null;
+    selection_end: number | null;
+  }>;
+}
+
 export function useCollaboration(contentId: string, user: User | null) {
   const [collaborators, setCollaborators] = useState<CollaboratorPresence[]>([]);
-  const [channel, setChannel] = useState<any>(null);
+  const [channel, setChannel] = useState<RealtimeChannel | null>(null);
 
   useEffect(() => {
     if (!contentId || !user) return;
@@ -24,8 +36,8 @@ export function useCollaboration(contentId: string, user: User | null) {
     // Subscribe to real-time presence updates
     const channel = supabase.channel(`content:${contentId}`)
       .on('presence', { event: 'sync' }, () => {
-        const presenceState = channel.presenceState();
-        const currentCollaborators = Object.values(presenceState).flat().map((p: any) => ({
+        const presenceState = channel.presenceState() as PresenceState;
+        const currentCollaborators = Object.values(presenceState).flat().map((p) => ({
           user_id: p.user_id,
           username: p.username,
           last_active: p.last_active,

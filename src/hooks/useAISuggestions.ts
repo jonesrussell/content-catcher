@@ -3,6 +3,40 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
+interface APISuggestion {
+  id?: string;
+  suggestion: string;
+  type?: 'structure' | 'enhancement' | 'summary' | 'tone' | 'engagement';
+  improvedContent?: string;
+  explanation?: string;
+  analysis?: {
+    readability?: {
+      score: number;
+      level: string;
+      improvements: string[];
+    };
+    tone?: {
+      current: string;
+      suggested: string;
+      reason: string;
+    };
+    structure?: {
+      issues: string[];
+      recommendations: string[];
+    };
+  };
+  example?: {
+    context: string;
+    before: string;
+    after: string;
+    impact: string;
+  };
+}
+
+interface APIResponse {
+  suggestions: APISuggestion[];
+}
+
 export interface AISuggestion {
   id: string;
   suggestion: string;
@@ -128,7 +162,7 @@ export function useAISuggestions(content: string) {
 
         // Transform the suggestions into the expected format
         // Limit to 3 suggestions
-        const formattedSuggestions = parsedContent.suggestions.slice(0, 3).map((s: any) => ({
+        const formattedSuggestions = parsedContent.suggestions.slice(0, 3).map((s: APISuggestion) => ({
           id: s.id || `suggestion-${Math.random().toString(36).substr(2, 9)}`,
           suggestion: s.suggestion,
           type: s.type || 'structure',
