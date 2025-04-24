@@ -6,6 +6,10 @@ import { SuggestionsPanel } from "./SuggestionsPanel";
 import { TagInput } from "@/components/TagInput";
 import type { TagAnalysis } from "@/hooks/useAdvancedTagging";
 import type { AISuggestion } from "@/hooks/useAISuggestions";
+import { useState, useEffect } from "react";
+import { useAISuggestions } from "@/hooks/useAISuggestions";
+import { useAdvancedTagging } from "@/hooks/useAdvancedTagging";
+import { toast } from "react-hot-toast";
 
 interface AIFeaturesSectionProps {
   content: string;
@@ -48,6 +52,29 @@ export function AIFeaturesSection({
   textareaRef,
   disabled
 }: AIFeaturesSectionProps) {
+  const {
+    suggestions: aiSuggestions,
+    loading: aiSuggestionsLoading,
+    setSuggestions: setAISuggestions
+  } = useAISuggestions(content);
+
+  const {
+    suggestions: initialTagSuggestions,
+    stats: initialTagStats,
+    loading: initialTagSuggestionsLoading,
+    language: initialLanguage
+  } = useAdvancedTagging(content);
+
+  const [currentTagSuggestions, setCurrentTagSuggestions] = useState<typeof initialTagSuggestions>(initialTagSuggestions);
+  const [currentTagStats, setCurrentTagStats] = useState<typeof initialTagStats>(initialTagStats);
+  const [currentLanguage, setCurrentLanguage] = useState<typeof initialLanguage>(initialLanguage);
+
+  useEffect(() => {
+    setCurrentTagSuggestions(initialTagSuggestions);
+    setCurrentTagStats(initialTagStats);
+    setCurrentLanguage(initialLanguage);
+  }, [initialTagSuggestions, initialTagStats, initialLanguage]);
+
   if (content.length < 100) return null;
 
   return (

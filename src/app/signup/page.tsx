@@ -12,7 +12,7 @@ export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const { signUp, signIn } = useAuth();
+  const { signUp } = useAuth();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -31,7 +31,8 @@ export default function SignupPage() {
         toast.success("Account created successfully! Please check your email to confirm your account");
         router.push("/login");
       }
-    } catch (error: any) {
+    } catch (err) {
+      const error = err as Error;
       toast.error(error.message || "Failed to create account");
     } finally {
       setLoading(false);

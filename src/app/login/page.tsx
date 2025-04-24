@@ -8,42 +8,34 @@ import { toast } from "react-hot-toast";
 import { LogIn, AlertCircle } from "lucide-react";
 import Link from "next/link";
 
+interface LoginFormData {
+  email: string;
+  password: string;
+}
+
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState<LoginFormData>({
+    email: '',
+    password: ''
+  });
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const { signIn } = useAuth();
 
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
+
     try {
-      await signIn(email, password);
-      toast.success("Logged in successfully!");
-      router.push("/");
-    } catch (error: any) {
-      let errorMessage = "Failed to login";
-      if (error.message) {
-        if (error.message.includes("email_not_confirmed")) {
-          errorMessage = "Please confirm your email before logging in. Check your inbox for the confirmation link.";
-        } else if (error.message.includes("Invalid login credentials")) {
-          errorMessage = "Invalid email or password. Please try again.";
-        } else if (error.message.includes("Email not found")) {
-          errorMessage = "No account found with this email. Please sign up first.";
-        } else if (error.message.includes("Invalid email")) {
-          errorMessage = "Please enter a valid email address.";
-        } else if (error.message.includes("Password is too weak")) {
-          errorMessage = "The password you entered is too weak. Please try again.";
-        } else {
-          errorMessage = error.message;
-        }
-      }
-      setError(errorMessage);
-      toast.error(errorMessage, { duration: 5000 });
+      await signIn(formData.email, formData.password);
+      router.push('/dashboard');
+    } catch (err) {
+      const error = err as Error;
+      setError(error.message);
+      toast.error(error.message);
     } finally {
       setLoading(false);
     }
@@ -73,8 +65,8 @@ export default function LoginPage() {
             </label>
             <input
               type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               className="w-full px-4 py-3 rounded-lg border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
               required
               autoComplete="username"
@@ -87,8 +79,8 @@ export default function LoginPage() {
             </label>
             <input
               type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={formData.password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               className="w-full px-4 py-3 rounded-lg border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
               required
               autoComplete="current-password"

@@ -7,6 +7,10 @@ import { InlineSuggestions } from "./InlineSuggestions";
 import type { TagAnalysis } from "@/hooks/useAdvancedTagging";
 import type { AISuggestion } from "@/hooks/useAISuggestions";
 import { useTagSuggestionsManager } from "@/hooks/useTagSuggestionsManager";
+import { useState, useEffect } from "react";
+import { useAISuggestions } from "@/hooks/useAISuggestions";
+import { useAdvancedTagging } from "@/hooks/useAdvancedTagging";
+import { toast } from "react-hot-toast";
 
 interface AIFeaturesProps {
   content: string;
@@ -23,7 +27,7 @@ interface AIFeaturesProps {
   tagSuggestionsLoading: boolean;
   suggestionsLoading: boolean;
   setSuggestions: (suggestions: AISuggestion[]) => void;
-  onApplySuggestion: (content: string) => void;
+  onApplySuggestion?: (content: string) => void;
   setTagSuggestions?: (suggestions: TagAnalysis[]) => void;
   disabled?: boolean;
 }
@@ -45,19 +49,40 @@ export function AIFeatures({
   setSuggestions,
   onApplySuggestion,
   setTagSuggestions,
-  disabled
+  disabled = false
 }: AIFeaturesProps) {
+  const {
+    suggestions: aiSuggestions,
+    loading: aiSuggestionsLoading,
+    setSuggestions: setAISuggestions
+  } = useAISuggestions(content);
+
+  const {
+    suggestions: initialTagSuggestions,
+    stats: initialTagStats,
+    loading: initialTagSuggestionsLoading,
+    language: initialLanguage
+  } = useAdvancedTagging(content);
+
+  const [currentTagSuggestions, setCurrentTagSuggestions] = useState<typeof initialTagSuggestions>(initialTagSuggestions);
+  const [currentTagStats, setCurrentTagStats] = useState<typeof initialTagStats>(initialTagStats);
+  const [currentLanguage, setCurrentLanguage] = useState<typeof initialLanguage>(initialLanguage);
+
+  useEffect(() => {
+    setCurrentTagSuggestions(initialTagSuggestions);
+    setCurrentTagStats(initialTagStats);
+    setCurrentLanguage(initialLanguage);
+  }, [initialTagSuggestions, initialTagStats, initialLanguage]);
+
   if (content.length < 100) return null;
 
   return (
     <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
       className="space-y-4"
     >
-
-      {/* AI Features handled by AIFeaturesSection */}
+      {/* AI Features content */}
     </motion.div>
   );
 }
