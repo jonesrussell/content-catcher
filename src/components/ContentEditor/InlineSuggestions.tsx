@@ -1,21 +1,18 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
-import { X, ChevronRight, ChevronDown } from "lucide-react";
+import { motion } from "framer-motion";
 import type { AISuggestion } from "@/hooks/useAISuggestions";
 
 interface InlineSuggestionsProps {
   suggestions: AISuggestion[];
   loading: boolean;
   onApply: (content: string) => void;
-  onDismiss: () => void;
 }
 
 export function InlineSuggestions({
   suggestions,
   loading,
-  onApply,
-  onDismiss
+  onApply
 }: InlineSuggestionsProps) {
   return (
     <motion.div
