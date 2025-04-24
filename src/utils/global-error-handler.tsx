@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import type { JSX } from "react";
 import ErrorStackParser from "error-stack-parser";
 import { initBuildErrorDetector } from "./build-error-detector";
 
@@ -80,12 +81,17 @@ async function getErrorLocation(error: Error): Promise<ErrorLocationInfo> {
 		};
 
 		return {
-			source: firstFrame.fileName,
-			line: firstFrame.lineNumber,
-			column: firstFrame.columnNumber,
-			functionName: firstFrame.functionName,
+			source: firstFrame.fileName || "",
+			line: firstFrame.lineNumber || 0,
+			column: firstFrame.columnNumber || 0,
+			functionName: firstFrame.functionName || "",
 			message: error.message,
-			stack: bundledLocations.splice(0, 50) ?? error.stack,
+			stack: (bundledLocations.splice(0, 50) || []).map(frame => ({
+				fileName: frame.fileName || "",
+				lineNumber: frame.lineNumber || 0,
+				columnNumber: frame.columnNumber || 0,
+				functionName: frame.functionName || ""
+			})) ?? error.stack,
 		};
 	} catch (parseError) {
 		// If stack parsing fails, return basic info
@@ -102,29 +108,52 @@ async function getErrorLocation(error: Error): Promise<ErrorLocationInfo> {
 }
 
 // New function to handle build errors - generalized to detect different types of build errors
-function isBuildError(error: Error | any): boolean {
+function isBuildError(error: Error | unknown): boolean {
 	if (!error) return false;
 
 	// Check if it's a build error from webpack without hardcoding specific error messages
-	const isBuildErrorMessage =
-		(error.message && typeof error.message === 'string' && (
-			error.message.includes('Failed to compile') ||
-			error.message.includes('Build error') ||
-			error.message.includes('Module build failed') ||
-			error.message.includes('webpack') ||
-			error.message.includes('Compilation error') ||
-			error.message.includes('Module not found')
+	const errorMessage = error instanceof Error ? error.message : String(error);
+	const errorStack = error instanceof Error ? error.stack : '';
+	
+	const isBuildErrorMessage = Boolean(
+		(errorMessage && typeof errorMessage === 'string' && (
+			errorMessage.includes('Failed to compile') ||
+			errorMessage.includes('Build error') ||
+			errorMessage.includes('Module build failed') ||
+			errorMessage.includes('webpack') ||
+			errorMessage.includes('Compilation error') ||
+			errorMessage.includes('Module not found')
 		)) ||
-		(error.stack && typeof error.stack === 'string' && (
-			error.stack.includes('webpack') ||
-			error.stack.includes('HotModuleReplacement') ||
-			error.stack.includes('Module not found')
-		));
+		(errorStack && typeof errorStack === 'string' && (
+			errorStack.includes('webpack') ||
+			errorStack.includes('HotModuleReplacement') ||
+			errorStack.includes('Module not found')
+		))
+	);
 
 	return isBuildErrorMessage;
 }
 
-export function GlobalErrorHandler(): JSX.Element {
+interface BuildErrorEventDetail {
+	error: Error | string;
+	source?: string;
+	line?: number;
+	column?: number;
+	sentToParent?: boolean;
+	buildErrorType?: string;
+	moduleError?: Error;
+	file?: string;
+	location?: string;
+	isChunkLoadError?: boolean;
+	improvedStack?: Array<{
+		fileName: string;
+		lineNumber: number;
+		columnNumber: number;
+		functionName?: string;
+	}>;
+}
+
+export function GlobalErrorHandler(): JSX.Element | null {
 
 	useEffect(() => {
 		// Initialize the build error detector
@@ -371,182 +400,59 @@ export function GlobalErrorHandler(): JSX.Element {
 		};
 
 		// Listen for build error events from the webpack hot module replacement system
-		const handleBuildErrorEvent = (event: any) => {
+		const handleBuildErrorEvent = (event: CustomEvent<BuildErrorEventDetail>): void => {
 			if (event.detail && event.detail.error) {
 				console.warn("Build error event detected:", event.detail);
+				const error = event.detail.error;
+				const source = event.detail.source || 'unknown';
+				const line = event.detail.line;
+				const column = event.detail.column;
+				const buildErrorType = event.detail.buildErrorType || 'unknown';
+				const moduleError = event.detail.moduleError;
+				const file = event.detail.file || 'unknown';
+				const location = event.detail.location || 'unknown';
+				const isChunkLoadError = event.detail.isChunkLoadError || false;
+				const improvedStack = event.detail.improvedStack || [];
 
-				// Get the error object from the event
-				const errorObj = event.detail.error instanceof Error
-					? event.detail.error
-					: new Error(String(event.detail.error));
+				// Log the error to the console
+				console.error("Build Error:", {
+					error,
+					source,
+					line,
+					column,
+					buildErrorType,
+					moduleError,
+					file,
+					location,
+					isChunkLoadError,
+					improvedStack
+				});
 
-				// Check if we've already sent this error to parent window
-				if (event.detail.sentToParent) {
-					return;
-				}
-
-				// Clean any webpack paths in the event details
-				if (event.detail.source) {
-					event.detail.source = cleanWebpackPath(event.detail.source);
-				}
-				if (event.detail.file) {
-					event.detail.file = cleanWebpackPath(event.detail.file);
-				}
-
-				// If the error already has location information from build-error-detector.ts,
-				// use it directly to send to the parent window
-				if (event.detail.source !== undefined &&
-					event.detail.line !== undefined &&
-					event.detail.column !== undefined) {
-
-					try {
-						const source = cleanWebpackPath(event.detail.source) || "webpack-build";
-
-						// Build error - direct from build event
-						console.log("[SENDING TO PARENT] Direct build error from build event:", {
-							source,
-							message: errorObj.message,
-							line: event.detail.line || 0,
-							column: event.detail.column || 0,
-							buildErrorType: event.detail.buildErrorType || "unknown",
-							file: event.detail.file || null,
-							moduleError: event.detail.moduleError || null,
-							timestamp: new Date().toISOString(),
-							type: "build error",
-							origin: "build event - direct"
-						});
-						window.parent.postMessage(
-							{
-								type: "ERROR",
-								payload: {
-									message: errorObj.message,
-									source,
-									line: event.detail.line || 0,
-									column: event.detail.column || 0,
-									stack: errorObj.stack || "",
-									functionName: event.detail.functionName || "",
-									improvedStack: event.detail.improvedStack || [],
-									url: window.location.href,
-									timestamp: new Date().toISOString(),
-									isBuildError: true,
-									buildErrorType: event.detail.buildErrorType || "unknown",
-									moduleError: event.detail.moduleError || null,
-									file: event.detail.file || null,
-									location: event.detail.location || null,
-									buildEvent: true
-								},
-							},
-							"*"
-						);
-
-						// Mark as sent
-						event.detail.sentToParent = true;
-
-						console.log("Sent build error to parent window with direct location info:", {
-							source,
-							message: errorObj.message,
-						});
-					} catch (e) {
-						console.error("Failed to post direct error message:", e);
-					}
-				} else {
-					// Parse the error stack to get detailed location information
-					getErrorLocation(errorObj)
-						.then((locationInfo: ErrorLocationInfo) => {
-							try {
-								const source = cleanWebpackPath(locationInfo.source) || "webpack-build";
-								const file = cleanWebpackPath(event.detail.file) || source;
-
-								// Build error - parsed from build event
-								console.log("[SENDING TO PARENT] Parsed build error from build event:", {
-									source,
-									message: errorObj.message,
-									stack: locationInfo.stack,
-									line: locationInfo.line,
-									column: locationInfo.column,
-									buildErrorType: event.detail.buildErrorType || "unknown",
-									file,
-									timestamp: new Date().toISOString(),
-									type: "build error",
-									origin: "build event - parsed"
-								});
-								window.parent.postMessage(
-									{
-										type: "ERROR",
-										payload: {
-											source,
-											message: errorObj.message || "Build error",
-											stack: locationInfo.stack,
-											url: window.location.href,
-											timestamp: new Date().toISOString(),
-											isBuildError: true,
-											buildEvent: true,
-											functionName: locationInfo.functionName,
-											line: locationInfo.line,
-											column: locationInfo.column,
-											buildErrorType: event.detail.buildErrorType || "unknown",
-											moduleError: event.detail.moduleError || null,
-											file,
-											isChunkLoadError: event.detail.isChunkLoadError || false
-										},
-									},
-									"*"
-								);
-
-								// Mark as sent
-								event.detail.sentToParent = true;
-
-								console.log("Sent parsed build error to parent window:", {
-									source,
-									message: errorObj.message,
-								});
-							} catch (e) {
-								console.error("Failed to post parsed message:", e);
-							}
-						})
-						.catch((e) => {
-							console.error("Failed to get error location:", e);
-
-							// If parsing fails, still try to send basic error info
-							try {
-								// Build error - fallback from build event
-								console.log("[SENDING TO PARENT] Fallback build error from build event:", {
-									source: "webpack-build",
-									message: errorObj.message,
-									stack: errorObj.stack,
-									buildErrorType: event.detail.buildErrorType || "unknown",
-									timestamp: new Date().toISOString(),
-									type: "build error",
-									origin: "build event - fallback",
-									parseError: true
-								});
-								window.parent.postMessage(
-									{
-										type: "ERROR",
-										payload: {
-											source: "webpack-build",
-											message: errorObj.message || "Build error",
-											stack: errorObj.stack || "",
-											url: window.location.href,
-											timestamp: new Date().toISOString(),
-											isBuildError: true,
-											buildEvent: true,
-											buildErrorType: event.detail.buildErrorType || "unknown",
-											parseError: true
-										},
-									},
-									"*"
-								);
-							} catch (err) {
-								console.error("Failed to post fallback message:", err);
-							}
-						});
+				// Send the error to the parent window if not already sent
+				if (!event.detail.sentToParent && window.parent !== window) {
+					window.parent.postMessage({
+						type: 'build-error',
+						error: error instanceof Error ? error.message : error,
+						source,
+						line,
+						column,
+						buildErrorType,
+						moduleError: moduleError instanceof Error ? moduleError.message : moduleError,
+						file,
+						location,
+						isChunkLoadError,
+						improvedStack
+					}, '*');
+					event.detail.sentToParent = true;
 				}
 			}
 		};
 
 		// Add listener for custom webpack build error events
-		window.addEventListener('webpack-build-error', handleBuildErrorEvent);
+		window.addEventListener('webpack-build-error', (event: Event) => {
+			const customEvent = event as CustomEvent<BuildErrorEventDetail>;
+			handleBuildErrorEvent(customEvent);
+		});
 
 		// Remove NextAuth fetch API patching
 
@@ -557,7 +463,10 @@ export function GlobalErrorHandler(): JSX.Element {
 			console.error = originalConsoleError;
 			// Remove fetch patching restoration
 			window.removeEventListener("unhandledrejection", handleGlobalRejection);
-			window.removeEventListener('webpack-build-error', handleBuildErrorEvent);
+			window.removeEventListener('webpack-build-error', (event: Event) => {
+				const customEvent = event as CustomEvent<BuildErrorEventDetail>;
+				handleBuildErrorEvent(customEvent);
+			});
 		};
 	}, []);
 

@@ -1,4 +1,5 @@
 import '@testing-library/jest-dom'
+import { vi } from 'vitest'
 
 // Mock fetch
 global.fetch = vi.fn()
@@ -12,9 +13,21 @@ global.ResizeObserver = class ResizeObserver {
 
 // Mock IntersectionObserver
 global.IntersectionObserver = class IntersectionObserver {
+  constructor(callback: IntersectionObserverCallback, options?: IntersectionObserverInit) {
+    this.callback = callback;
+    this.options = options;
+  }
+  callback: IntersectionObserverCallback;
+  options?: IntersectionObserverInit;
+  root: Element | Document | null = null;
+  rootMargin: string = '0px';
+  thresholds: number[] = [0];
   observe() {}
   unobserve() {}
   disconnect() {}
+  takeRecords(): IntersectionObserverEntry[] {
+    return [];
+  }
 }
 
 // Mock matchMedia
