@@ -38,7 +38,7 @@ export function AIFeaturesSection({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
-      className="flex flex-col gap-6 md:grid md:grid-cols-2"
+      className="flex flex-col gap-6"
     >
       <div className="space-y-6">
         {/* Tags Section */}

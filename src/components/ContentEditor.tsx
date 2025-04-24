@@ -181,14 +181,14 @@ export default function ContentEditor() {
 
   return (
     <div className="relative mx-auto w-full max-w-6xl px-4">
-      <div className="flex flex-col gap-6 md:grid md:grid-cols-[1fr,400px]">
+      <div className="flex flex-col gap-6 md:grid md:grid-cols-[1fr_400px]">
         {/* Main Content Column */}
         <div className="relative min-h-[300px] w-full">
           {/* Title Area */}
           <div
-            className={`mb-3 transition-all duration-500 sm:mb-4 ${content.length >= 100 ? "opacity-100" : "opacity-40"}`}
+            className={`mb-3 transition-all duration-500 sm:mb-4 ${content.length >= 100 ? "opacity-100" : "opacity-70"}`}
           >
-            <div className="border-primary/5 relative w-full rounded-xl border-2 bg-white/30 p-3 backdrop-blur-sm sm:p-4">
+            <div className="border-primary/10 relative w-full rounded-xl border-2 bg-white/50 p-3 backdrop-blur-sm sm:p-4">
               {content.length >= 100 ? (
                 <TitleSection
                   title={title}
@@ -201,24 +201,24 @@ export default function ContentEditor() {
               ) : (
                 <div className="space-y-6 transition-all duration-500">
                   <div className="flex flex-col gap-2">
-                    <label className="text-primary/30 text-sm font-medium">
+                    <label className="text-primary/70 text-sm font-medium">
                       Title
                     </label>
                     <input
                       type="text"
                       placeholder="Enter a title..."
-                      className="border-primary/10 text-primary/30 focus:ring-primary/20 w-full rounded-lg border bg-white/50 px-3 py-2 focus:ring-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                      className="border-primary/20 text-primary/70 focus:ring-primary/20 w-full rounded-lg border bg-white/70 px-3 py-2 focus:ring-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-70"
                       disabled
                     />
                   </div>
                   <div className="flex items-center gap-2">
                     <button
-                      className="text-primary/30 bg-primary/5 rounded-lg px-3 py-1.5 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50"
+                      className="text-primary/70 bg-primary/10 rounded-lg px-3 py-1.5 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-70"
                       disabled
                     >
                       Generate Title
                     </button>
-                    <span className="text-primary/30 text-xs">
+                    <span className="text-primary/70 text-xs">
                       Type more content to enable title generation
                     </span>
                   </div>
@@ -229,7 +229,7 @@ export default function ContentEditor() {
 
           {/* AI Features Section */}
           <div
-            className={`space-y-6 transition-all duration-500 ${content.length >= 100 ? "opacity-100" : "opacity-50"}`}
+            className={`flex flex-col gap-6 transition-all duration-500 ${content.length >= 100 ? "opacity-100" : "opacity-70"}`}
           >
             {content.length >= 100 ? (
               <AIFeaturesSection
@@ -249,56 +249,47 @@ export default function ContentEditor() {
                 textareaRef={textareaRef}
               />
             ) : (
-              <div className="space-y-6">
-                <div className="border-primary/5 cursor-not-allowed rounded-xl border-2 bg-white/20 p-4 opacity-50 backdrop-blur-sm">
-                  <h3 className="text-primary/20 mb-4 text-lg font-medium">
+              <div className="flex flex-col gap-6">
+                <div className="border-primary/10 cursor-not-allowed rounded-xl border-2 bg-white/50 p-4 opacity-70 backdrop-blur-sm">
+                  <h3 className="text-primary/70 mb-4 text-lg font-medium">
                     AI Features
                   </h3>
                   <div className="space-y-4">
                     <div className="flex flex-col gap-2">
-                      <label className="text-primary/20 text-sm font-medium">
+                      <label className="text-primary/70 text-sm font-medium">
                         Tags
                       </label>
-                      <div className="border-primary/5 flex min-h-[40px] flex-wrap gap-2 rounded-lg border bg-white/30 p-2">
-                        <span className="text-primary/20 text-xs">
+                      <div className="border-primary/20 flex min-h-[40px] flex-wrap gap-2 rounded-lg border bg-white/70 p-2">
+                        <span className="text-primary/70 text-xs">
                           Tags will appear here...
                         </span>
                       </div>
                     </div>
                     <div className="flex flex-col gap-2">
-                      <label className="text-primary/20 text-sm font-medium">
+                      <label className="text-primary/70 text-sm font-medium">
                         AI Suggestions
                       </label>
-                      <div className="border-primary/5 rounded-lg border bg-white/30 p-4">
-                        <p className="text-primary/20 text-sm">
+                      <div className="border-primary/20 rounded-lg border bg-white/70 p-4">
+                        <p className="text-primary/70 text-sm">
                           Type more content to enable AI suggestions
                         </p>
                       </div>
                     </div>
                     <div className="flex flex-col gap-2">
-                      <label className="text-primary/20 text-sm font-medium">
+                      <label className="text-primary/70 text-sm font-medium">
                         Content Analysis
                       </label>
-                      <div className="border-primary/5 rounded-lg border bg-white/30 p-4">
-                        <p className="text-primary/20 text-sm">
+                      <div className="border-primary/20 rounded-lg border bg-white/70 p-4">
+                        <p className="text-primary/70 text-sm">
                           Content analysis will appear here...
                         </p>
                       </div>
                     </div>
                   </div>
-                  <div className="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-transparent to-white/5" />
                 </div>
               </div>
             )}
           </div>
-
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleFileUpload}
-            className="hidden"
-            accept="image/*,.pdf,.doc,.docx"
-          />
         </div>
 
         {/* Right Column - Textarea and Controls */}
