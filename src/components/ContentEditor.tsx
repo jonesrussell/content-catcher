@@ -9,6 +9,7 @@ import { AIFeaturesSection } from "./ContentEditor/AIFeaturesSection";
 import { toast } from "react-hot-toast";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth-context";
+import debounce from "lodash.debounce";
 
 export default function ContentEditor() {
   const { user } = useAuth();
@@ -19,6 +20,8 @@ export default function ContentEditor() {
   const [title, setTitle] = useState("");
   const [isGeneratingTitle, setIsGeneratingTitle] = useState(false);
   const [tags, setTags] = useState<string[]>([]);
+  const [isAutoSaving, setIsAutoSaving] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   // Custom hooks
   const { pushContent, undo, redo, canUndo, canRedo } =
@@ -39,18 +42,18 @@ export default function ContentEditor() {
     setTagSuggestions(initialTagSuggestions);
   }, [initialTagSuggestions]);
 
-  const handleSave = useCallback(async () => {
+  const handleSave = useCallback(async (closeAfterSave = false) => {
     if (!user) {
       toast.error("Please login to save content");
       return;
     }
 
     if (!content.trim()) {
-      toast.error("Cannot save empty content");
       return;
     }
 
     try {
+      setIsSaving(true);
       const { data, error } = await supabase
         .from("content")
         .insert([
@@ -59,8 +62,7 @@ export default function ContentEditor() {
             content,
             tags: tags ?? [],
             created_at: new Date().toISOString(),
-            version_number: 1,
-            updated_at: new Date().toISOString(),
+            version_number: 1
           },
         ])
         .select("*")
@@ -82,37 +84,42 @@ export default function ContentEditor() {
         throw new Error("No data returned from insert");
       }
 
-      // Show success animation and scroll to saved content
-      const savedContentSection = document.querySelector(
-        ".saved-content-section",
-      );
-      if (savedContentSection) {
-        savedContentSection.classList.add("highlight-new-content");
-        savedContentSection.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        });
-        setTimeout(() => {
-          savedContentSection.classList.remove("highlight-new-content");
-        }, 2000);
-      }
-
       toast.success("Content saved successfully!");
-
-      // Clear form with a slight delay for better UX
-      setTimeout(() => {
+      
+      if (closeAfterSave) {
+        // Clear the editor
         setContent("");
         setTitle("");
         setTags([]);
-        setTagSuggestions([]); // Clear tag suggestions
-      }, 300);
+        setTagSuggestions([]);
+      }
     } catch (error) {
       console.error("Save error:", error);
       toast.error(
         error instanceof Error ? error.message : "Failed to save content",
       );
+    } finally {
+      setIsSaving(false);
     }
   }, [content, tags, user]);
+
+  // Create debounced auto-save function
+  const debouncedSave = useCallback(
+    debounce(() => {
+      handleSave(false);
+    }, 2000),
+    [handleSave]
+  );
+
+  // Auto-save when content or tags change
+  useEffect(() => {
+    if (content.trim() && user) {
+      debouncedSave();
+    }
+    return () => {
+      debouncedSave.cancel();
+    };
+  }, [content, tags, user, debouncedSave]);
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -283,6 +290,25 @@ export default function ContentEditor() {
                 </svg>
               </button>
             </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => handleSave(false)}
+                disabled={isSaving || !content.trim() || !user}
+                className="text-primary/70 bg-primary/10 rounded-lg px-3 py-1.5 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-70 hover:bg-primary/20 transition-colors"
+              >
+                {isSaving ? "Saving..." : "Save"}
+              </button>
+              <button
+                onClick={() => handleSave(true)}
+                disabled={isSaving || !content.trim() || !user}
+                className="text-primary/70 bg-primary/10 rounded-lg px-3 py-1.5 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-70 hover:bg-primary/20 transition-colors"
+              >
+                {isSaving ? "Saving..." : "Save & Close"}
+              </button>
+            </div>
+            {isAutoSaving && (
+              <span className="text-primary/60 text-sm">Auto-saving...</span>
+            )}
           </div>
         </div>
       </div>
