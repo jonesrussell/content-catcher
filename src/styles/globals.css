@@ -1,6 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 @layer base {
   :root {
@@ -74,16 +72,6 @@
     --sidebar-accent-foreground: #F4F4F5;
     --sidebar-border: #27272A;
     --sidebar-ring: #3B82F6;
-  }
-}
-
-@layer base {
-  * {
-    @apply border;
-  }
-
-  body {
-    @apply bg-background text-foreground;
   }
 }
 
