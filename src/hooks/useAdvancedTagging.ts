@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
-import compromise from "compromise";
 
 export interface TagAnalysis {
   tag: string;
