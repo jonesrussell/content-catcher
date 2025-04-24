@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import type { AISuggestion } from "@/hooks/useAISuggestions";
+import type { DraggableProvided, DraggableStateSnapshot } from "react-beautiful-dnd";
 import { ReadabilityMeter } from "../AIPanel/ReadabilityMeter";
 import { ToneAnalysis } from "../AIPanel/ToneAnalysis";
 import { ExampleSection } from "../AIPanel/ExampleSection";
@@ -9,8 +10,8 @@ import { ExampleSection } from "../AIPanel/ExampleSection";
 interface SuggestionItemProps {
   suggestion: AISuggestion;
   onApply: (content: string) => void;
-  provided: any;
-  snapshot: any;
+  provided: DraggableProvided;
+  snapshot: DraggableStateSnapshot;
 }
 
 export function SuggestionItem({

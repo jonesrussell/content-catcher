@@ -25,7 +25,7 @@ export function MainEditor({
   textareaRef,
   contentId
 }: MainEditorProps) {
-  const { collaborators, updatePresence, broadcastContentUpdate } = useCollaboration(contentId ?? '', user);
+  const { updatePresence, broadcastContentUpdate } = useCollaboration(contentId ?? '', user);
 
   const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
     e.preventDefault();
@@ -46,11 +46,6 @@ export function MainEditor({
       textareaRef.current.setSelectionRange(newPosition, newPosition);
       updatePresence(newPosition, newPosition, newPosition);
     }
-  };
-
-  const handleSelectionChange = (e: React.SyntheticEvent<HTMLTextAreaElement>) => {
-    const target = e.target as HTMLTextAreaElement;
-    updatePresence(target.selectionStart, target.selectionStart, target.selectionEnd);
   };
 
   return (
