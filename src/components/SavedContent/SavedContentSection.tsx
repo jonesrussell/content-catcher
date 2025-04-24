@@ -39,7 +39,8 @@ export function SavedContentSection() {
           ...item,
           tags: item.tags || [],
           attachments: item.attachments || [],
-          updated_at: (item as any).updated_at || item.created_at
+          updated_at: (item as any).updated_at || item.created_at,
+          version_number: item.version_number || 1
         }));
 
         if (page === 0) {

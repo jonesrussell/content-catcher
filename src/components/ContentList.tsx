@@ -8,7 +8,7 @@ import type { Content, ContentUpdate } from "@/hooks/useContent";
 
 interface ContentListProps {
   content: Content[];
-  onEditContent: (content: Content) => void;
+  onEditContent?: (content: Content) => void;
 }
 
 export default function ContentList({ content, onEditContent }: ContentListProps) {
@@ -37,7 +37,7 @@ export default function ContentList({ content, onEditContent }: ContentListProps
                     .eq('id', item.id);
                   toast.success(item.archived ? 'Content restored' : 'Content archived');
                   window.location.reload();
-                } catch (error) {
+                } catch {
                   toast.error('Failed to archive content');
                 }
               }}
@@ -64,7 +64,7 @@ export default function ContentList({ content, onEditContent }: ContentListProps
                       .eq('id', item.id);
                     toast.success('Content deleted');
                     window.location.reload();
-                  } catch (error) {
+                  } catch {
                     toast.error('Failed to delete content');
                   }
                 }
@@ -76,15 +76,17 @@ export default function ContentList({ content, onEditContent }: ContentListProps
                 <Trash2 className="w-5 h-5 text-red-500/70" />
               </motion.div>
             </button>
-            <button
-              onClick={() => onEditContent(item)}
-              className="p-2 hover:bg-primary/5 rounded-full transition-colors"
-              title="Edit"
-            >
-              <motion.div whileHover={{ scale: 1.1 }}>
-                <Edit className="w-5 h-5 text-primary/70" />
-              </motion.div>
-            </button>
+            {onEditContent && (
+              <button
+                onClick={() => onEditContent(item)}
+                className="p-2 hover:bg-primary/5 rounded-full transition-colors"
+                title="Edit"
+              >
+                <motion.div whileHover={{ scale: 1.1 }}>
+                  <Edit className="w-5 h-5 text-primary/70" />
+                </motion.div>
+              </button>
+            )}
           </div>
           <div className="space-y-3">
             <p className="text-primary/80 whitespace-pre-wrap">

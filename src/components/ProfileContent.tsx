@@ -6,16 +6,17 @@ import { supabase } from "@/lib/supabase";
 import { motion } from "framer-motion";
 import { Edit2, Save, Loader2 } from "lucide-react";
 import ContentList from "@/components/ContentList";
-import EditContentModal from "@/components/EditContentModal";
 import DashboardStats from "@/components/DashboardStats";
 import SearchContent from "@/components/SearchContent";
 import { toast } from "react-hot-toast";
-import { Content, useContent } from "@/hooks/useContent";
+import { useContent } from "@/hooks/useContent";
 
 interface Profile {
-  username: string;
-  full_name: string;
-  avatar_url: string;
+  username: string | null;
+  full_name: string | null;
+  avatar_url: string | null;
+  id: string;
+  updated_at: string | null;
 }
 
 function LoadingSpinner() {
@@ -29,13 +30,11 @@ function LoadingSpinner() {
 export default function ProfileContent() {
   const { user } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
-  const { content, loading: contentLoading } = useContent(user?.id);
+  const { content } = useContent(user?.id);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [editedProfile, setEditedProfile] = useState<Profile | null>(null);
   const [saving, setSaving] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [editingContent, setEditingContent] = useState<Content | null>(null);
 
   useEffect(() => {
     async function loadProfile() {
@@ -52,7 +51,7 @@ export default function ProfileContent() {
         setProfile(profileData);
         setEditedProfile(profileData);
 
-      } catch (error) {
+      } catch {
         toast.error("Failed to load profile data");
       } finally {
         setLoading(false);
@@ -80,7 +79,7 @@ export default function ProfileContent() {
       setProfile(editedProfile);
       setEditing(false);
       toast.success("Profile updated successfully");
-    } catch (error) {
+    } catch {
       toast.error("Failed to update profile");
     } finally {
       setSaving(false);
@@ -190,13 +189,7 @@ export default function ProfileContent() {
 
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-xl">
           <h2 className="text-2xl font-bold text-primary mb-6">Saved Content</h2>
-          <ContentList 
-            content={content} 
-            onEditContent={(item) => {
-              setEditingContent(item);
-              setIsEditModalOpen(true);
-            }}
-          />
+          <ContentList content={content} />
         </div>
       </motion.div>
     </div>
