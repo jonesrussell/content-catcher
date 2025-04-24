@@ -1,9 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useState, useEffect } from "react";
-import { useAISuggestions } from "@/hooks/useAISuggestions";
-import { useAdvancedTagging } from "@/hooks/useAdvancedTagging";
 import type { TagAnalysis } from "@/hooks/useAdvancedTagging";
 import type { AISuggestion } from "@/hooks/useAISuggestions";
 import { TagInput } from "@/components/TagInput";
@@ -26,7 +23,6 @@ interface AIFeaturesSectionProps {
   suggestions: AISuggestion[];
   onApplySuggestion: (content: string) => void;
   textareaRef: React.RefObject<HTMLTextAreaElement | null>;
-  disabled?: boolean;
 }
 
 export function AIFeaturesSection({
@@ -39,32 +35,8 @@ export function AIFeaturesSection({
   language,
   suggestions,
   onApplySuggestion,
-  textareaRef,
-  disabled = false
+  textareaRef
 }: AIFeaturesSectionProps) {
-  const {
-    suggestions: aiSuggestions,
-    loading: aiSuggestionsLoading,
-    setSuggestions: setAISuggestions
-  } = useAISuggestions(content);
-
-  const {
-    suggestions: initialTagSuggestions,
-    stats: initialTagStats,
-    loading: initialTagSuggestionsLoading,
-    language: initialLanguage
-  } = useAdvancedTagging(content);
-
-  const [currentTagSuggestions, setCurrentTagSuggestions] = useState<typeof initialTagSuggestions>(initialTagSuggestions);
-  const [currentTagStats, setCurrentTagStats] = useState<typeof initialTagStats>(initialTagStats);
-  const [currentLanguage, setCurrentLanguage] = useState<typeof initialLanguage>(initialLanguage);
-
-  useEffect(() => {
-    setCurrentTagSuggestions(initialTagSuggestions);
-    setCurrentTagStats(initialTagStats);
-    setCurrentLanguage(initialLanguage);
-  }, [initialTagSuggestions, initialTagStats, initialLanguage]);
-
   if (content.length < 100) return null;
 
   return (
@@ -86,7 +58,6 @@ export function AIFeaturesSection({
               tagSuggestionsLoading={tagSuggestionsLoading}
               tagStats={tagStats}
               language={language}
-              onUpdateSuggestions={setCurrentTagSuggestions}
             />
           ) : (
             <div className="flex flex-wrap gap-2">
