@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import * as natural from 'natural';
 import compromise from 'compromise';
 
 export async function POST(request: Request) {
@@ -13,19 +12,17 @@ export async function POST(request: Request) {
       );
     }
 
-    // Initialize NLP tools
-    const tokenizer = new natural.WordTokenizer();
-    const TfIdf = natural.TfIdf;
-    const tfidf = new TfIdf();
-
-    // Process content
-    const tokens = tokenizer.tokenize(content);
-    tfidf.addDocument(content);
+    // Process content with compromise
     const nlp = compromise(content);
-
-    // Language detection
-    const detectedLang = natural.PorterStemmer.stem(content.slice(0, 100));
-    const isEnglish = detectedLang !== content.slice(0, 100);
+    
+    // Tokenization - compromise can split into words
+    const tokens = nlp.terms().out('array');
+    
+    // Simple language detection based on common English words
+    const commonEnglishWords = ['the', 'be', 'to', 'of', 'and', 'a', 'in', 'that', 'have', 'I'];
+    const isEnglish = commonEnglishWords.some(word => 
+      content.toLowerCase().includes(word)
+    );
     const language = isEnglish ? 'english' : 'unknown';
 
     // Get entities
@@ -67,7 +64,6 @@ function generateNLPTags(tokens: string[], entities: string[]): Array<{
   explanation: string;
 }> {
   // Implementation of tag generation logic
-  // This is a simplified version - you should implement your actual logic here
   return [
     ...entities.map(entity => ({
       tag: entity,
