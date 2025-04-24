@@ -1,14 +1,14 @@
 "use client";
 
 import { TagInput } from "@/components/TagInput";
-import type { TagAnalysis } from "@/hooks/useAdvancedTagging";
+import type { TagAnalysis, TagStats } from "@/hooks/useAdvancedTagging";
 
 interface TagSectionProps {
   tags: string[];
   setTags: (tags: string[]) => void;
   tagSuggestions: TagAnalysis[];
   tagSuggestionsLoading: boolean;
-  tagStats: any;
+  tagStats: TagStats | null;
   language: string;
   onUpdateSuggestions: (suggestions: TagAnalysis[]) => void;
 }

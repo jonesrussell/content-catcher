@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import type { AISuggestion } from "@/hooks/useAISuggestions";
 import type { DraggableProvided, DraggableStateSnapshot } from "react-beautiful-dnd";
 import { ReadabilityMeter } from "../AIPanel/ReadabilityMeter";
@@ -9,14 +8,12 @@ import { ExampleSection } from "../AIPanel/ExampleSection";
 
 interface SuggestionItemProps {
   suggestion: AISuggestion;
-  onApply: (content: string) => void;
   provided: DraggableProvided;
   snapshot: DraggableStateSnapshot;
 }
 
 export function SuggestionItem({
   suggestion,
-  onApply,
   provided,
   snapshot
 }: SuggestionItemProps) {
