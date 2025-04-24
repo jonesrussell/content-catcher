@@ -3,9 +3,6 @@
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { toast } from "react-hot-toast";
 import type { AISuggestion } from "@/hooks/useAISuggestions";
-import { ReadabilityMeter } from "../AIPanel/ReadabilityMeter";
-import { ToneAnalysis } from "../AIPanel/ToneAnalysis";
-import { ExampleSection } from "../AIPanel/ExampleSection";
 
 interface SuggestionsPanelProps {
   suggestions: AISuggestion[];

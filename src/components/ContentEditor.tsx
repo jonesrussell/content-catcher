@@ -118,9 +118,9 @@ export default function ContentEditor() {
         setSuggestions([]); // Clear AI suggestions
         setTagSuggestions([]); // Clear tag suggestions
       }, 300);
-    } catch {
-      console.error("Save error");
-      toast.error("Failed to save content");
+    } catch (error) {
+      console.error("Save error:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to save content");
     }
   }, [content, attachments, tags, user, setSuggestions]);
 
@@ -146,6 +146,7 @@ export default function ContentEditor() {
       setAttachments(prev => [...prev, publicUrl]);
       toast.success("File uploaded successfully!");
     } catch (error) {
+      console.error("File upload error:", error);
       toast.error("Failed to upload file");
     } finally {
       setIsUploading(false);
