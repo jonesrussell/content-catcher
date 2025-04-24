@@ -28,6 +28,10 @@ export function SuggestionItem({
         transition-all cursor-pointer transform
         ${snapshot.isDragging ? 'shadow-xl scale-105' : 'hover:shadow-md hover:bg-primary/5'}
         group relative`}
+      onClick={() => {
+        if (!suggestion.improvedContent) return;
+        onApply(suggestion.improvedContent);
+      }}
     >
       <div className="flex items-start gap-2 flex-wrap">
         <span className={`px-2 py-1 text-xs rounded-full ${

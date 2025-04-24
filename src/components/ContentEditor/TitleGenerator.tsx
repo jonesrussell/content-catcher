@@ -1,20 +1,17 @@
 "use client";
 
-import { useState } from "react";
 import { toast } from "react-hot-toast";
 
 interface TitleGeneratorProps {
   content: string;
   onTitleGenerated: (title: string) => void;
   isGenerating: boolean;
-  setIsGenerating: (loading: boolean) => void;
 }
 
 export function TitleGenerator({ 
   content, 
   onTitleGenerated, 
-  isGenerating,
-  setIsGenerating 
+  isGenerating
 }: TitleGeneratorProps) {
   return (
     <button

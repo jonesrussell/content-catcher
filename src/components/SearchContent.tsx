@@ -60,7 +60,7 @@ export default function SearchContent() {
         setLoading(false);
       }
     }, 300),
-    [user]
+    [user, selectedTags]
   );
 
 

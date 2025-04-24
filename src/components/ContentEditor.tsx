@@ -48,7 +48,6 @@ export default function ContentEditor() {
 
   const {
     suggestions,
-    loading: suggestionsLoading,
     setSuggestions
   } = useAISuggestions(content);
 
