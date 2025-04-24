@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import axios from "axios";
+import JSON5 from "json5";
 
 interface APISuggestion {
   id?: string;
@@ -159,24 +160,13 @@ export function useAISuggestions(content: string) {
           cleanedContent = cleanedContent.replace(/```json\n?|\n?```/g, '').trim();
         }
         
-        // Check if the response is valid JSON
+        // Parse the content using JSON5 which handles comments and trailing commas
         let parsedContent;
         try {
-          parsedContent = JSON.parse(cleanedContent);
+          parsedContent = JSON5.parse(cleanedContent);
         } catch (parseError) {
           console.error("Failed to parse API response:", cleanedContent);
-          // If the response is not JSON, try to extract JSON from the text
-          const jsonMatch = cleanedContent.match(/\{[\s\S]*\}/);
-          if (jsonMatch) {
-            try {
-              parsedContent = JSON.parse(jsonMatch[0]);
-            } catch (extractError) {
-              console.error("Failed to extract JSON from response:", jsonMatch[0]);
-              throw new Error("Could not parse AI response as JSON");
-            }
-          } else {
-            throw new Error("AI response is not in valid JSON format");
-          }
+          throw new Error("Could not parse AI response as JSON");
         }
 
         if (!parsedContent?.suggestions || !Array.isArray(parsedContent.suggestions)) {
