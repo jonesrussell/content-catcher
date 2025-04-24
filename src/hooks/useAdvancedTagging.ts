@@ -115,7 +115,7 @@ export function useAdvancedTagging(content: string) {
         let parsed;
         try {
           parsed = JSON.parse(jsonContent);
-        } catch (e) {
+        } catch {
           console.error("Failed to parse JSON:", jsonContent);
           throw new Error("Invalid JSON response from API");
         }
