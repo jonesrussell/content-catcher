@@ -1,4 +1,15 @@
+import { type ClassValue, clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
 import { format } from "date-fns";
+
+/**
+ * Combines multiple class names and merges Tailwind CSS classes
+ * @param inputs - Class names to combine
+ * @returns Merged class names string
+ */
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
 
 /**
  * Formats a date into a readable string
