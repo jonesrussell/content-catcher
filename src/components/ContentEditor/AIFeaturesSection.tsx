@@ -2,9 +2,7 @@
 
 import { motion } from "framer-motion";
 import type { TagAnalysis, TagStats } from "@/hooks/useAdvancedTagging";
-import type { AISuggestion } from "@/hooks/useAISuggestions";
 import { TagInput } from "@/components/TagInput";
-import { SuggestionsPanel } from "./SuggestionsPanel";
 
 interface AIFeaturesSectionProps {
   content: string;
@@ -14,9 +12,6 @@ interface AIFeaturesSectionProps {
   tagSuggestionsLoading: boolean;
   tagStats: TagStats | null;
   language: string;
-  suggestions: AISuggestion[];
-  onApplySuggestion: (content: string) => void;
-  textareaRef: React.RefObject<HTMLTextAreaElement | null>;
 }
 
 export function AIFeaturesSection({
@@ -27,9 +22,6 @@ export function AIFeaturesSection({
   tagSuggestionsLoading,
   tagStats,
   language,
-  suggestions,
-  onApplySuggestion,
-  textareaRef,
 }: AIFeaturesSectionProps) {
   if (content.length < 100) return null;
 

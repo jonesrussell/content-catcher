@@ -2,7 +2,6 @@
 
 import { useState, useCallback, useRef, KeyboardEvent, useEffect } from "react";
 import { useContentHistory } from "@/hooks/useContentHistory";
-import { useAISuggestions } from "@/hooks/useAISuggestions";
 import { TitleSection } from "./ContentEditor/TitleSection";
 import { useAdvancedTagging } from "@/hooks/useAdvancedTagging";
 import { MainEditor } from "./ContentEditor/MainEditor";
@@ -14,14 +13,11 @@ import { useAuth } from "@/lib/auth-context";
 export default function ContentEditor() {
   const { user } = useAuth();
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // State management
   const [content, setContent] = useState("");
   const [title, setTitle] = useState("");
   const [isGeneratingTitle, setIsGeneratingTitle] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
-  const [attachments, setAttachments] = useState<string[]>([]);
   const [tags, setTags] = useState<string[]>([]);
 
   // Custom hooks
@@ -43,8 +39,6 @@ export default function ContentEditor() {
     setTagSuggestions(initialTagSuggestions);
   }, [initialTagSuggestions]);
 
-  const { suggestions, setSuggestions } = useAISuggestions(content);
-
   const handleSave = useCallback(async () => {
     if (!user) {
       toast.error("Please login to save content");
@@ -63,7 +57,6 @@ export default function ContentEditor() {
           {
             user_id: user.id,
             content,
-            attachments: attachments ?? [],
             tags: tags ?? [],
             created_at: new Date().toISOString(),
             version_number: 1,
@@ -111,8 +104,6 @@ export default function ContentEditor() {
         setContent("");
         setTitle("");
         setTags([]);
-        setAttachments([]);
-        setSuggestions([]); // Clear AI suggestions
         setTagSuggestions([]); // Clear tag suggestions
       }, 300);
     } catch (error) {
@@ -121,39 +112,7 @@ export default function ContentEditor() {
         error instanceof Error ? error.message : "Failed to save content",
       );
     }
-  }, [content, attachments, tags, user, setSuggestions]);
-
-  const handleFileUpload = useCallback(
-    async (event: React.ChangeEvent<HTMLInputElement>) => {
-      const file = event.target.files?.[0];
-      if (!file || !user) return;
-
-      setIsUploading(true);
-      try {
-        const fileExt = file.name.split(".").pop();
-        const filePath = `${user.id}/${Date.now()}.${fileExt}`;
-
-        const { error: uploadError } = await supabase.storage
-          .from("attachments")
-          .upload(filePath, file);
-
-        if (uploadError) throw uploadError;
-
-        const {
-          data: { publicUrl },
-        } = supabase.storage.from("attachments").getPublicUrl(filePath);
-
-        setAttachments((prev) => [...prev, publicUrl]);
-        toast.success("File uploaded successfully!");
-      } catch (error) {
-        console.error("File upload error:", error);
-        toast.error("Failed to upload file");
-      } finally {
-        setIsUploading(false);
-      }
-    },
-    [user],
-  );
+  }, [content, tags, user]);
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -240,49 +199,19 @@ export default function ContentEditor() {
                 tagSuggestionsLoading={tagSuggestionsLoading}
                 tagStats={tagStats}
                 language={language}
-                suggestions={suggestions}
-                onApplySuggestion={(newContent: string) => {
-                  setContent(newContent);
-                  pushContent(newContent);
-                  setSuggestions([]);
-                }}
-                textareaRef={textareaRef}
               />
             ) : (
               <div className="flex flex-col gap-6">
                 <div className="border-primary/10 cursor-not-allowed rounded-xl border-2 bg-white/50 p-4 opacity-70 backdrop-blur-sm">
                   <h3 className="text-primary/70 mb-4 text-lg font-medium">
-                    AI Features
+                    Tags
                   </h3>
                   <div className="space-y-4">
                     <div className="flex flex-col gap-2">
-                      <label className="text-primary/70 text-sm font-medium">
-                        Tags
-                      </label>
                       <div className="border-primary/20 flex min-h-[40px] flex-wrap gap-2 rounded-lg border bg-white/70 p-2">
                         <span className="text-primary/70 text-xs">
                           Tags will appear here...
                         </span>
-                      </div>
-                    </div>
-                    <div className="flex flex-col gap-2">
-                      <label className="text-primary/70 text-sm font-medium">
-                        AI Suggestions
-                      </label>
-                      <div className="border-primary/20 rounded-lg border bg-white/70 p-4">
-                        <p className="text-primary/70 text-sm">
-                          Type more content to enable AI suggestions
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex flex-col gap-2">
-                      <label className="text-primary/70 text-sm font-medium">
-                        Content Analysis
-                      </label>
-                      <div className="border-primary/20 rounded-lg border bg-white/70 p-4">
-                        <p className="text-primary/70 text-sm">
-                          Content analysis will appear here...
-                        </p>
                       </div>
                     </div>
                   </div>
@@ -354,29 +283,6 @@ export default function ContentEditor() {
                 </svg>
               </button>
             </div>
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              disabled={isUploading}
-              className="text-primary flex items-center gap-2 rounded-lg bg-white px-4 py-2 shadow-lg transition-colors hover:bg-white/90 disabled:opacity-50"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="lucide lucide-upload h-4 w-4"
-              >
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                <polyline points="17 8 12 3 7 8"></polyline>
-                <line x1="12" x2="12" y1="3" y2="15"></line>
-              </svg>
-              Upload
-            </button>
           </div>
         </div>
       </div>
