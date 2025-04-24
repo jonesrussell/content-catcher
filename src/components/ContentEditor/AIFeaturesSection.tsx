@@ -1,32 +1,29 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { AIFeatures } from "./AIFeatures";
-import { SuggestionsPanel } from "./SuggestionsPanel";
-import { TagInput } from "@/components/TagInput";
-import type { TagAnalysis } from "@/hooks/useAdvancedTagging";
-import type { AISuggestion } from "@/hooks/useAISuggestions";
 import { useState, useEffect } from "react";
 import { useAISuggestions } from "@/hooks/useAISuggestions";
 import { useAdvancedTagging } from "@/hooks/useAdvancedTagging";
-import { toast } from "react-hot-toast";
+import type { TagAnalysis } from "@/hooks/useAdvancedTagging";
+import type { AISuggestion } from "@/hooks/useAISuggestions";
+import { TagInput } from "@/components/TagInput";
+import { SuggestionsPanel } from "./SuggestionsPanel";
 
 interface AIFeaturesSectionProps {
   content: string;
-  title: string;
-  setTitle: (title: string) => void;
-  isGeneratingTitle: boolean;
-  setIsGeneratingTitle: (loading: boolean) => void;
   tags: string[];
   setTags: (tags: string[]) => void;
   tagSuggestions: TagAnalysis[];
   tagSuggestionsLoading: boolean;
-  tagStats: any;
+  tagStats: {
+    totalTags: number;
+    categoryCounts: Record<string, number>;
+    accuracyScore: number;
+    languageBreakdown: Record<string, number>;
+    topCooccurrences: [string, string, number][];
+  };
   language: string;
   suggestions: AISuggestion[];
-  suggestionsLoading: boolean;
-  setSuggestions: (suggestions: AISuggestion[]) => void;
-  setTagSuggestions: (suggestions: TagAnalysis[]) => void;
   onApplySuggestion: (content: string) => void;
   textareaRef: React.RefObject<HTMLTextAreaElement | null>;
   disabled?: boolean;
@@ -34,10 +31,6 @@ interface AIFeaturesSectionProps {
 
 export function AIFeaturesSection({
   content,
-  title,
-  setTitle,
-  isGeneratingTitle,
-  setIsGeneratingTitle,
   tags,
   setTags,
   tagSuggestions,
@@ -45,12 +38,9 @@ export function AIFeaturesSection({
   tagStats,
   language,
   suggestions,
-  suggestionsLoading,
-  setSuggestions,
-  setTagSuggestions,
   onApplySuggestion,
   textareaRef,
-  disabled
+  disabled = false
 }: AIFeaturesSectionProps) {
   const {
     suggestions: aiSuggestions,
@@ -96,7 +86,7 @@ export function AIFeaturesSection({
               tagSuggestionsLoading={tagSuggestionsLoading}
               tagStats={tagStats}
               language={language}
-              onUpdateSuggestions={setTagSuggestions}
+              onUpdateSuggestions={setCurrentTagSuggestions}
             />
           ) : (
             <div className="flex flex-wrap gap-2">
