@@ -150,12 +150,36 @@ export function useAISuggestions(content: string) {
         if (!jsonContent) {
           throw new Error("Invalid API response format");
         }
-        const parsedContent = JSON.parse(jsonContent);
 
-        if (
-          !parsedContent?.suggestions ||
-          !Array.isArray(parsedContent.suggestions)
-        ) {
+        // Clean and validate the response
+        let cleanedContent = jsonContent;
+        
+        // Remove markdown code blocks if present
+        if (cleanedContent.includes('```')) {
+          cleanedContent = cleanedContent.replace(/```json\n?|\n?```/g, '').trim();
+        }
+        
+        // Check if the response is valid JSON
+        let parsedContent;
+        try {
+          parsedContent = JSON.parse(cleanedContent);
+        } catch (parseError) {
+          console.error("Failed to parse API response:", cleanedContent);
+          // If the response is not JSON, try to extract JSON from the text
+          const jsonMatch = cleanedContent.match(/\{[\s\S]*\}/);
+          if (jsonMatch) {
+            try {
+              parsedContent = JSON.parse(jsonMatch[0]);
+            } catch (extractError) {
+              console.error("Failed to extract JSON from response:", jsonMatch[0]);
+              throw new Error("Could not parse AI response as JSON");
+            }
+          } else {
+            throw new Error("AI response is not in valid JSON format");
+          }
+        }
+
+        if (!parsedContent?.suggestions || !Array.isArray(parsedContent.suggestions)) {
           throw new Error("Invalid suggestions format received from API");
         }
 

@@ -54,7 +54,9 @@ export function TitleSection({
       const jsonContent = response.data?.choices?.[0]?.message?.content;
       if (!jsonContent) throw new Error("Invalid API response");
 
-      const parsed = JSON.parse(jsonContent);
+      // Clean the response by removing markdown code block syntax
+      const cleanedContent = jsonContent.replace(/```json\n?|\n?```/g, '').trim();
+      const parsed = JSON.parse(cleanedContent);
       if (!parsed?.title || typeof parsed.title !== "string") {
         throw new Error("Invalid title format received");
       }
