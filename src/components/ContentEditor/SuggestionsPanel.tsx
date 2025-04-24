@@ -47,6 +47,8 @@ export function SuggestionsPanel({
         droppableId="suggestions"
         isDropDisabled={false}
         isCombineEnabled={false}
+        ignoreContainerClipping={false}
+        type="suggestion"
       >
         {(provided) => (
           <div
