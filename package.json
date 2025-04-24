@@ -1,12 +1,11 @@
 {
-  "name": "creatr",
+  "name": "content-catcher",
   "version": "0.1.0",
   "private": true,
-  "type": "module",
   "scripts": {
     "build": "next build",
     "check": "next lint && tsc --noEmit",
-    "dev": "next dev --turbo",
+    "dev": "next dev --turbopack",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "preview": "next build && next start",
@@ -18,7 +17,7 @@
     "test:watch": "vitest watch",
     "test:coverage": "vitest run --coverage",
     "test:types": "tsc --noEmit --pretty",
-    "test:all": "pnpm run test && pnpm run test:types",
+    "test:all": "bun run test && bun run test:types",
     "db:generate": "npx drizzle-kit generate && npx drizzle-kit migrate && git add . && git commit -m 'chore: update migration'"
   },
   "dependencies": {
@@ -31,10 +30,7 @@
     "@types/eslint": "^8.56.12",
     "@types/jest": "^29.5.14",
     "@types/lodash.debounce": "^4.0.9",
-    "@types/node": "^20.17.30",
-    "@types/react": "^18.3.20",
     "@types/react-beautiful-dnd": "^13.1.8",
-    "@types/react-dom": "^18.3.6",
     "@typescript-eslint/eslint-plugin": "^8.31.0",
     "@typescript-eslint/parser": "^8.31.0",
     "axios": "^1.8.4",
@@ -44,8 +40,6 @@
     "date-fns": "^4.1.0",
     "diff": "^7.0.0",
     "error-stack-parser": "^2.1.4",
-    "eslint": "^8.57.1",
-    "eslint-config-next": "^15.3.1",
     "eslint-import-resolver-node": "^0.3.9",
     "eslint-import-resolver-typescript": "^3.10.1",
     "framer-motion": "^12.8.0",
@@ -53,17 +47,14 @@
     "lodash.debounce": "^4.0.8",
     "lucide-react": "^0.468.0",
     "natural": "^8.0.1",
-    "next": "^15.3.1",
     "next-themes": "^0.4.6",
     "postcss": "^8.5.3",
     "postcss-syntax": "^0.36.2",
     "prettier": "^3.5.3",
     "prettier-plugin-tailwindcss": "^0.6.11",
-    "react": "^18.3.1",
     "react-beautiful-dnd": "^13.1.1",
     "react-diff-viewer": "^3.1.1",
     "react-diff-viewer-continued": "^3.4.0",
-    "react-dom": "^18.3.1",
     "react-hot-toast": "^2.5.2",
     "react-intersection-observer": "^9.16.0",
     "react-masonry-css": "^1.0.16",
@@ -73,16 +64,17 @@
     "stylelint-config-standard": "^37.0.0",
     "stylelint-config-tailwindcss": "^0.0.7",
     "tailwind-merge": "^2.6.0",
-    "tailwindcss": "^3.4.17",
     "tailwindcss-animate": "^1.0.7",
     "ts-jest": "^29.3.2",
-    "typescript": "^5.8.3",
     "y-indexeddb": "^9.0.12",
     "y-websocket": "^3.0.0",
     "yjs": "^13.6.26",
     "zod": "^3.24.3",
     "zod-form-data": "^2.0.7",
-    "zustand": "^5.0.3"
+    "zustand": "^5.0.3",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "next": "15.3.1"
   },
   "ct3aMetadata": {
     "initVersion": "7.38.1"
@@ -101,9 +93,21 @@
     "jest": "^29.7.0",
     "jsdom": "^26.1.0",
     "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^3.1.2"
+    "vitest": "^3.1.2",
+    "typescript": "^5",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@tailwindcss/postcss": "^4",
+    "tailwindcss": "^4",
+    "eslint": "^9",
+    "eslint-config-next": "15.3.1",
+    "@eslint/eslintrc": "^3"
   },
   "trustedDependencies": [
+    "@swc/core",
+    "esbuild",
+    "sharp",
     "unrs-resolver"
   ]
 }
