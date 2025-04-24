@@ -40,55 +40,28 @@ export function AIFeaturesSection({
       transition={{ duration: 0.3 }}
       className="flex flex-col gap-6"
     >
-      <div className="space-y-6">
-        {/* Tags Section */}
-        <div className="border-primary/5 rounded-xl border-2 bg-white/30 p-6 shadow-sm backdrop-blur-sm">
-          <h3 className="text-primary/40 mb-4 text-lg font-semibold">Tags</h3>
-          {content.length >= 100 ? (
-            <TagInput
-              tags={tags}
-              setTags={setTags}
-              tagSuggestions={tagSuggestions}
-              tagSuggestionsLoading={tagSuggestionsLoading}
-              tagStats={tagStats}
-              language={language}
-            />
-          ) : (
-            <div className="flex flex-wrap gap-2">
-              <span className="bg-primary/5 text-primary/30 rounded-full px-3 py-1 text-sm">
-                Tag placeholder
-              </span>
-              <span className="bg-primary/5 text-primary/30 rounded-full px-3 py-1 text-sm">
-                Another tag
-              </span>
-            </div>
-          )}
-        </div>
-
-        {/* AI Suggestions Section */}
-        <div className="border-primary/5 rounded-xl border-2 bg-white/30 p-6 shadow-sm backdrop-blur-sm">
-          <h3 className="text-primary/40 mb-4 text-lg font-semibold">
-            AI Suggestions
-          </h3>
-          {content.length >= 100 && suggestions.length > 0 ? (
-            <SuggestionsPanel
-              suggestions={suggestions}
-              onApplySuggestion={onApplySuggestion}
-              textareaRef={textareaRef}
-            />
-          ) : (
-            <div className="space-y-3">
-              <div className="rounded-lg bg-white/20 p-3">
-                <div className="bg-primary/5 mb-2 h-4 w-2/3 rounded-full"></div>
-                <div className="bg-primary/5 h-3 w-1/2 rounded-full"></div>
-              </div>
-              <div className="rounded-lg bg-white/20 p-3">
-                <div className="bg-primary/5 mb-2 h-4 w-3/4 rounded-full"></div>
-                <div className="bg-primary/5 h-3 w-1/3 rounded-full"></div>
-              </div>
-            </div>
-          )}
-        </div>
+      {/* Tags Section */}
+      <div className="border-primary/5 rounded-xl border-2 bg-white/30 p-6 shadow-sm backdrop-blur-sm">
+        <h3 className="text-primary/40 mb-4 text-lg font-semibold">Tags</h3>
+        {content.length >= 100 ? (
+          <TagInput
+            tags={tags}
+            setTags={setTags}
+            tagSuggestions={tagSuggestions}
+            tagSuggestionsLoading={tagSuggestionsLoading}
+            tagStats={tagStats}
+            language={language}
+          />
+        ) : (
+          <div className="flex flex-wrap gap-2">
+            <span className="bg-primary/5 text-primary/30 rounded-full px-3 py-1 text-sm">
+              Tag placeholder
+            </span>
+            <span className="bg-primary/5 text-primary/30 rounded-full px-3 py-1 text-sm">
+              Another tag
+            </span>
+          </div>
+        )}
       </div>
     </motion.div>
   );
