@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import type { TagAnalysis } from "@/hooks/useAdvancedTagging";
+import type { TagAnalysis, TagStats } from "@/hooks/useAdvancedTagging";
 import type { AISuggestion } from "@/hooks/useAISuggestions";
 import { TagInput } from "@/components/TagInput";
 import { SuggestionsPanel } from "./SuggestionsPanel";
@@ -12,13 +12,7 @@ interface AIFeaturesSectionProps {
   setTags: (tags: string[]) => void;
   tagSuggestions: TagAnalysis[];
   tagSuggestionsLoading: boolean;
-  tagStats: {
-    totalTags: number;
-    categoryCounts: Record<string, number>;
-    accuracyScore: number;
-    languageBreakdown: Record<string, number>;
-    topCooccurrences: [string, string, number][];
-  };
+  tagStats: TagStats | null;
   language: string;
   suggestions: AISuggestion[];
   onApplySuggestion: (content: string) => void;
