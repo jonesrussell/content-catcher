@@ -12,8 +12,13 @@ interface VersionHistoryProps {
   setSelectedVersions: (versions: string[]) => void;
   onCompare: () => void;
   onRevert: (version: ContentVersion) => void;
-  diffVersions: { oldVersion: ContentVersion; newVersion: ContentVersion; } | null;
-  setDiffVersions: (versions: { oldVersion: ContentVersion; newVersion: ContentVersion; } | null) => void;
+  diffVersions: {
+    oldVersion: ContentVersion;
+    newVersion: ContentVersion;
+  } | null;
+  setDiffVersions: (
+    versions: { oldVersion: ContentVersion; newVersion: ContentVersion } | null,
+  ) => void;
 }
 
 export function VersionHistory({
@@ -24,24 +29,30 @@ export function VersionHistory({
   onCompare,
   onRevert,
   diffVersions,
-  setDiffVersions
+  setDiffVersions,
 }: VersionHistoryProps) {
   if (loading) {
-    return <div className="p-4 text-center text-primary/60">Loading versions...</div>;
+    return (
+      <div className="text-primary/60 p-4 text-center">Loading versions...</div>
+    );
   }
 
   if (versions.length === 0) {
-    return <div className="p-4 text-center text-primary/60">No previous versions</div>;
+    return (
+      <div className="text-primary/60 p-4 text-center">
+        No previous versions
+      </div>
+    );
   }
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between mb-4">
-        <h4 className="text-sm font-medium text-primary">Version History</h4>
+      <div className="mb-4 flex items-center justify-between">
+        <h4 className="text-primary text-sm font-medium">Version History</h4>
         {selectedVersions.length === 2 && (
           <button
             onClick={onCompare}
-            className="px-3 py-1 bg-primary text-white rounded-lg text-sm hover:bg-primary/90 transition-colors"
+            className="bg-primary hover:bg-primary/90 rounded-lg px-3 py-1 text-sm text-white transition-colors"
           >
             Compare Selected
           </button>
@@ -50,7 +61,7 @@ export function VersionHistory({
 
       <div className="divide-y">
         {versions.map((version) => (
-          <div key={version.id} className="p-4 hover:bg-primary/5">
+          <div key={version.id} className="hover:bg-primary/5 p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <input
@@ -62,25 +73,30 @@ export function VersionHistory({
                         setSelectedVersions([...selectedVersions, version.id]);
                       }
                     } else {
-                      setSelectedVersions(selectedVersions.filter(id => id !== version.id));
+                      setSelectedVersions(
+                        selectedVersions.filter((id) => id !== version.id),
+                      );
                     }
                   }}
-                  className="rounded border-primary/20"
+                  className="border-primary/20 rounded"
                 />
                 <div>
-                  <p className="text-sm text-primary/80">
-                    Version {version.version_number} - {new Date(version.created_at).toLocaleString()}
+                  <p className="text-primary/80 text-sm">
+                    Version {version.version_number} -{" "}
+                    {new Date(version.created_at).toLocaleString()}
                   </p>
                   {version.comment && (
-                    <p className="text-sm text-primary/60 mt-1">{version.comment}</p>
+                    <p className="text-primary/60 mt-1 text-sm">
+                      {version.comment}
+                    </p>
                   )}
                 </div>
               </div>
               <button
                 onClick={() => onRevert(version)}
-                className="px-3 py-1 text-primary hover:bg-primary/10 rounded-lg transition-colors flex items-center gap-2"
+                className="text-primary hover:bg-primary/10 flex items-center gap-2 rounded-lg px-3 py-1 transition-colors"
               >
-                <RotateCcw className="w-4 h-4" />
+                <RotateCcw className="h-4 w-4" />
                 Revert
               </button>
             </div>

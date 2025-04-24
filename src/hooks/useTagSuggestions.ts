@@ -7,7 +7,7 @@ import { toast } from "react-hot-toast";
 export interface TagSuggestion {
   tag: string;
   confidence: number;
-  category: 'topic' | 'tone' | 'structure';
+  category: "topic" | "tone" | "structure";
   explanation: string;
 }
 
@@ -42,20 +42,22 @@ export function useTagSuggestions(content: string) {
                 - Include a brief explanation of why this tag is relevant
                 - Keep tags concise and relevant
                 - Ensure tags are useful for content organization
-                Content to analyze: ${content}`
-              }
+                Content to analyze: ${content}`,
+              },
             ],
-            jsonMode: true
+            jsonMode: true,
           },
           {
             headers: {
               "x-api-key": "67d49aba0baa5ec70723c474",
               "Content-Type": "application/json",
             },
-          }
+          },
         );
 
-        const jsonContent = JSON.parse(response.data.choices[0].message.content);
+        const jsonContent = JSON.parse(
+          response.data.choices[0].message.content,
+        );
         setSuggestions(jsonContent.suggestions);
       } catch (error) {
         console.error("Error generating tags:", error);

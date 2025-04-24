@@ -20,7 +20,7 @@ export function AISuggestionsPanel({
   loading,
   onClose,
   onApplySuggestion,
-  textareaRef
+  textareaRef,
 }: AISuggestionsPanelProps) {
   if (suggestions.length === 0) return null;
 
@@ -29,23 +29,22 @@ export function AISuggestionsPanel({
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: 20 }}
-      className="fixed right-8 top-24 w-80 bg-white/95 backdrop-blur-sm 
-        rounded-xl shadow-xl p-4 border border-primary/20 z-50"
+      className="border-primary/20 fixed top-24 right-8 z-50 w-80 rounded-xl border bg-white/95 p-4 shadow-xl backdrop-blur-sm"
     >
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-base font-semibold text-primary flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+      <div className="mb-4 flex items-center justify-between">
+        <h3 className="text-primary flex items-center gap-2 text-base font-semibold">
+          <span className="h-2 w-2 animate-pulse rounded-full bg-green-500"></span>
           AI Suggestions
         </h3>
         <div className="flex items-center gap-2">
           {loading && (
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+            <div className="border-primary h-4 w-4 animate-spin rounded-full border-b-2"></div>
           )}
           <button
             onClick={onClose}
-            className="p-1.5 hover:bg-primary/5 rounded-full transition-colors"
+            className="hover:bg-primary/5 rounded-full p-1.5 transition-colors"
           >
-            <X className="w-4 h-4 text-primary/70" />
+            <X className="text-primary/70 h-4 w-4" />
           </button>
         </div>
       </div>
@@ -53,22 +52,25 @@ export function AISuggestionsPanel({
       <DragDropContext
         onDragEnd={(result) => {
           if (!result.destination || !textareaRef.current) return;
-          
-          const suggestion = suggestions.find(s => s.id === result.draggableId);
+
+          const suggestion = suggestions.find(
+            (s) => s.id === result.draggableId,
+          );
           if (!suggestion) return;
 
           const textarea = textareaRef.current;
           const start = textarea.selectionStart;
           const end = textarea.selectionEnd;
           const text = textarea.value;
-          
-          const newContent = text.substring(0, start) + 
-            suggestion.suggestion + 
+
+          const newContent =
+            text.substring(0, start) +
+            suggestion.suggestion +
             text.substring(end);
-          
+
           onApplySuggestion(newContent);
           toast.success("Suggestion applied!");
-          
+
           // Set cursor position after the inserted text
           const newCursorPosition = start + suggestion.suggestion.length;
           setTimeout(() => {
@@ -79,15 +81,15 @@ export function AISuggestionsPanel({
       >
         <Droppable droppableId="suggestions">
           {(provided) => (
-            <div 
-              className="space-y-3" 
+            <div
+              className="space-y-3"
               ref={provided.innerRef}
               {...provided.droppableProps}
             >
               {suggestions.map((suggestion, index) => (
-                <Draggable 
-                  key={suggestion.id} 
-                  draggableId={suggestion.id} 
+                <Draggable
+                  key={suggestion.id}
+                  draggableId={suggestion.id}
                   index={index}
                 >
                   {(provided, snapshot) => (

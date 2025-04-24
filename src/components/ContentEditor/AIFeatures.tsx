@@ -9,11 +9,13 @@ interface AIFeaturesProps {
   disabled?: boolean;
 }
 
-export function AIFeatures({ content, onApplySuggestion, disabled = false }: AIFeaturesProps) {
-  const {
-    suggestions: aiSuggestions,
-    loading: aiSuggestionsLoading
-  } = useAISuggestions(content);
+export function AIFeatures({
+  content,
+  onApplySuggestion,
+  disabled = false,
+}: AIFeaturesProps) {
+  const { suggestions: aiSuggestions, loading: aiSuggestionsLoading } =
+    useAISuggestions(content);
 
   if (content.length < 100) return null;
 
@@ -25,7 +27,9 @@ export function AIFeatures({ content, onApplySuggestion, disabled = false }: AIF
     >
       {/* AI Features content */}
       {aiSuggestionsLoading && (
-        <div className="text-center text-primary/40">Loading AI suggestions...</div>
+        <div className="text-primary/40 text-center">
+          Loading AI suggestions...
+        </div>
       )}
       {!aiSuggestionsLoading && aiSuggestions.length > 0 && (
         <div className="space-y-2">
@@ -34,7 +38,7 @@ export function AIFeatures({ content, onApplySuggestion, disabled = false }: AIF
               key={suggestion.id}
               onClick={() => onApplySuggestion?.(suggestion.suggestion)}
               disabled={disabled}
-              className="w-full p-3 text-left bg-white/5 hover:bg-white/10 rounded-lg transition-colors"
+              className="w-full rounded-lg bg-white/5 p-3 text-left transition-colors hover:bg-white/10"
             >
               {suggestion.suggestion}
             </button>

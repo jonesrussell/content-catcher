@@ -21,13 +21,13 @@ export function TitleSection({
   content,
   isGeneratingTitle,
   setIsGeneratingTitle,
-  disabled
+  disabled,
 }: TitleSectionProps) {
   const hasGeneratedInitialTitle = useRef(false);
 
   const generateTitle = useCallback(async () => {
     if (!content || content.length < 100) return;
-    
+
     setIsGeneratingTitle(true);
     try {
       const response = await axios.post(
@@ -38,27 +38,27 @@ export function TitleSection({
               role: "user",
               content: `You are a professional content writer. Generate a concise, engaging, and descriptive title for this content. The title should be between 4-10 words and capture the main theme. Use this json schema: {
                 "title": "string"
-              }. Content: ${content.slice(0, 1000)}`
-            }
+              }. Content: ${content.slice(0, 1000)}`,
+            },
           ],
-          jsonMode: true
+          jsonMode: true,
         },
         {
           headers: {
             "x-api-key": process.env.NEXT_PUBLIC_OPENAI_API_KEY,
             "Content-Type": "application/json",
           },
-        }
+        },
       );
-      
+
       const jsonContent = response.data?.choices?.[0]?.message?.content;
-      if (!jsonContent) throw new Error('Invalid API response');
-      
+      if (!jsonContent) throw new Error("Invalid API response");
+
       const parsed = JSON.parse(jsonContent);
-      if (!parsed?.title || typeof parsed.title !== 'string') {
-        throw new Error('Invalid title format received');
+      if (!parsed?.title || typeof parsed.title !== "string") {
+        throw new Error("Invalid title format received");
       }
-      
+
       setTitle(parsed.title);
       if (!hasGeneratedInitialTitle.current) {
         hasGeneratedInitialTitle.current = true;
@@ -67,7 +67,9 @@ export function TitleSection({
       }
     } catch (error) {
       console.error("Error generating title:", error);
-      toast.error(error instanceof Error ? error.message : "Failed to generate title");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to generate title",
+      );
     } finally {
       setIsGeneratingTitle(false);
     }
@@ -92,9 +94,7 @@ export function TitleSection({
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Enter or generate a title..."
-          className="w-full min-w-0 p-3 md:p-4 text-base md:text-xl font-semibold bg-white/50 backdrop-blur-sm border-2
-            border-primary/10 rounded-xl shadow-lg focus:outline-none focus:border-primary/30
-            transition-all placeholder:text-primary/40 max-w-full"
+          className="border-primary/10 focus:border-primary/30 placeholder:text-primary/40 w-full max-w-full min-w-0 rounded-xl border-2 bg-white/50 p-3 text-base font-semibold shadow-lg backdrop-blur-sm transition-all focus:outline-none md:p-4 md:text-xl"
           disabled={disabled}
         />
         <TitleGenerator

@@ -21,55 +21,61 @@ export default function SearchContent() {
   const [loading, setLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
 
-  const performSearch = useCallback(async (searchQuery: string, userId: string, tags: string[]) => {
-    if (!searchQuery.trim()) {
-      setResults([]);
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const query = supabase
-        .from("content")
-        .select("*")
-        .eq("user_id", userId)
-        .textSearch("fts", searchQuery, {
-          config: "english",
-        });
-
-      if (tags.length > 0) {
-        query.contains('tags', tags);
+  const performSearch = useCallback(
+    async (searchQuery: string, userId: string, tags: string[]) => {
+      if (!searchQuery.trim()) {
+        setResults([]);
+        return;
       }
 
-      const { data, error } = await query.limit(5);
+      setLoading(true);
+      try {
+        const query = supabase
+          .from("content")
+          .select("*")
+          .eq("user_id", userId)
+          .textSearch("fts", searchQuery, {
+            config: "english",
+          });
 
-      if (error) throw error;
-      
-      const processedData = (data || []).map(item => ({
-        ...item,
-        tags: item.tags || [],
-        attachments: item.attachments || [],
-        version_number: item.version_number || 1
-      })) as SearchResult[];
+        if (tags.length > 0) {
+          query.contains("tags", tags);
+        }
 
-      setResults(processedData);
-    } catch (error) {
-      console.error('Search error:', error);
-      toast.error('Failed to search content');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+        const { data, error } = await query.limit(5);
+
+        if (error) throw error;
+
+        const processedData = (data || []).map((item) => ({
+          ...item,
+          tags: item.tags || [],
+          attachments: item.attachments || [],
+          version_number: item.version_number || 1,
+        })) as SearchResult[];
+
+        setResults(processedData);
+      } catch (error) {
+        console.error("Search error:", error);
+        toast.error("Failed to search content");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [],
+  );
 
   const debouncedSearch = useMemo(
     () => debounce(performSearch, 300),
-    [performSearch]
+    [performSearch],
   );
 
-  const searchContent = useCallback((searchQuery: string) => {
-    if (!user) return;
-    debouncedSearch(searchQuery, user.id, selectedTags);
-  }, [user, selectedTags, debouncedSearch]);
+  const searchContent = useCallback(
+    (searchQuery: string) => {
+      if (!user) return;
+      debouncedSearch(searchQuery, user.id, selectedTags);
+    },
+    [user, selectedTags, debouncedSearch],
+  );
 
   useEffect(() => {
     searchContent(query);
@@ -88,7 +94,7 @@ export default function SearchContent() {
         </span>
       ) : (
         part
-      )
+      ),
     );
   };
 
@@ -102,14 +108,14 @@ export default function SearchContent() {
               onClick={() => {
                 setSelectedTags(
                   selectedTags.includes(tag)
-                    ? selectedTags.filter(t => t !== tag)
-                    : [...selectedTags, tag]
+                    ? selectedTags.filter((t) => t !== tag)
+                    : [...selectedTags, tag],
                 );
               }}
-              className={`px-3 py-1 rounded-full text-sm transition-colors ${
+              className={`rounded-full px-3 py-1 text-sm transition-colors ${
                 selectedTags.includes(tag)
-                  ? 'bg-primary text-white'
-                  : 'bg-primary/10 text-primary hover:bg-primary/20'
+                  ? "bg-primary text-white"
+                  : "bg-primary/10 text-primary hover:bg-primary/20"
               }`}
             >
               {tag}
@@ -117,51 +123,45 @@ export default function SearchContent() {
           ))}
         </div>
         <div className="relative">
-        <input
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          onFocus={() => setShowSuggestions(true)}
-          placeholder="Search your content..."
-          className="w-full px-4 py-3 pl-12 bg-white/50 backdrop-blur-sm border-2 
-            border-primary/10 rounded-xl shadow-sm focus:outline-none 
-            focus:border-primary/30 transition-all"
-        />
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 
-          text-primary/50" />
-        {loading && (
-          <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 
-            text-primary/50 animate-spin" />
-        )}
-      </div>
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onFocus={() => setShowSuggestions(true)}
+            placeholder="Search your content..."
+            className="border-primary/10 focus:border-primary/30 w-full rounded-xl border-2 bg-white/50 px-4 py-3 pl-12 shadow-sm backdrop-blur-sm transition-all focus:outline-none"
+          />
+          <Search className="text-primary/50 absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2" />
+          {loading && (
+            <Loader2 className="text-primary/50 absolute top-1/2 right-4 h-5 w-5 -translate-y-1/2 animate-spin" />
+          )}
+        </div>
 
-      <AnimatePresence>
-        {showSuggestions && results.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 10 }}
-            className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl 
-              shadow-lg border border-primary/10 overflow-hidden z-50"
-          >
-            <div className="max-h-96 overflow-y-auto">
-              {results.map((result) => (
-                <div
-                  key={result.id}
-                  className="p-4 border-b border-primary/5 hover:bg-primary/5 
-                    transition-colors cursor-pointer"
-                >
-                  <p className="text-primary/80 line-clamp-2">
-                    {highlightMatch(result.content, query)}
-                  </p>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    {new Date(result.created_at).toLocaleDateString()}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        )}
+        <AnimatePresence>
+          {showSuggestions && results.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              className="border-primary/10 absolute top-full right-0 left-0 z-50 mt-2 overflow-hidden rounded-xl border bg-white shadow-lg"
+            >
+              <div className="max-h-96 overflow-y-auto">
+                {results.map((result) => (
+                  <div
+                    key={result.id}
+                    className="border-primary/5 hover:bg-primary/5 cursor-pointer border-b p-4 transition-colors"
+                  >
+                    <p className="text-primary/80 line-clamp-2">
+                      {highlightMatch(result.content, query)}
+                    </p>
+                    <p className="text-muted-foreground mt-1 text-sm">
+                      {new Date(result.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          )}
         </AnimatePresence>
       </div>
     </div>

@@ -53,13 +53,13 @@ export function useContent(userId: string | undefined) {
           .order("created_at", { ascending: false });
 
         if (error) throw error;
-        
+
         // Ensure tags are always an array
-        const processedData = (data || []).map(item => ({
+        const processedData = (data || []).map((item) => ({
           ...item,
-          tags: item.tags || []
+          tags: item.tags || [],
         })) as Content[];
-        
+
         setContent(processedData);
       } catch (error) {
         console.error("Error loading content:", error);
@@ -73,43 +73,46 @@ export function useContent(userId: string | undefined) {
 
     // Set up real-time subscription
     const channel = supabase
-      .channel('content_changes')
+      .channel("content_changes")
       .on(
-        'postgres_changes',
+        "postgres_changes",
         {
-          event: '*',
-          schema: 'public',
-          table: 'content',
-          filter: `user_id=eq.${userId}`
+          event: "*",
+          schema: "public",
+          table: "content",
+          filter: `user_id=eq.${userId}`,
         },
         async (payload) => {
-          console.log('Change received!', payload);
-          
+          console.log("Change received!", payload);
+
           switch (payload.eventType) {
-            case 'INSERT':
-              setContent(prev => [payload.new as Content, ...prev]);
-              toast.success('New content added!');
+            case "INSERT":
+              setContent((prev) => [payload.new as Content, ...prev]);
+              toast.success("New content added!");
               break;
-              
-            case 'UPDATE':
-              setContent(prev => 
-                prev.map(item => 
-                  item.id === payload.new.id ? 
-                  { ...payload.new, tags: payload.new.tags || [] } as Content : 
-                  item
-                )
+
+            case "UPDATE":
+              setContent((prev) =>
+                prev.map((item) =>
+                  item.id === payload.new.id
+                    ? ({
+                        ...payload.new,
+                        tags: payload.new.tags || [],
+                      } as Content)
+                    : item,
+                ),
               );
-              toast.success('Content updated!');
+              toast.success("Content updated!");
               break;
-              
-            case 'DELETE':
-              setContent(prev => 
-                prev.filter(item => item.id !== payload.old.id)
+
+            case "DELETE":
+              setContent((prev) =>
+                prev.filter((item) => item.id !== payload.old.id),
               );
-              toast.success('Content deleted!');
+              toast.success("Content deleted!");
               break;
           }
-        }
+        },
       )
       .subscribe();
 

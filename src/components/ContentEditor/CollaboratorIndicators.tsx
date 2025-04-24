@@ -13,8 +13,13 @@ interface CollaboratorIndicatorsProps {
   currentUserId: string;
 }
 
-export function CollaboratorIndicators({ collaborators, currentUserId }: CollaboratorIndicatorsProps) {
-  const otherCollaborators = collaborators.filter(c => c.user_id !== currentUserId);
+export function CollaboratorIndicators({
+  collaborators,
+  currentUserId,
+}: CollaboratorIndicatorsProps) {
+  const otherCollaborators = collaborators.filter(
+    (c) => c.user_id !== currentUserId,
+  );
 
   if (otherCollaborators.length === 0) return null;
 
@@ -25,13 +30,13 @@ export function CollaboratorIndicators({ collaborators, currentUserId }: Collabo
           key={collaborator.user_id}
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="flex items-center gap-2 px-3 py-1.5 bg-primary/10 rounded-full"
+          className="bg-primary/10 flex items-center gap-2 rounded-full px-3 py-1.5"
         >
-          <User className="w-4 h-4 text-primary/70" />
-          <span className="text-sm text-primary/70">
-            {collaborator.username || 'Anonymous'}
+          <User className="text-primary/70 h-4 w-4" />
+          <span className="text-primary/70 text-sm">
+            {collaborator.username || "Anonymous"}
           </span>
-          <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+          <span className="h-2 w-2 animate-pulse rounded-full bg-green-500" />
         </motion.div>
       ))}
     </div>

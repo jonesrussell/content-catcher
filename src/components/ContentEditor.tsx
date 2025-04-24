@@ -25,31 +25,25 @@ export default function ContentEditor() {
   const [tags, setTags] = useState<string[]>([]);
 
   // Custom hooks
-  const {
-    pushContent,
-    undo,
-    redo,
-    canUndo,
-    canRedo
-  } = useContentHistory(content);
+  const { pushContent, undo, redo, canUndo, canRedo } =
+    useContentHistory(content);
 
   const {
     suggestions: initialTagSuggestions,
     stats: tagStats,
     loading: tagSuggestionsLoading,
-    language
+    language,
   } = useAdvancedTagging(content);
 
-  const [tagSuggestions, setTagSuggestions] = useState<typeof initialTagSuggestions>(initialTagSuggestions);
+  const [tagSuggestions, setTagSuggestions] = useState<
+    typeof initialTagSuggestions
+  >(initialTagSuggestions);
 
   useEffect(() => {
     setTagSuggestions(initialTagSuggestions);
   }, [initialTagSuggestions]);
 
-  const {
-    suggestions,
-    setSuggestions
-  } = useAISuggestions(content);
+  const { suggestions, setSuggestions } = useAISuggestions(content);
 
   const handleSave = useCallback(async () => {
     if (!user) {
@@ -65,18 +59,20 @@ export default function ContentEditor() {
     try {
       const { data, error } = await supabase
         .from("content")
-        .insert([{ 
-          user_id: user.id, 
-          content, 
-          attachments: attachments ?? [], 
-          tags: tags ?? [],
-          created_at: new Date().toISOString(),
-          version_number: 1,
-          updated_at: new Date().toISOString()
-        }])
-        .select('*')
+        .insert([
+          {
+            user_id: user.id,
+            content,
+            attachments: attachments ?? [],
+            tags: tags ?? [],
+            created_at: new Date().toISOString(),
+            version_number: 1,
+            updated_at: new Date().toISOString(),
+          },
+        ])
+        .select("*")
         .single();
-        
+
       if (error) {
         console.error("Supabase error:", error);
         if (error.code === "23505") {
@@ -90,24 +86,26 @@ export default function ContentEditor() {
       }
 
       if (!data) {
-        throw new Error('No data returned from insert');
+        throw new Error("No data returned from insert");
       }
 
       // Show success animation and scroll to saved content
-      const savedContentSection = document.querySelector('.saved-content-section');
+      const savedContentSection = document.querySelector(
+        ".saved-content-section",
+      );
       if (savedContentSection) {
-        savedContentSection.classList.add('highlight-new-content');
-        savedContentSection.scrollIntoView({ 
-          behavior: 'smooth',
-          block: 'start'
+        savedContentSection.classList.add("highlight-new-content");
+        savedContentSection.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
         });
         setTimeout(() => {
-          savedContentSection.classList.remove('highlight-new-content');
+          savedContentSection.classList.remove("highlight-new-content");
         }, 2000);
       }
 
       toast.success("Content saved successfully!");
-      
+
       // Clear form with a slight delay for better UX
       setTimeout(() => {
         setContent("");
@@ -119,38 +117,43 @@ export default function ContentEditor() {
       }, 300);
     } catch (error) {
       console.error("Save error:", error);
-      toast.error(error instanceof Error ? error.message : "Failed to save content");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to save content",
+      );
     }
   }, [content, attachments, tags, user, setSuggestions]);
 
-  const handleFileUpload = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file || !user) return;
+  const handleFileUpload = useCallback(
+    async (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (!file || !user) return;
 
-    setIsUploading(true);
-    try {
-      const fileExt = file.name.split(".").pop();
-      const filePath = `${user.id}/${Date.now()}.${fileExt}`;
-      
-      const { error: uploadError } = await supabase.storage
-        .from("attachments")
-        .upload(filePath, file);
+      setIsUploading(true);
+      try {
+        const fileExt = file.name.split(".").pop();
+        const filePath = `${user.id}/${Date.now()}.${fileExt}`;
 
-      if (uploadError) throw uploadError;
+        const { error: uploadError } = await supabase.storage
+          .from("attachments")
+          .upload(filePath, file);
 
-      const { data: { publicUrl } } = supabase.storage
-        .from("attachments")
-        .getPublicUrl(filePath);
+        if (uploadError) throw uploadError;
 
-      setAttachments(prev => [...prev, publicUrl]);
-      toast.success("File uploaded successfully!");
-    } catch (error) {
-      console.error("File upload error:", error);
-      toast.error("Failed to upload file");
-    } finally {
-      setIsUploading(false);
-    }
-  }, [user]);
+        const {
+          data: { publicUrl },
+        } = supabase.storage.from("attachments").getPublicUrl(filePath);
+
+        setAttachments((prev) => [...prev, publicUrl]);
+        toast.success("File uploaded successfully!");
+      } catch (error) {
+        console.error("File upload error:", error);
+        toast.error("Failed to upload file");
+      } finally {
+        setIsUploading(false);
+      }
+    },
+    [user],
+  );
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -158,32 +161,34 @@ export default function ContentEditor() {
         e.preventDefault();
         handleSave();
       }
-      
+
       // Undo/Redo keyboard shortcuts
       if (e.ctrlKey || e.metaKey) {
-        if (e.key === 'z') {
+        if (e.key === "z") {
           e.preventDefault();
           const previousContent = undo();
           setContent(previousContent);
         }
-        if (e.key === 'y' || (e.shiftKey && e.key === 'z')) {
+        if (e.key === "y" || (e.shiftKey && e.key === "z")) {
           e.preventDefault();
           const nextContent = redo();
           setContent(nextContent);
         }
       }
     },
-    [handleSave, undo, redo]
+    [handleSave, undo, redo],
   );
 
   return (
-    <div className="relative w-full max-w-6xl mx-auto px-4">
-      <div className="flex flex-col md:grid md:grid-cols-[1fr,400px] gap-6">
+    <div className="relative mx-auto w-full max-w-6xl px-4">
+      <div className="flex flex-col gap-6 md:grid md:grid-cols-[1fr,400px]">
         {/* Main Content Column */}
-        <div className="relative w-full min-h-[300px]">
+        <div className="relative min-h-[300px] w-full">
           {/* Title Area */}
-          <div className={`mb-3 sm:mb-4 transition-all duration-500 ${content.length >= 100 ? 'opacity-100' : 'opacity-40'}`}>
-            <div className="relative w-full bg-white/30 backdrop-blur-sm rounded-xl border-2 border-primary/5 p-3 sm:p-4">
+          <div
+            className={`mb-3 transition-all duration-500 sm:mb-4 ${content.length >= 100 ? "opacity-100" : "opacity-40"}`}
+          >
+            <div className="border-primary/5 relative w-full rounded-xl border-2 bg-white/30 p-3 backdrop-blur-sm sm:p-4">
               {content.length >= 100 ? (
                 <TitleSection
                   title={title}
@@ -196,22 +201,26 @@ export default function ContentEditor() {
               ) : (
                 <div className="space-y-6 transition-all duration-500">
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-medium text-primary/30">Title</label>
+                    <label className="text-primary/30 text-sm font-medium">
+                      Title
+                    </label>
                     <input
                       type="text"
                       placeholder="Enter a title..."
-                      className="w-full px-3 py-2 bg-white/50 border border-primary/10 rounded-lg text-primary/30 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="border-primary/10 text-primary/30 focus:ring-primary/20 w-full rounded-lg border bg-white/50 px-3 py-2 focus:ring-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                       disabled
                     />
                   </div>
                   <div className="flex items-center gap-2">
                     <button
-                      className="px-3 py-1.5 text-sm font-medium text-primary/30 bg-primary/5 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="text-primary/30 bg-primary/5 rounded-lg px-3 py-1.5 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50"
                       disabled
                     >
                       Generate Title
                     </button>
-                    <span className="text-xs text-primary/30">Type more content to enable title generation</span>
+                    <span className="text-primary/30 text-xs">
+                      Type more content to enable title generation
+                    </span>
                   </div>
                 </div>
               )}
@@ -219,7 +228,9 @@ export default function ContentEditor() {
           </div>
 
           {/* AI Features Section */}
-          <div className={`space-y-6 transition-all duration-500 ${content.length >= 100 ? 'opacity-100' : 'opacity-50'}`}>
+          <div
+            className={`space-y-6 transition-all duration-500 ${content.length >= 100 ? "opacity-100" : "opacity-50"}`}
+          >
             {content.length >= 100 ? (
               <AIFeaturesSection
                 content={content}
@@ -239,29 +250,43 @@ export default function ContentEditor() {
               />
             ) : (
               <div className="space-y-6">
-                <div className="bg-white/20 backdrop-blur-sm rounded-xl border-2 border-primary/5 p-4 opacity-50 cursor-not-allowed">
-                  <h3 className="text-lg font-medium text-primary/20 mb-4">AI Features</h3>
+                <div className="border-primary/5 cursor-not-allowed rounded-xl border-2 bg-white/20 p-4 opacity-50 backdrop-blur-sm">
+                  <h3 className="text-primary/20 mb-4 text-lg font-medium">
+                    AI Features
+                  </h3>
                   <div className="space-y-4">
                     <div className="flex flex-col gap-2">
-                      <label className="text-sm font-medium text-primary/20">Tags</label>
-                      <div className="flex flex-wrap gap-2 p-2 bg-white/30 border border-primary/5 rounded-lg min-h-[40px]">
-                        <span className="text-xs text-primary/20">Tags will appear here...</span>
+                      <label className="text-primary/20 text-sm font-medium">
+                        Tags
+                      </label>
+                      <div className="border-primary/5 flex min-h-[40px] flex-wrap gap-2 rounded-lg border bg-white/30 p-2">
+                        <span className="text-primary/20 text-xs">
+                          Tags will appear here...
+                        </span>
                       </div>
                     </div>
                     <div className="flex flex-col gap-2">
-                      <label className="text-sm font-medium text-primary/20">AI Suggestions</label>
-                      <div className="p-4 bg-white/30 border border-primary/5 rounded-lg">
-                        <p className="text-sm text-primary/20">Type more content to enable AI suggestions</p>
+                      <label className="text-primary/20 text-sm font-medium">
+                        AI Suggestions
+                      </label>
+                      <div className="border-primary/5 rounded-lg border bg-white/30 p-4">
+                        <p className="text-primary/20 text-sm">
+                          Type more content to enable AI suggestions
+                        </p>
                       </div>
                     </div>
                     <div className="flex flex-col gap-2">
-                      <label className="text-sm font-medium text-primary/20">Content Analysis</label>
-                      <div className="p-4 bg-white/30 border border-primary/5 rounded-lg">
-                        <p className="text-sm text-primary/20">Content analysis will appear here...</p>
+                      <label className="text-primary/20 text-sm font-medium">
+                        Content Analysis
+                      </label>
+                      <div className="border-primary/5 rounded-lg border bg-white/30 p-4">
+                        <p className="text-primary/20 text-sm">
+                          Content analysis will appear here...
+                        </p>
                       </div>
                     </div>
                   </div>
-                  <div className="absolute inset-0 bg-gradient-to-br from-transparent to-white/5 rounded-xl pointer-events-none" />
+                  <div className="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-transparent to-white/5" />
                 </div>
               </div>
             )}
@@ -277,7 +302,7 @@ export default function ContentEditor() {
         </div>
 
         {/* Right Column - Textarea and Controls */}
-        <div className="relative w-full flex flex-col gap-4">
+        <div className="relative flex w-full flex-col gap-4">
           <MainEditor
             content={content}
             setContent={setContent}
@@ -295,10 +320,20 @@ export default function ContentEditor() {
                   const previousContent = undo();
                   setContent(previousContent);
                 }}
-                className="p-2 bg-white text-primary rounded-lg shadow-lg hover:bg-white/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="text-primary rounded-lg bg-white p-2 shadow-lg transition-colors hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-50"
                 title="Undo (Ctrl+Z)"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   <path d="M3 7v6h6"></path>
                   <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"></path>
                 </svg>
@@ -309,10 +344,20 @@ export default function ContentEditor() {
                   const nextContent = redo();
                   setContent(nextContent);
                 }}
-                className="p-2 bg-white text-primary rounded-lg shadow-lg hover:bg-white/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="text-primary rounded-lg bg-white p-2 shadow-lg transition-colors hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-50"
                 title="Redo (Ctrl+Y)"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   <path d="M21 7v6h-6"></path>
                   <path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13"></path>
                 </svg>
@@ -321,9 +366,20 @@ export default function ContentEditor() {
             <button
               onClick={() => fileInputRef.current?.click()}
               disabled={isUploading}
-              className="px-4 py-2 bg-white text-primary rounded-lg shadow-lg hover:bg-white/90 transition-colors flex items-center gap-2 disabled:opacity-50"
+              className="text-primary flex items-center gap-2 rounded-lg bg-white px-4 py-2 shadow-lg transition-colors hover:bg-white/90 disabled:opacity-50"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-upload w-4 h-4">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="lucide lucide-upload h-4 w-4"
+              >
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                 <polyline points="17 8 12 3 7 8"></polyline>
                 <line x1="12" x2="12" y1="3" y2="15"></line>

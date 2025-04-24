@@ -1,6 +1,6 @@
-import { motion } from 'framer-motion';
-import ReactDiffViewer from 'react-diff-viewer';
-import { ContentVersion } from '@/types';
+import { motion } from "framer-motion";
+import ReactDiffViewer from "react-diff-viewer";
+import { ContentVersion } from "@/types";
 
 interface DiffViewerProps {
   oldVersion: ContentVersion;
@@ -8,25 +8,32 @@ interface DiffViewerProps {
   onClose: () => void;
 }
 
-export function DiffViewer({ oldVersion, newVersion, onClose }: DiffViewerProps) {
+export function DiffViewer({
+  oldVersion,
+  newVersion,
+  onClose,
+}: DiffViewerProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 20 }}
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-6"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-6"
     >
-      <div className="bg-white rounded-xl w-full max-w-6xl max-h-[80vh] overflow-hidden flex flex-col">
-        <div className="p-4 border-b flex items-center justify-between">
+      <div className="flex max-h-[80vh] w-full max-w-6xl flex-col overflow-hidden rounded-xl bg-white">
+        <div className="flex items-center justify-between border-b p-4">
           <div>
-            <h3 className="text-lg font-semibold text-primary">Compare Versions</h3>
-            <p className="text-sm text-primary/60">
-              Version {oldVersion.version_number} → Version {newVersion.version_number}
+            <h3 className="text-primary text-lg font-semibold">
+              Compare Versions
+            </h3>
+            <p className="text-primary/60 text-sm">
+              Version {oldVersion.version_number} → Version{" "}
+              {newVersion.version_number}
             </p>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-primary/5 rounded-lg transition-colors"
+            className="hover:bg-primary/5 rounded-lg p-2 transition-colors"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -45,8 +52,8 @@ export function DiffViewer({ oldVersion, newVersion, onClose }: DiffViewerProps)
             </svg>
           </button>
         </div>
-        
-        <div className="overflow-auto p-4 flex-grow">
+
+        <div className="flex-grow overflow-auto p-4">
           <ReactDiffViewer
             oldValue={oldVersion.content}
             newValue={newVersion.content}
@@ -69,23 +76,25 @@ export function DiffViewer({ oldVersion, newVersion, onClose }: DiffViewerProps)
                   gutterBackgroundDark: "#f0f1f2",
                   highlightBackground: "#fffbdd",
                   highlightGutterBackground: "#fff5b1",
-                }
-              }
+                },
+              },
             }}
           />
         </div>
 
         {oldVersion.tags?.length > 0 || newVersion.tags?.length > 0 ? (
-          <div className="p-4 border-t">
-            <h4 className="text-sm font-medium text-primary mb-2">Tag Changes</h4>
+          <div className="border-t p-4">
+            <h4 className="text-primary mb-2 text-sm font-medium">
+              Tag Changes
+            </h4>
             <div className="flex gap-4">
               <div className="flex-1">
-                <p className="text-xs text-primary/60 mb-1">Old Tags</p>
+                <p className="text-primary/60 mb-1 text-xs">Old Tags</p>
                 <div className="flex flex-wrap gap-2">
                   {oldVersion.tags?.map((tag, index) => (
                     <span
                       key={`old-${index}`}
-                      className="bg-gray-100 text-gray-800 px-2 py-1 rounded text-sm"
+                      className="rounded bg-gray-100 px-2 py-1 text-sm text-gray-800"
                     >
                       {tag}
                     </span>
@@ -93,12 +102,12 @@ export function DiffViewer({ oldVersion, newVersion, onClose }: DiffViewerProps)
                 </div>
               </div>
               <div className="flex-1">
-                <p className="text-xs text-primary/60 mb-1">New Tags</p>
+                <p className="text-primary/60 mb-1 text-xs">New Tags</p>
                 <div className="flex flex-wrap gap-2">
                   {newVersion.tags?.map((tag, index) => (
                     <span
                       key={`new-${index}`}
-                      className="bg-gray-100 text-gray-800 px-2 py-1 rounded text-sm"
+                      className="rounded bg-gray-100 px-2 py-1 text-sm text-gray-800"
                     >
                       {tag}
                     </span>

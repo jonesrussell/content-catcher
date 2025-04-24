@@ -1,4 +1,4 @@
-import { format } from 'date-fns'
+import { format } from "date-fns";
 
 /**
  * Formats a date into a readable string
@@ -7,10 +7,10 @@ import { format } from 'date-fns'
  */
 export function formatDate(date: Date | string): string {
   try {
-    const dateObj = typeof date === 'string' ? new Date(date) : date
-    return format(dateObj, 'MMM d, yyyy')
+    const dateObj = typeof date === "string" ? new Date(date) : date;
+    return format(dateObj, "MMM d, yyyy");
   } catch {
-    return 'Invalid Date'
+    return "Invalid Date";
   }
 }
 
@@ -22,7 +22,7 @@ export function formatDate(date: Date | string): string {
  */
 export function truncateText(text: string, maxLength: number): string {
   if (!text || text.length <= maxLength) {
-    return text
+    return text;
   }
-  return text.slice(0, maxLength).trim() + '...'
-} 
+  return text.slice(0, maxLength).trim() + "...";
+}

@@ -29,16 +29,15 @@ export function EditorControls({
   onUpload,
   onSave,
   onUndo,
-  onRedo
+  onRedo,
 }: EditorControlsProps) {
   return (
-    <div className="fixed md:absolute bottom-4 md:bottom-6 right-4 md:right-6 flex items-center gap-2 md:gap-3 z-10">
+    <div className="fixed right-4 bottom-4 z-10 flex items-center gap-2 md:absolute md:right-6 md:bottom-6 md:gap-3">
       <div className="flex items-center gap-2">
         <button
           onClick={onUndo}
           disabled={!canUndo}
-          className="p-2 bg-white text-primary rounded-lg shadow-lg hover:bg-white/90 
-            transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="text-primary rounded-lg bg-white p-2 shadow-lg transition-colors hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-50"
           title="Undo (Ctrl+Z)"
         >
           <svg
@@ -59,8 +58,7 @@ export function EditorControls({
         <button
           onClick={onRedo}
           disabled={!canRedo}
-          className="p-2 bg-white text-primary rounded-lg shadow-lg hover:bg-white/90 
-            transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="text-primary rounded-lg bg-white p-2 shadow-lg transition-colors hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-50"
           title="Redo (Ctrl+Y)"
         >
           <svg
@@ -81,12 +79,14 @@ export function EditorControls({
       </div>
 
       {attachments.length > 0 && (
-        <div className="flex items-center gap-2 px-4 py-2 bg-white/80 rounded-lg">
-          <FileText className="w-4 h-4 text-primary" />
-          <span className="text-sm text-primary">{attachments.length} files</span>
+        <div className="flex items-center gap-2 rounded-lg bg-white/80 px-4 py-2">
+          <FileText className="text-primary h-4 w-4" />
+          <span className="text-primary text-sm">
+            {attachments.length} files
+          </span>
         </div>
       )}
-      
+
       {user ? (
         <>
           <motion.button
@@ -94,9 +94,9 @@ export function EditorControls({
             animate={{ opacity: 1, scale: 1 }}
             onClick={onUpload}
             disabled={isUploading}
-            className="px-4 py-2 bg-white text-primary rounded-lg shadow-lg hover:bg-white/90 transition-colors flex items-center gap-2 disabled:opacity-50"
+            className="text-primary flex items-center gap-2 rounded-lg bg-white px-4 py-2 shadow-lg transition-colors hover:bg-white/90 disabled:opacity-50"
           >
-            <Upload className="w-4 h-4" />
+            <Upload className="h-4 w-4" />
             {isUploading ? "Uploading..." : "Upload"}
           </motion.button>
 
@@ -107,9 +107,9 @@ export function EditorControls({
               exit={{ opacity: 0, y: 20 }}
               onClick={onSave}
               disabled={isSaving}
-              className="px-6 py-3 bg-primary text-white rounded-lg shadow-lg hover:bg-primary/90 transition-colors flex items-center gap-2 disabled:opacity-50"
+              className="bg-primary hover:bg-primary/90 flex items-center gap-2 rounded-lg px-6 py-3 text-white shadow-lg transition-colors disabled:opacity-50"
             >
-              <Save className="w-4 h-4" />
+              <Save className="h-4 w-4" />
               {isSaving ? "Saving..." : "Save"}
             </motion.button>
           )}
@@ -117,7 +117,7 @@ export function EditorControls({
       ) : (
         <a
           href="/login"
-          className="px-4 py-2 bg-primary text-white rounded-lg shadow-lg hover:bg-primary/90 transition-colors"
+          className="bg-primary hover:bg-primary/90 rounded-lg px-4 py-2 text-white shadow-lg transition-colors"
         >
           Login
         </a>

@@ -20,7 +20,7 @@ export function TagSection({
   tagSuggestionsLoading,
   tagStats,
   language,
-  onUpdateSuggestions
+  onUpdateSuggestions,
 }: TagSectionProps) {
   return (
     <div className="mb-4">
@@ -33,7 +33,7 @@ export function TagSection({
         language={language}
         onUpdateSuggestions={(suggestions) => {
           // Pass through to parent
-          if (typeof onUpdateSuggestions === 'function') {
+          if (typeof onUpdateSuggestions === "function") {
             onUpdateSuggestions(suggestions);
           }
         }}

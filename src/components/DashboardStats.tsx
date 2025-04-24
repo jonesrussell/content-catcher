@@ -64,7 +64,9 @@ export default function DashboardStats({ userId }: { userId: string }) {
 
         const timelineData = Array.from(timelineMap.entries())
           .map(([date, count]) => ({ date, count }))
-          .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+          .sort(
+            (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+          );
 
         setStats({
           totalCount: totalCount || 0,
@@ -88,8 +90,8 @@ export default function DashboardStats({ userId }: { userId: string }) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <div className="flex h-64 items-center justify-center">
+        <div className="border-primary h-8 w-8 animate-spin rounded-full border-b-2"></div>
       </div>
     );
   }
@@ -97,57 +99,63 @@ export default function DashboardStats({ userId }: { userId: string }) {
   return (
     <div className="space-y-8">
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-xl p-6 shadow-md"
+          className="rounded-xl bg-white p-6 shadow-md"
         >
-          <div className="flex items-center gap-3 mb-2">
-            <FileText className="w-5 h-5 text-primary" />
-            <h3 className="text-lg font-semibold text-primary">Total Content</h3>
+          <div className="mb-2 flex items-center gap-3">
+            <FileText className="text-primary h-5 w-5" />
+            <h3 className="text-primary text-lg font-semibold">
+              Total Content
+            </h3>
           </div>
-          <p className="text-3xl font-bold text-primary">{stats.totalCount}</p>
+          <p className="text-primary text-3xl font-bold">{stats.totalCount}</p>
         </motion.div>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-white rounded-xl p-6 shadow-md"
+          className="rounded-xl bg-white p-6 shadow-md"
         >
-          <div className="flex items-center gap-3 mb-2">
-            <Hash className="w-5 h-5 text-primary" />
-            <h3 className="text-lg font-semibold text-primary">Categories</h3>
+          <div className="mb-2 flex items-center gap-3">
+            <Hash className="text-primary h-5 w-5" />
+            <h3 className="text-primary text-lg font-semibold">Categories</h3>
           </div>
-          <p className="text-3xl font-bold text-primary">{stats.tagCounts.length}</p>
+          <p className="text-primary text-3xl font-bold">
+            {stats.tagCounts.length}
+          </p>
         </motion.div>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-white rounded-xl p-6 shadow-md"
+          className="rounded-xl bg-white p-6 shadow-md"
         >
-          <div className="flex items-center gap-3 mb-2">
-            <Clock className="w-5 h-5 text-primary" />
-            <h3 className="text-lg font-semibold text-primary">Last 30 Days</h3>
+          <div className="mb-2 flex items-center gap-3">
+            <Clock className="text-primary h-5 w-5" />
+            <h3 className="text-primary text-lg font-semibold">Last 30 Days</h3>
           </div>
-          <p className="text-3xl font-bold text-primary">
+          <p className="text-primary text-3xl font-bold">
             {stats.timelineData.reduce((sum, item) => sum + item.count, 0)}
           </p>
         </motion.div>
       </div>
 
       {/* Charts */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.3 }}
-          className="bg-white rounded-xl p-6 shadow-md"
+          className="rounded-xl bg-white p-6 shadow-md"
         >
-          <h3 className="text-lg font-semibold text-primary mb-4">Content Timeline</h3>
+          <h3 className="text-primary mb-4 text-lg font-semibold">
+            Content Timeline
+          </h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={stats.timelineData}>
@@ -164,9 +172,11 @@ export default function DashboardStats({ userId }: { userId: string }) {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.4 }}
-          className="bg-white rounded-xl p-6 shadow-md"
+          className="rounded-xl bg-white p-6 shadow-md"
         >
-          <h3 className="text-lg font-semibold text-primary mb-4">Content by Category</h3>
+          <h3 className="text-primary mb-4 text-lg font-semibold">
+            Content by Category
+          </h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>

@@ -29,7 +29,7 @@ export function AIFeaturesSection({
   language,
   suggestions,
   onApplySuggestion,
-  textareaRef
+  textareaRef,
 }: AIFeaturesSectionProps) {
   if (content.length < 100) return null;
 
@@ -38,12 +38,12 @@ export function AIFeaturesSection({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
-      className="flex flex-col md:grid md:grid-cols-2 gap-6"
+      className="flex flex-col gap-6 md:grid md:grid-cols-2"
     >
       <div className="space-y-6">
         {/* Tags Section */}
-        <div className="bg-white/30 backdrop-blur-sm rounded-xl p-6 border-2 border-primary/5 shadow-sm">
-          <h3 className="text-lg font-semibold text-primary/40 mb-4">Tags</h3>
+        <div className="border-primary/5 rounded-xl border-2 bg-white/30 p-6 shadow-sm backdrop-blur-sm">
+          <h3 className="text-primary/40 mb-4 text-lg font-semibold">Tags</h3>
           {content.length >= 100 ? (
             <TagInput
               tags={tags}
@@ -55,15 +55,21 @@ export function AIFeaturesSection({
             />
           ) : (
             <div className="flex flex-wrap gap-2">
-              <span className="px-3 py-1 bg-primary/5 rounded-full text-primary/30 text-sm">Tag placeholder</span>
-              <span className="px-3 py-1 bg-primary/5 rounded-full text-primary/30 text-sm">Another tag</span>
+              <span className="bg-primary/5 text-primary/30 rounded-full px-3 py-1 text-sm">
+                Tag placeholder
+              </span>
+              <span className="bg-primary/5 text-primary/30 rounded-full px-3 py-1 text-sm">
+                Another tag
+              </span>
             </div>
           )}
         </div>
 
         {/* AI Suggestions Section */}
-        <div className="bg-white/30 backdrop-blur-sm rounded-xl p-6 border-2 border-primary/5 shadow-sm">
-          <h3 className="text-lg font-semibold text-primary/40 mb-4">AI Suggestions</h3>
+        <div className="border-primary/5 rounded-xl border-2 bg-white/30 p-6 shadow-sm backdrop-blur-sm">
+          <h3 className="text-primary/40 mb-4 text-lg font-semibold">
+            AI Suggestions
+          </h3>
           {content.length >= 100 && suggestions.length > 0 ? (
             <SuggestionsPanel
               suggestions={suggestions}
@@ -72,13 +78,13 @@ export function AIFeaturesSection({
             />
           ) : (
             <div className="space-y-3">
-              <div className="p-3 bg-white/20 rounded-lg">
-                <div className="w-2/3 h-4 bg-primary/5 rounded-full mb-2"></div>
-                <div className="w-1/2 h-3 bg-primary/5 rounded-full"></div>
+              <div className="rounded-lg bg-white/20 p-3">
+                <div className="bg-primary/5 mb-2 h-4 w-2/3 rounded-full"></div>
+                <div className="bg-primary/5 h-3 w-1/2 rounded-full"></div>
               </div>
-              <div className="p-3 bg-white/20 rounded-lg">
-                <div className="w-3/4 h-4 bg-primary/5 rounded-full mb-2"></div>
-                <div className="w-1/3 h-3 bg-primary/5 rounded-full"></div>
+              <div className="rounded-lg bg-white/20 p-3">
+                <div className="bg-primary/5 mb-2 h-4 w-3/4 rounded-full"></div>
+                <div className="bg-primary/5 h-3 w-1/3 rounded-full"></div>
               </div>
             </div>
           )}

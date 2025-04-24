@@ -26,10 +26,10 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${GeistSans.variable}`}>
-      <body className="min-h-screen flex flex-col">
+      <body className="flex min-h-screen flex-col">
         <AuthProvider>
           <Header />
-          <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-8">
+          <main className="mx-auto w-full max-w-7xl flex-1 px-4 pt-16 pb-8 sm:px-6 lg:px-8">
             <GlobalErrorHandler />
             {children}
           </main>

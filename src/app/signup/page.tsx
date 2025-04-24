@@ -28,7 +28,9 @@ export default function SignupPage() {
           throw error;
         }
       } else {
-        toast.success("Account created successfully! Please check your email to confirm your account");
+        toast.success(
+          "Account created successfully! Please check your email to confirm your account",
+        );
         router.push("/login");
       }
     } catch (err) {
@@ -40,40 +42,40 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md p-8 bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl"
+        className="w-full max-w-md rounded-2xl bg-white/80 p-8 shadow-xl backdrop-blur-sm"
       >
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-primary">Create Account</h1>
+        <div className="mb-8 text-center">
+          <h1 className="text-primary text-3xl font-bold">Create Account</h1>
           <p className="text-muted-foreground mt-2">Sign up to get started</p>
         </div>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-primary mb-2">
+            <label className="text-primary mb-2 block text-sm font-medium">
               Email
             </label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 rounded-lg border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+              className="border-input bg-background focus:ring-primary/20 w-full rounded-lg border px-4 py-3 transition-all focus:ring-2 focus:outline-none"
               required
               autoComplete="email"
               name="email"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-primary mb-2">
+            <label className="text-primary mb-2 block text-sm font-medium">
               Password
             </label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 rounded-lg border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+              className="border-input bg-background focus:ring-primary/20 w-full rounded-lg border px-4 py-3 transition-all focus:ring-2 focus:outline-none"
               required
               autoComplete="new-password"
               name="new-password"
@@ -82,13 +84,13 @@ export default function SignupPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+            className="bg-primary hover:bg-primary/90 flex w-full items-center justify-center gap-2 rounded-lg py-3 text-white transition-colors disabled:opacity-50"
           >
             {loading ? (
               "Creating account..."
             ) : (
               <>
-                <UserPlus className="w-4 h-4" />
+                <UserPlus className="h-4 w-4" />
                 Create Account
               </>
             )}
@@ -97,9 +99,9 @@ export default function SignupPage() {
         <div className="mt-6 text-center">
           <Link
             href="/login"
-            className="text-primary hover:text-primary/80 transition-colors inline-flex items-center gap-2"
+            className="text-primary hover:text-primary/80 inline-flex items-center gap-2 transition-colors"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="h-4 w-4" />
             Back to Login
           </Link>
         </div>

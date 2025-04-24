@@ -7,8 +7,14 @@ import { toast } from "react-hot-toast";
 export interface TagAnalysis {
   tag: string;
   confidence: number;
-  category: 'topic' | 'tone' | 'structure' | 'entity' | 'language' | 'sentiment';
-  source: 'ai' | 'nlp' | 'rules';
+  category:
+    | "topic"
+    | "tone"
+    | "structure"
+    | "entity"
+    | "language"
+    | "sentiment";
+  source: "ai" | "nlp" | "rules";
   metadata: {
     frequency?: number;
     importance?: number;
@@ -31,7 +37,7 @@ export function useAdvancedTagging(content: string) {
   const [suggestions, setSuggestions] = useState<TagAnalysis[]>([]);
   const [stats, setStats] = useState<TagStats | null>(null);
   const [loading, setLoading] = useState(false);
-  const [language, setLanguage] = useState<string>('english');
+  const [language, setLanguage] = useState<string>("english");
 
   useEffect(() => {
     const analyzeContent = async () => {
@@ -40,19 +46,19 @@ export function useAdvancedTagging(content: string) {
       setLoading(true);
       try {
         let nlpTags: TagAnalysis[] = [];
-        
+
         try {
           // Call server-side NLP API
-          const nlpResponse = await fetch('/api/nlp', {
-            method: 'POST',
+          const nlpResponse = await fetch("/api/nlp", {
+            method: "POST",
             headers: {
-              'Content-Type': 'application/json',
+              "Content-Type": "application/json",
             },
             body: JSON.stringify({ content }),
           });
 
           if (!nlpResponse.ok) {
-            throw new Error('NLP API request failed');
+            throw new Error("NLP API request failed");
           }
 
           const nlpData = await nlpResponse.json();
@@ -64,8 +70,10 @@ export function useAdvancedTagging(content: string) {
         }
 
         // 2. AI Analysis with timeout and retry
-        const response = await Promise.race<{data: {choices: Array<{message: {content: string}}>}}>([
-          axios.post<{choices: Array<{message: {content: string}}>}>(
+        const response = await Promise.race<{
+          data: { choices: Array<{ message: { content: string } }> };
+        }>([
+          axios.post<{ choices: Array<{ message: { content: string } }> }>(
             "https://openai.getcreatr.xyz/v1/chat/completions",
             {
               messages: [
@@ -88,29 +96,29 @@ export function useAdvancedTagging(content: string) {
                         "explanation": "string"
                       }
                     ]
-                  }. Return ONLY valid JSON, no additional text or explanation. Content to analyze: ${content.slice(0, 1000)}`
-                }
+                  }. Return ONLY valid JSON, no additional text or explanation. Content to analyze: ${content.slice(0, 1000)}`,
+                },
               ],
               model: "gpt-4",
               temperature: 0.7,
               max_tokens: 1000,
-              response_format: { type: "json_object" }
+              response_format: { type: "json_object" },
             },
             {
               headers: {
                 "x-api-key": process.env.NEXT_PUBLIC_OPENAI_API_KEY,
                 "Content-Type": "application/json",
               },
-            }
+            },
           ),
           new Promise((_, reject) =>
-            setTimeout(() => reject(new Error("AI analysis timeout")), 10000)
+            setTimeout(() => reject(new Error("AI analysis timeout")), 10000),
           ),
         ]);
 
         const jsonContent = response.data.choices[0].message.content;
-        if (!jsonContent) throw new Error('Invalid API response');
-        
+        if (!jsonContent) throw new Error("Invalid API response");
+
         let parsed;
         try {
           parsed = JSON.parse(jsonContent);
@@ -120,7 +128,7 @@ export function useAdvancedTagging(content: string) {
         }
 
         if (!parsed?.suggestions || !Array.isArray(parsed.suggestions)) {
-          throw new Error('Invalid suggestions format received');
+          throw new Error("Invalid suggestions format received");
         }
 
         const aiTags = parsed.suggestions;
@@ -128,7 +136,7 @@ export function useAdvancedTagging(content: string) {
         // Combine and deduplicate tags
         const allTags = [...nlpTags, ...aiTags];
         const uniqueTags = Array.from(
-          new Map(allTags.map((tag) => [tag.tag, tag])).values()
+          new Map(allTags.map((tag) => [tag.tag, tag])).values(),
         );
 
         setSuggestions(uniqueTags);
@@ -152,7 +160,7 @@ export function useAdvancedTagging(content: string) {
       categoryCounts: {},
       accuracyScore: 0.8,
       languageBreakdown: {},
-      topCooccurrences: []
+      topCooccurrences: [],
     };
   };
 

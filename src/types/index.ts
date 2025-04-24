@@ -21,4 +21,4 @@ export interface ContentVersion {
   version_number: number;
   created_at: string;
   comment?: string;
-} 
+}

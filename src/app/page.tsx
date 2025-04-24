@@ -14,18 +14,18 @@ export default function HomePage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="text-center mb-12"
+          className="mb-12 text-center"
         >
-          <h1 className="text-4xl font-bold text-primary mb-4">
+          <h1 className="text-primary mb-4 text-4xl font-bold">
             Content Collector
           </h1>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+          <p className="text-muted-foreground mx-auto max-w-2xl text-lg">
             Capture your thoughts, ideas, and content in one place. Just start
             typing or paste your content below.
           </p>
         </motion.div>
         <ContentEditor />
-        
+
         <SavedContentSection />
       </div>
     </main>

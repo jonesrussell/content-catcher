@@ -6,7 +6,7 @@ import axios from "axios";
 interface APISuggestion {
   id?: string;
   suggestion: string;
-  type?: 'structure' | 'enhancement' | 'summary' | 'tone' | 'engagement';
+  type?: "structure" | "enhancement" | "summary" | "tone" | "engagement";
   improvedContent?: string;
   explanation?: string;
   analysis?: {
@@ -36,7 +36,7 @@ interface APISuggestion {
 export interface AISuggestion {
   id: string;
   suggestion: string;
-  type: 'structure' | 'enhancement' | 'summary' | 'tone' | 'engagement';
+  type: "structure" | "enhancement" | "summary" | "tone" | "engagement";
   improvedContent?: string;
   explanation?: string;
   analysis?: {
@@ -133,43 +133,48 @@ export function useAISuggestions(content: string) {
               },
               {
                 role: "user",
-                content: content
-              }
+                content: content,
+              },
             ],
-            jsonMode: true
+            jsonMode: true,
           },
           {
             headers: {
               "x-api-key": "67d49aba0baa5ec70723c474",
               "Content-Type": "application/json",
             },
-          }
+          },
         );
 
         const jsonContent = response.data?.choices?.[0]?.message?.content;
         if (!jsonContent) {
-          throw new Error('Invalid API response format');
+          throw new Error("Invalid API response format");
         }
         const parsedContent = JSON.parse(jsonContent);
-        
-        if (!parsedContent?.suggestions || !Array.isArray(parsedContent.suggestions)) {
-          throw new Error('Invalid suggestions format received from API');
+
+        if (
+          !parsedContent?.suggestions ||
+          !Array.isArray(parsedContent.suggestions)
+        ) {
+          throw new Error("Invalid suggestions format received from API");
         }
 
         // Transform the suggestions into the expected format
         // Limit to 3 suggestions
-        const formattedSuggestions = parsedContent.suggestions.slice(0, 3).map((s: APISuggestion) => ({
-          id: s.id || `suggestion-${Math.random().toString(36).substr(2, 9)}`,
-          suggestion: s.suggestion,
-          type: s.type || 'structure',
-          explanation: s.explanation,
-          improvedContent: s.improvedContent
-        }));
+        const formattedSuggestions = parsedContent.suggestions
+          .slice(0, 3)
+          .map((s: APISuggestion) => ({
+            id: s.id || `suggestion-${Math.random().toString(36).substr(2, 9)}`,
+            suggestion: s.suggestion,
+            type: s.type || "structure",
+            explanation: s.explanation,
+            improvedContent: s.improvedContent,
+          }));
 
         setSuggestions(formattedSuggestions);
       } catch (err) {
-        setError('Failed to generate suggestions');
-        console.error('AI suggestion error:', err);
+        setError("Failed to generate suggestions");
+        console.error("AI suggestion error:", err);
       } finally {
         setLoading(false);
       }

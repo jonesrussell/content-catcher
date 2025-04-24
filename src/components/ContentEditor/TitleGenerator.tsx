@@ -8,10 +8,10 @@ interface TitleGeneratorProps {
   isGenerating: boolean;
 }
 
-export function TitleGenerator({ 
-  content, 
-  onTitleGenerated, 
-  isGenerating
+export function TitleGenerator({
+  content,
+  onTitleGenerated,
+  isGenerating,
 }: TitleGeneratorProps) {
   return (
     <button
@@ -22,16 +22,12 @@ export function TitleGenerator({
         }
         onTitleGenerated(content);
       }}
-      className={`absolute right-4 top-1/2 -translate-y-1/2 px-4 py-2 
-        bg-primary text-white rounded-lg text-sm hover:bg-primary/90 
-        transition-all duration-200 flex items-center gap-2
-        ${isGenerating ? 'opacity-75 cursor-not-allowed' : 'hover:scale-102'}`}
+      className={`bg-primary hover:bg-primary/90 absolute top-1/2 right-4 flex -translate-y-1/2 items-center gap-2 rounded-lg px-4 py-2 text-sm text-white transition-all duration-200 ${isGenerating ? "cursor-not-allowed opacity-75" : "hover:scale-102"}`}
       disabled={isGenerating}
     >
       {isGenerating ? (
         <>
-          <div className="w-4 h-4 border-2 border-white/20 border-t-white/100 
-            rounded-full animate-spin" />
+          <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/20 border-t-white/100" />
           <span className="animate-pulse">Generating title...</span>
         </>
       ) : (

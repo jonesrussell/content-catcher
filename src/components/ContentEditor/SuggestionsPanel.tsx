@@ -13,28 +13,29 @@ interface SuggestionsPanelProps {
 export function SuggestionsPanel({
   suggestions,
   onApplySuggestion,
-  textareaRef
+  textareaRef,
 }: SuggestionsPanelProps) {
   return (
     <DragDropContext
       onDragEnd={(result) => {
         if (!result.destination || !textareaRef.current) return;
-        
-        const suggestion = suggestions.find(s => s.id === result.draggableId);
+
+        const suggestion = suggestions.find((s) => s.id === result.draggableId);
         if (!suggestion) return;
 
         const textarea = textareaRef.current;
         const start = textarea.selectionStart;
         const end = textarea.selectionEnd;
         const text = textarea.value;
-        
-        const newContent = text.substring(0, start) + 
-          suggestion.suggestion + 
+
+        const newContent =
+          text.substring(0, start) +
+          suggestion.suggestion +
           text.substring(end);
-        
+
         onApplySuggestion(newContent);
         toast.success("Suggestion applied!");
-        
+
         const newCursorPosition = start + suggestion.suggestion.length;
         setTimeout(() => {
           textarea.focus();
@@ -42,17 +43,21 @@ export function SuggestionsPanel({
         }, 0);
       }}
     >
-      <Droppable droppableId="suggestions" isDropDisabled={false} isCombineEnabled={false}>
+      <Droppable
+        droppableId="suggestions"
+        isDropDisabled={false}
+        isCombineEnabled={false}
+      >
         {(provided) => (
-          <div 
-            className="space-y-3" 
+          <div
+            className="space-y-3"
             ref={provided.innerRef}
             {...provided.droppableProps}
           >
             {suggestions.map((suggestion, index) => (
-              <Draggable 
-                key={suggestion.id} 
-                draggableId={suggestion.id} 
+              <Draggable
+                key={suggestion.id}
+                draggableId={suggestion.id}
                 index={index}
               >
                 {(provided, snapshot) => (
@@ -60,11 +65,9 @@ export function SuggestionsPanel({
                     ref={provided.innerRef}
                     {...provided.draggableProps}
                     {...provided.dragHandleProps}
-                    className={`px-4 py-2 bg-white/90 rounded-full shadow-sm 
-                      transition-all cursor-pointer hover:shadow-md hover:bg-white
-                      flex items-center gap-3 group ${
-                        snapshot.isDragging ? 'shadow-xl scale-105' : ''
-                      }`}
+                    className={`group flex cursor-pointer items-center gap-3 rounded-full bg-white/90 px-4 py-2 shadow-sm transition-all hover:bg-white hover:shadow-md ${
+                      snapshot.isDragging ? "scale-105 shadow-xl" : ""
+                    }`}
                     onClick={() => {
                       if (!suggestion.improvedContent) {
                         toast.error("No improved content available");
@@ -74,21 +77,26 @@ export function SuggestionsPanel({
                       toast.success("Content updated with suggestion!");
                     }}
                   >
-                    <span className={`w-2 h-2 rounded-full ${
-                      suggestion.type === 'structure' ? 'bg-blue-500' :
-                      suggestion.type === 'enhancement' ? 'bg-green-500' :
-                      suggestion.type === 'tone' ? 'bg-yellow-500' :
-                      suggestion.type === 'engagement' ? 'bg-pink-500' :
-                      'bg-purple-500'
-                    }`} />
-                      
-                    <p className="text-sm text-primary/80 truncate">
+                    <span
+                      className={`h-2 w-2 rounded-full ${
+                        suggestion.type === "structure"
+                          ? "bg-blue-500"
+                          : suggestion.type === "enhancement"
+                            ? "bg-green-500"
+                            : suggestion.type === "tone"
+                              ? "bg-yellow-500"
+                              : suggestion.type === "engagement"
+                                ? "bg-pink-500"
+                                : "bg-purple-500"
+                      }`}
+                    />
+
+                    <p className="text-primary/80 truncate text-sm">
                       {suggestion.suggestion}
                     </p>
 
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                      <div className="absolute left-4 bottom-full mb-2 p-3 bg-white rounded-lg shadow-lg 
-                        w-64 z-10 text-xs text-primary/70">
+                    <div className="opacity-0 transition-opacity group-hover:opacity-100">
+                      <div className="text-primary/70 absolute bottom-full left-4 z-10 mb-2 w-64 rounded-lg bg-white p-3 text-xs shadow-lg">
                         {suggestion.explanation}
                       </div>
                     </div>

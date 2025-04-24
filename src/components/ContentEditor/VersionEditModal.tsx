@@ -12,7 +12,12 @@ interface VersionEditModalProps {
   onSave: () => void;
 }
 
-export function VersionEditModal({ content, isOpen, onClose, onSave }: VersionEditModalProps) {
+export function VersionEditModal({
+  content,
+  isOpen,
+  onClose,
+  onSave,
+}: VersionEditModalProps) {
   const [versionComment, setVersionComment] = useState("");
 
   if (!isOpen) {
@@ -20,19 +25,19 @@ export function VersionEditModal({ content, isOpen, onClose, onSave }: VersionEd
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="bg-white rounded-xl p-6 w-full max-w-4xl mx-4"
+        className="mx-4 w-full max-w-4xl rounded-xl bg-white p-6"
       >
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-semibold text-primary">Edit Content</h3>
+        <div className="mb-4 flex items-center justify-between">
+          <h3 className="text-primary text-xl font-semibold">Edit Content</h3>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-primary/5 rounded-full transition-colors"
+            className="hover:bg-primary/5 rounded-full p-2 transition-colors"
           >
-            <X className="w-5 h-5 text-primary/70" />
+            <X className="text-primary/70 h-5 w-5" />
           </button>
         </div>
 
@@ -42,29 +47,29 @@ export function VersionEditModal({ content, isOpen, onClose, onSave }: VersionEd
             const newContent = { ...content, content: e.target.value };
             Object.assign(content, newContent);
           }}
-          className="w-full p-4 border rounded-lg min-h-[200px] mb-4 focus:outline-none focus:ring-2 focus:ring-primary/20"
+          className="focus:ring-primary/20 mb-4 min-h-[200px] w-full rounded-lg border p-4 focus:ring-2 focus:outline-none"
         />
 
-        <div className="flex items-center gap-4 mb-4">
+        <div className="mb-4 flex items-center gap-4">
           <input
             type="text"
             value={versionComment}
             onChange={(e) => setVersionComment(e.target.value)}
             placeholder="Add a version comment (optional)"
-            className="flex-grow px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
+            className="focus:ring-primary/20 flex-grow rounded-lg border px-4 py-2 focus:ring-2 focus:outline-none"
           />
         </div>
 
         <div className="flex justify-end gap-2">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-primary hover:bg-primary/5 rounded-lg transition-colors"
+            className="text-primary hover:bg-primary/5 rounded-lg px-4 py-2 transition-colors"
           >
             Cancel
           </button>
           <button
             onClick={onSave}
-            className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+            className="bg-primary hover:bg-primary/90 rounded-lg px-4 py-2 text-white transition-colors"
           >
             Save Changes
           </button>

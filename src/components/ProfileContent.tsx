@@ -21,8 +21,8 @@ interface Profile {
 
 function LoadingSpinner() {
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <Loader2 className="w-8 h-8 animate-spin text-primary" />
+    <div className="flex min-h-screen items-center justify-center">
+      <Loader2 className="text-primary h-8 w-8 animate-spin" />
     </div>
   );
 }
@@ -50,7 +50,6 @@ export default function ProfileContent() {
         if (profileError) throw profileError;
         setProfile(profileData);
         setEditedProfile(profileData);
-
       } catch {
         toast.error("Failed to load profile data");
       } finally {
@@ -95,41 +94,41 @@ export default function ProfileContent() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="max-w-4xl mx-auto"
+        className="mx-auto max-w-4xl"
       >
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-xl mb-8">
+        <div className="mb-8 rounded-2xl bg-white/80 p-8 shadow-xl backdrop-blur-sm">
           <div className="flex flex-col gap-6">
-            <h2 className="text-2xl font-bold text-primary">Search Content</h2>
+            <h2 className="text-primary text-2xl font-bold">Search Content</h2>
             <SearchContent />
           </div>
         </div>
 
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-xl mb-8">
-          <h2 className="text-2xl font-bold text-primary mb-6">Dashboard</h2>
+        <div className="mb-8 rounded-2xl bg-white/80 p-8 shadow-xl backdrop-blur-sm">
+          <h2 className="text-primary mb-6 text-2xl font-bold">Dashboard</h2>
           {user && <DashboardStats userId={user.id} />}
         </div>
 
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-xl mb-8">
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-3xl font-bold text-primary">Profile</h1>
+        <div className="mb-8 rounded-2xl bg-white/80 p-8 shadow-xl backdrop-blur-sm">
+          <div className="mb-6 flex items-center justify-between">
+            <h1 className="text-primary text-3xl font-bold">Profile</h1>
             {!editing ? (
               <button
                 onClick={() => setEditing(true)}
-                className="flex items-center gap-2 px-4 py-2 text-primary hover:bg-primary/5 rounded-lg transition-colors"
+                className="text-primary hover:bg-primary/5 flex items-center gap-2 rounded-lg px-4 py-2 transition-colors"
               >
-                <Edit2 className="w-4 h-4" />
+                <Edit2 className="h-4 w-4" />
                 Edit Profile
               </button>
             ) : (
               <button
                 onClick={handleSaveProfile}
                 disabled={saving}
-                className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50"
+                className="bg-primary hover:bg-primary/90 flex items-center gap-2 rounded-lg px-4 py-2 text-white transition-colors disabled:opacity-50"
               >
                 {saving ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
-                  <Save className="w-4 h-4" />
+                  <Save className="h-4 w-4" />
                 )}
                 Save Changes
               </button>
@@ -139,7 +138,7 @@ export default function ProfileContent() {
           {editing ? (
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-primary mb-2">
+                <label className="text-primary mb-2 block text-sm font-medium">
                   Username
                 </label>
                 <input
@@ -147,14 +146,14 @@ export default function ProfileContent() {
                   value={editedProfile?.username ?? ""}
                   onChange={(e) =>
                     setEditedProfile((prev) =>
-                      prev ? { ...prev, username: e.target.value } : null
+                      prev ? { ...prev, username: e.target.value } : null,
                     )
                   }
-                  className="w-full px-4 py-2 rounded-lg border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                  className="border-input bg-background focus:ring-primary/20 w-full rounded-lg border px-4 py-2 transition-all focus:ring-2 focus:outline-none"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-primary mb-2">
+                <label className="text-primary mb-2 block text-sm font-medium">
                   Full Name
                 </label>
                 <input
@@ -162,36 +161,38 @@ export default function ProfileContent() {
                   value={editedProfile?.full_name ?? ""}
                   onChange={(e) =>
                     setEditedProfile((prev) =>
-                      prev ? { ...prev, full_name: e.target.value } : null
+                      prev ? { ...prev, full_name: e.target.value } : null,
                     )
                   }
-                  className="w-full px-4 py-2 rounded-lg border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                  className="border-input bg-background focus:ring-primary/20 w-full rounded-lg border px-4 py-2 transition-all focus:ring-2 focus:outline-none"
                 />
               </div>
             </div>
           ) : (
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-muted-foreground">
+                <label className="text-muted-foreground block text-sm font-medium">
                   Username
                 </label>
-                <p className="text-lg text-primary">{profile?.username}</p>
+                <p className="text-primary text-lg">{profile?.username}</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-muted-foreground">
+                <label className="text-muted-foreground block text-sm font-medium">
                   Full Name
                 </label>
-                <p className="text-lg text-primary">{profile?.full_name}</p>
+                <p className="text-primary text-lg">{profile?.full_name}</p>
               </div>
             </div>
           )}
         </div>
 
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-xl">
-          <h2 className="text-2xl font-bold text-primary mb-6">Saved Content</h2>
+        <div className="rounded-2xl bg-white/80 p-8 shadow-xl backdrop-blur-sm">
+          <h2 className="text-primary mb-6 text-2xl font-bold">
+            Saved Content
+          </h2>
           <ContentList content={content} />
         </div>
       </motion.div>
     </div>
   );
-} 
+}

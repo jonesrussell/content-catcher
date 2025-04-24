@@ -15,7 +15,11 @@ interface EditContentModalProps {
   onClose: () => void;
 }
 
-export default function EditContentModal({ content, isOpen, onClose }: EditContentModalProps) {
+export default function EditContentModal({
+  content,
+  isOpen,
+  onClose,
+}: EditContentModalProps) {
   const [showVersions, setShowVersions] = useState(false);
   const [versionComment, setVersionComment] = useState("");
   const [selectedVersions, setSelectedVersions] = useState<string[]>([]);
@@ -23,27 +27,32 @@ export default function EditContentModal({ content, isOpen, onClose }: EditConte
     oldVersion: ContentVersion;
     newVersion: ContentVersion;
   } | null>(null);
-  const { versions, loading: versionsLoading, createVersion, revertToVersion } = useContentVersions(content.id);
+  const {
+    versions,
+    loading: versionsLoading,
+    createVersion,
+    revertToVersion,
+  } = useContentVersions(content.id);
 
   const handleSave = async () => {
     try {
       const { error: updateError } = await supabase
-        .from('content')
+        .from("content")
         .update({
           content: content.content,
           updated_at: new Date().toISOString(),
           tags: content.tags ?? [],
           attachments: content.attachments ?? [],
-          version_number: (content.version_number ?? 0) + 1
+          version_number: (content.version_number ?? 0) + 1,
         })
-        .eq('id', content.id);
+        .eq("id", content.id);
 
       if (updateError) {
-        console.error('Update error:', updateError);
-        if (updateError.code === '23505') {
-          toast.error('This content already exists');
-        } else if (updateError.code === '23503') {
-          toast.error('User profile not found. Please try logging in again.');
+        console.error("Update error:", updateError);
+        if (updateError.code === "23505") {
+          toast.error("This content already exists");
+        } else if (updateError.code === "23503") {
+          toast.error("User profile not found. Please try logging in again.");
         } else {
           toast.error(`Failed to update: ${updateError.message}`);
         }
@@ -51,33 +60,38 @@ export default function EditContentModal({ content, isOpen, onClose }: EditConte
       }
 
       await createVersion(content, versionComment);
-      setVersionComment('');
+      setVersionComment("");
       onClose();
       window.location.reload();
     } catch (error) {
-      console.error('Error saving content:', error);
-      toast.error('Failed to update content');
+      console.error("Error saving content:", error);
+      toast.error("Failed to update content");
     }
   };
 
   const handleCompareVersions = () => {
     if (selectedVersions.length !== 2) {
-      toast.error('Please select exactly 2 versions to compare');
+      toast.error("Please select exactly 2 versions to compare");
       return;
     }
 
-    const versionA = versions.find((v: ContentVersion) => v.id === selectedVersions[0]);
-    const versionB = versions.find((v: ContentVersion) => v.id === selectedVersions[1]);
+    const versionA = versions.find(
+      (v: ContentVersion) => v.id === selectedVersions[0],
+    );
+    const versionB = versions.find(
+      (v: ContentVersion) => v.id === selectedVersions[1],
+    );
 
     if (!versionA || !versionB) {
-      toast.error('Selected versions not found');
+      toast.error("Selected versions not found");
       return;
     }
 
     // Ensure older version is first
-    const [oldVersion, newVersion] = versionA.version_number < versionB.version_number 
-      ? [versionA, versionB] 
-      : [versionB, versionA];
+    const [oldVersion, newVersion] =
+      versionA.version_number < versionB.version_number
+        ? [versionA, versionB]
+        : [versionB, versionA];
 
     setDiffVersions({ oldVersion, newVersion });
   };
@@ -88,7 +102,7 @@ export default function EditContentModal({ content, isOpen, onClose }: EditConte
       onClose();
       window.location.reload();
     } catch (error) {
-      console.error('Error reverting version:', error);
+      console.error("Error reverting version:", error);
     }
   };
 
@@ -97,19 +111,19 @@ export default function EditContentModal({ content, isOpen, onClose }: EditConte
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="bg-white rounded-xl p-6 w-full max-w-4xl mx-4"
+        className="mx-4 w-full max-w-4xl rounded-xl bg-white p-6"
       >
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-semibold text-primary">Edit Content</h3>
+        <div className="mb-4 flex items-center justify-between">
+          <h3 className="text-primary text-xl font-semibold">Edit Content</h3>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-primary/5 rounded-full transition-colors"
+            className="hover:bg-primary/5 rounded-full p-2 transition-colors"
           >
-            <X className="w-5 h-5 text-primary/70" />
+            <X className="text-primary/70 h-5 w-5" />
           </button>
         </div>
         <textarea
@@ -117,39 +131,45 @@ export default function EditContentModal({ content, isOpen, onClose }: EditConte
           onChange={(e) => {
             content.content = e.target.value;
           }}
-          className="w-full p-4 border rounded-lg min-h-[200px] mb-4 focus:outline-none focus:ring-2 focus:ring-primary/20"
+          className="focus:ring-primary/20 mb-4 min-h-[200px] w-full rounded-lg border p-4 focus:ring-2 focus:outline-none"
         />
-        <div className="flex items-center gap-4 mb-4">
+        <div className="mb-4 flex items-center gap-4">
           <input
             type="text"
             value={versionComment}
             onChange={(e) => setVersionComment(e.target.value)}
             placeholder="Add a version comment (optional)"
-            className="flex-grow px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
+            className="focus:ring-primary/20 flex-grow rounded-lg border px-4 py-2 focus:ring-2 focus:outline-none"
           />
           <button
             onClick={() => setShowVersions(!showVersions)}
-            className="px-4 py-2 text-primary hover:bg-primary/5 rounded-lg transition-colors flex items-center gap-2"
+            className="text-primary hover:bg-primary/5 flex items-center gap-2 rounded-lg px-4 py-2 transition-colors"
           >
-            <History className="w-4 h-4" />
+            <History className="h-4 w-4" />
             Version History
           </button>
         </div>
 
         {showVersions && (
-          <div className="mb-4 max-h-60 overflow-y-auto border rounded-lg">
+          <div className="mb-4 max-h-60 overflow-y-auto rounded-lg border">
             {versionsLoading ? (
-              <div className="p-4 text-center text-primary/60">Loading versions...</div>
+              <div className="text-primary/60 p-4 text-center">
+                Loading versions...
+              </div>
             ) : versions.length === 0 ? (
-              <div className="p-4 text-center text-primary/60">No previous versions</div>
+              <div className="text-primary/60 p-4 text-center">
+                No previous versions
+              </div>
             ) : (
               <div className="space-y-4">
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className="text-sm font-medium text-primary">Version History</h4>
+                <div className="mb-4 flex items-center justify-between">
+                  <h4 className="text-primary text-sm font-medium">
+                    Version History
+                  </h4>
                   {selectedVersions.length === 2 && (
                     <button
                       onClick={handleCompareVersions}
-                      className="px-3 py-1 bg-primary text-white rounded-lg text-sm hover:bg-primary/90 transition-colors"
+                      className="bg-primary hover:bg-primary/90 rounded-lg px-3 py-1 text-sm text-white transition-colors"
                     >
                       Compare Selected
                     </button>
@@ -158,7 +178,7 @@ export default function EditContentModal({ content, isOpen, onClose }: EditConte
 
                 <div className="divide-y">
                   {versions.map((version: ContentVersion) => (
-                    <div key={version.id} className="p-4 hover:bg-primary/5">
+                    <div key={version.id} className="hover:bg-primary/5 p-4">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                           <input
@@ -167,28 +187,38 @@ export default function EditContentModal({ content, isOpen, onClose }: EditConte
                             onChange={(e) => {
                               if (e.target.checked) {
                                 if (selectedVersions.length < 2) {
-                                  setSelectedVersions([...selectedVersions, version.id]);
+                                  setSelectedVersions([
+                                    ...selectedVersions,
+                                    version.id,
+                                  ]);
                                 }
                               } else {
-                                setSelectedVersions(selectedVersions.filter(id => id !== version.id));
+                                setSelectedVersions(
+                                  selectedVersions.filter(
+                                    (id) => id !== version.id,
+                                  ),
+                                );
                               }
                             }}
-                            className="rounded border-primary/20"
+                            className="border-primary/20 rounded"
                           />
                           <div>
-                            <p className="text-sm text-primary/80">
-                              Version {version.version_number} - {new Date(version.created_at).toLocaleString()}
+                            <p className="text-primary/80 text-sm">
+                              Version {version.version_number} -{" "}
+                              {new Date(version.created_at).toLocaleString()}
                             </p>
                             {version.comment && (
-                              <p className="text-sm text-primary/60 mt-1">{version.comment}</p>
+                              <p className="text-primary/60 mt-1 text-sm">
+                                {version.comment}
+                              </p>
                             )}
                           </div>
                         </div>
                         <button
                           onClick={() => handleRevert(version)}
-                          className="px-3 py-1 text-primary hover:bg-primary/10 rounded-lg transition-colors flex items-center gap-2"
+                          className="text-primary hover:bg-primary/10 flex items-center gap-2 rounded-lg px-3 py-1 transition-colors"
                         >
-                          <RotateCcw className="w-4 h-4" />
+                          <RotateCcw className="h-4 w-4" />
                           Revert
                         </button>
                       </div>
@@ -213,13 +243,13 @@ export default function EditContentModal({ content, isOpen, onClose }: EditConte
         <div className="flex justify-end gap-2">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-primary hover:bg-primary/5 rounded-lg transition-colors"
+            className="text-primary hover:bg-primary/5 rounded-lg px-4 py-2 transition-colors"
           >
             Cancel
           </button>
           <button
             onClick={handleSave}
-            className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+            className="bg-primary hover:bg-primary/90 rounded-lg px-4 py-2 text-white transition-colors"
           >
             Save Changes
           </button>
