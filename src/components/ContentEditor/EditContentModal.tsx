@@ -1,7 +1,7 @@
 "use client";
 
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { ContentEditor } from "../ContentEditor";
+import ContentEditor from "../ContentEditor";
 import { Content } from "@/types/content";
 
 interface EditContentModalProps {

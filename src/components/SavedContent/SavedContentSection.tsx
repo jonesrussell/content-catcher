@@ -5,8 +5,11 @@ import { motion } from "framer-motion";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/lib/supabase";
 import { MasonryGrid } from "./MasonryGrid";
-import { Loader2 } from "lucide-react";
-import type { Content } from "@/hooks/useContent";
+import { Loader2, Archive, ArrowUpCircle, Trash2, Edit, Pencil } from "lucide-react";
+import type { Content, ContentUpdate } from "@/hooks/useContent";
+import { toast } from "react-hot-toast";
+import { EditContentModal } from "../ContentEditor/EditContentModal";
+import { Button } from "../ui/button";
 
 interface DatabaseContent extends Omit<Content, "updated_at"> {
   updated_at: string | null;
@@ -20,6 +23,8 @@ export function SavedContentSection() {
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const itemsPerPage = 12;
+  const [selectedContent, setSelectedContent] = useState<Content | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -106,6 +111,10 @@ export function SavedContentSection() {
             onDelete={(id) => {
               setContent((prev) => prev.filter((item) => item.id !== id));
             }}
+            onEdit={(content) => {
+              setSelectedContent(content);
+              setIsEditModalOpen(true);
+            }}
           />
 
           {hasMore && (
@@ -127,6 +136,18 @@ export function SavedContentSection() {
           )}
         </>
       )}
+
+      <EditContentModal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setSelectedContent(null);
+        }}
+        content={selectedContent}
+        onContentSaved={() => {
+          window.location.reload();
+        }}
+      />
     </motion.div>
   );
 }

@@ -7,4 +7,6 @@ export interface Content {
   created_at: string;
   updated_at: string;
   version_number: number;
+  archived?: boolean;
+  attachments?: string[];
 } 
