@@ -4,8 +4,15 @@ import ContentEditor from "@/components/ContentEditor";
 import { motion } from "framer-motion";
 import { Toaster } from "react-hot-toast";
 import { SavedContentSection } from "@/components/SavedContent/SavedContentSection";
+import { useState } from "react";
 
 export default function HomePage() {
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const handleContentSaved = () => {
+    setRefreshKey(prev => prev + 1);
+  };
+
   return (
     <main className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <Toaster position="bottom-right" />
@@ -26,8 +33,8 @@ export default function HomePage() {
         </motion.div>
 
         <div className="mx-auto max-w-4xl">
-          <ContentEditor />
-          <SavedContentSection />
+          <ContentEditor onContentSaved={handleContentSaved} />
+          <SavedContentSection key={refreshKey} />
         </div>
       </div>
     </main>
