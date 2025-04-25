@@ -32,11 +32,24 @@ export default function ContentEditor({
   const [isAutoSaving, setIsAutoSaving] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
-  // Reset state when initial values change
+  // Only update state when initial values change from outside
+  const prevInitialContent = useRef(initialContent);
+  const prevInitialTitle = useRef(initialTitle);
+  const prevInitialTags = useRef(initialTags);
+
   useEffect(() => {
-    setContent(initialContent);
-    setTitle(initialTitle);
-    setTags(initialTags);
+    if (prevInitialContent.current !== initialContent) {
+      setContent(initialContent);
+      prevInitialContent.current = initialContent;
+    }
+    if (prevInitialTitle.current !== initialTitle) {
+      setTitle(initialTitle);
+      prevInitialTitle.current = initialTitle;
+    }
+    if (JSON.stringify(prevInitialTags.current) !== JSON.stringify(initialTags)) {
+      setTags(initialTags);
+      prevInitialTags.current = initialTags;
+    }
   }, [initialContent, initialTitle, initialTags]);
 
   // Custom hooks
@@ -77,16 +90,6 @@ export default function ContentEditor({
 
       if (fetchError) {
         throw fetchError;
-      }
-
-      // Only save if content or tags have actually changed
-      const hasChanged = !existingContent?.[0] || 
-        existingContent[0].content !== content || 
-        JSON.stringify(existingContent[0].tags) !== JSON.stringify(tags);
-
-      if (!hasChanged) {
-        console.log("No changes detected, skipping save");
-        return;
       }
 
       const contentData = {
@@ -146,18 +149,34 @@ export default function ContentEditor({
   }, [content, tags, user, onContentSaved]);
 
   // Create debounced auto-save function
-  const debouncedSave = useCallback(
-    debounce(async () => {
-      if (content.trim() && user) {
-        setIsAutoSaving(true);
-        try {
-          await handleSave(false);
-        } finally {
-          setIsAutoSaving(false);
-        }
+  const debouncedSave = useMemo(
+    () => debounce(async () => {
+      if (!content.trim() || !user) return;
+
+      // Get current content to compare
+      const { data: existingContent } = await supabase
+        .from("content")
+        .select("content, tags")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .single();
+
+      // Only save if content or tags have changed
+      const hasChanged = !existingContent || 
+        existingContent.content !== content || 
+        JSON.stringify(existingContent.tags) !== JSON.stringify(tags);
+
+      if (!hasChanged) return;
+
+      setIsAutoSaving(true);
+      try {
+        await handleSave(false);
+      } finally {
+        setIsAutoSaving(false);
       }
-    }, 5000), // Increased debounce time to 5 seconds
-    [content, user, handleSave]
+    }, 5000),
+    [content, tags, user, handleSave]
   );
 
   // Auto-save when content or tags change

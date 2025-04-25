@@ -164,7 +164,7 @@ export function useAISuggestions(content: string) {
         let parsedContent;
         try {
           parsedContent = JSON5.parse(cleanedContent);
-        } catch (parseError) {
+        } catch {
           console.error("Failed to parse API response:", cleanedContent);
           throw new Error("Could not parse AI response as JSON");
         }

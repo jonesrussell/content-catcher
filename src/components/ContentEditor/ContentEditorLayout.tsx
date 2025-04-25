@@ -44,9 +44,9 @@ export function ContentEditorLayout({
   return (
     <div className="relative mx-auto w-full max-w-4xl px-4">
       <div className="flex flex-col gap-4">
-        {/* Title Section - Integrated at the top */}
-        <div className="border-primary/10 rounded-t-xl border-2 bg-white/50 p-4 backdrop-blur-sm">
-          {content.length >= 100 ? (
+        {/* Title Section - Only show when title exists */}
+        {title && (
+          <div className="border-primary/10 rounded-t-xl border-2 bg-white/50 p-4 backdrop-blur-sm">
             <TitleSection
               title={title}
               setTitle={setTitle}
@@ -55,36 +55,11 @@ export function ContentEditorLayout({
               setIsGeneratingTitle={setIsGeneratingTitle}
               disabled={!user}
             />
-          ) : (
-            <div className="space-y-4">
-              <div className="flex flex-col gap-2">
-                <label className="text-primary/70 text-sm font-medium">
-                  Title
-                </label>
-                <input
-                  type="text"
-                  placeholder="Enter a title..."
-                  className="border-primary/20 text-primary/70 focus:ring-primary/20 w-full rounded-lg border bg-white/70 px-3 py-2 focus:ring-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-70"
-                  disabled
-                />
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  className="text-primary/70 bg-primary/10 rounded-lg px-3 py-1.5 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-70"
-                  disabled
-                >
-                  Generate Title
-                </button>
-                <span className="text-primary/70 text-xs">
-                  Type more content to enable title generation
-                </span>
-              </div>
-            </div>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Main Editor Section - Middle section */}
-        <div className="border-primary/10 border-x-2 bg-white/50 backdrop-blur-sm">
+        <div className={`border-primary/10 ${title ? 'border-x-2' : 'rounded-t-xl border-2'} bg-white/50 backdrop-blur-sm`}>
           <MainEditorSection
             content={content}
             setContent={setContent}
