@@ -1,6 +1,6 @@
 "use client";
 
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import ContentEditor from "../ContentEditor";
 import { Content } from "@/types/content";
 
@@ -21,7 +21,11 @@ export function EditContentModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl h-[90vh] overflow-y-auto">
+      <DialogContent className="w-full max-w-full">
+        <DialogTitle>Edit Content</DialogTitle>
+        <DialogDescription>
+          Make changes to your content here. Click save when you&apos;re done.
+        </DialogDescription>
         <ContentEditor
           initialContent={content.content}
           initialTitle={content.title}
