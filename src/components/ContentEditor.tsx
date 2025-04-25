@@ -10,26 +10,39 @@ import { ContentEditorLayout } from "./ContentEditor/ContentEditorLayout";
 
 interface ContentEditorProps {
   onContentSaved?: () => void;
+  initialContent?: string;
+  initialTitle?: string;
+  initialTags?: string[];
 }
 
-export default function ContentEditor({ onContentSaved }: ContentEditorProps) {
+export default function ContentEditor({ 
+  onContentSaved,
+  initialContent = "",
+  initialTitle = "",
+  initialTags = [],
+}: ContentEditorProps) {
   const { user } = useAuth();
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   // State management
-  const [content, setContent] = useState("");
-  const [title, setTitle] = useState("");
+  const [content, setContent] = useState(initialContent);
+  const [title, setTitle] = useState(initialTitle);
   const [isGeneratingTitle, setIsGeneratingTitle] = useState(false);
-  const [tags, setTags] = useState<string[]>([]);
+  const [tags, setTags] = useState<string[]>(initialTags);
   const [isAutoSaving, setIsAutoSaving] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+
+  // Reset state when initial values change
+  useEffect(() => {
+    setContent(initialContent);
+    setTitle(initialTitle);
+    setTags(initialTags);
+  }, [initialContent, initialTitle, initialTags]);
 
   // Custom hooks
   const {
     suggestions: initialTagSuggestions,
-    stats: tagStats,
     loading: tagSuggestionsLoading,
-    language,
   } = useAdvancedTagging(content);
 
   const [tagSuggestions, setTagSuggestions] = useState<
@@ -52,15 +65,28 @@ export default function ContentEditor({ onContentSaved }: ContentEditorProps) {
 
     try {
       setIsSaving(true);
+      console.log("Starting save operation...");
+
+      // Get the most recent content entry for this user
       const { data: existingContent, error: fetchError } = await supabase
         .from("content")
-        .select("id")
+        .select("id, content, tags")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false })
         .limit(1);
 
       if (fetchError) {
         throw fetchError;
+      }
+
+      // Only save if content or tags have actually changed
+      const hasChanged = !existingContent?.[0] || 
+        existingContent[0].content !== content || 
+        JSON.stringify(existingContent[0].tags) !== JSON.stringify(tags);
+
+      if (!hasChanged) {
+        console.log("No changes detected, skipping save");
+        return;
       }
 
       const contentData = {
@@ -73,6 +99,8 @@ export default function ContentEditor({ onContentSaved }: ContentEditorProps) {
           version_number: 1 
         })
       };
+
+      console.log("Saving content with data:", contentData);
 
       const { data, error } = await supabase
         .from("content")
@@ -91,13 +119,12 @@ export default function ContentEditor({ onContentSaved }: ContentEditorProps) {
         throw new Error("No data returned from upsert");
       }
 
+      console.log("Content saved successfully:", data);
       toast.success("Content saved successfully!");
       
-      // Notify parent component that content was saved
       onContentSaved?.();
       
       if (closeAfterSave) {
-        // Clear the editor
         setContent("");
         setTitle("");
         setTags([]);
@@ -120,29 +147,26 @@ export default function ContentEditor({ onContentSaved }: ContentEditorProps) {
 
   // Create debounced auto-save function
   const debouncedSave = useCallback(
-    () => {
-      setIsAutoSaving(true);
-      handleSave(false).finally(() => {
-        setIsAutoSaving(false);
-      });
-    },
-    [handleSave]
-  );
-
-  const debouncedSaveMemoized = useMemo(
-    () => debounce(debouncedSave, 2000),
-    [debouncedSave]
+    debounce(async () => {
+      if (content.trim() && user) {
+        setIsAutoSaving(true);
+        try {
+          await handleSave(false);
+        } finally {
+          setIsAutoSaving(false);
+        }
+      }
+    }, 5000), // Increased debounce time to 5 seconds
+    [content, user, handleSave]
   );
 
   // Auto-save when content or tags change
   useEffect(() => {
-    if (content.trim() && user) {
-      debouncedSaveMemoized();
-    }
+    debouncedSave();
     return () => {
-      debouncedSaveMemoized.cancel();
+      debouncedSave.cancel();
     };
-  }, [content, tags, user, debouncedSaveMemoized]);
+  }, [content, tags, debouncedSave]);
 
   return (
     <ContentEditorLayout
@@ -161,8 +185,6 @@ export default function ContentEditor({ onContentSaved }: ContentEditorProps) {
       isSaving={isSaving}
       tagSuggestions={tagSuggestions}
       tagSuggestionsLoading={tagSuggestionsLoading}
-      tagStats={tagStats}
-      language={language}
     />
   );
 }

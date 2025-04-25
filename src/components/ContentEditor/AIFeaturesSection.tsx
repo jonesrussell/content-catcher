@@ -1,8 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
-import type { TagAnalysis, TagStats } from "@/hooks/useAdvancedTagging";
+import type { TagAnalysis } from "@/hooks/useAdvancedTagging";
 import { TagInput } from "@/components/TagInput";
+import { toast } from "react-hot-toast";
 
 interface AIFeaturesSectionProps {
   content: string;
@@ -10,8 +11,6 @@ interface AIFeaturesSectionProps {
   setTags: (tags: string[]) => void;
   tagSuggestions: TagAnalysis[];
   tagSuggestionsLoading: boolean;
-  tagStats: TagStats | null;
-  language: string;
 }
 
 export function AIFeaturesSection({
@@ -20,8 +19,6 @@ export function AIFeaturesSection({
   setTags,
   tagSuggestions,
   tagSuggestionsLoading,
-  tagStats,
-  language,
 }: AIFeaturesSectionProps) {
   if (content.length < 100) return null;
 
@@ -39,10 +36,12 @@ export function AIFeaturesSection({
           <TagInput
             tags={tags}
             setTags={setTags}
-            tagSuggestions={tagSuggestions}
-            tagSuggestionsLoading={tagSuggestionsLoading}
-            tagStats={tagStats}
-            language={language}
+            suggestions={tagSuggestions.map(t => t.tag)}
+            loading={tagSuggestionsLoading}
+            onAddTag={(tag) => {
+              setTags([...tags, tag]);
+              toast.success(`Added tag: ${tag}`);
+            }}
           />
         ) : (
           <div className="flex flex-wrap gap-2">

@@ -4,7 +4,7 @@ import { TitleSection } from "./TitleSection";
 import { AIFeaturesSection } from "./AIFeaturesSection";
 import { MainEditorSection } from "./MainEditorSection";
 import { User } from "@supabase/supabase-js";
-import { TagAnalysis, TagStats } from "@/hooks/useAdvancedTagging";
+import { TagAnalysis } from "@/hooks/useAdvancedTagging";
 
 interface ContentEditorLayoutProps {
   content: string;
@@ -22,8 +22,6 @@ interface ContentEditorLayoutProps {
   isSaving: boolean;
   tagSuggestions: TagAnalysis[];
   tagSuggestionsLoading: boolean;
-  tagStats: TagStats | null;
-  language: string;
 }
 
 export function ContentEditorLayout({
@@ -42,8 +40,6 @@ export function ContentEditorLayout({
   isSaving,
   tagSuggestions,
   tagSuggestionsLoading,
-  tagStats,
-  language,
 }: ContentEditorLayoutProps) {
   return (
     <div className="relative mx-auto w-full max-w-4xl px-4">
@@ -109,8 +105,6 @@ export function ContentEditorLayout({
               setTags={setTags}
               tagSuggestions={tagSuggestions}
               tagSuggestionsLoading={tagSuggestionsLoading}
-              tagStats={tagStats}
-              language={language}
             />
           ) : (
             <div className="space-y-4">

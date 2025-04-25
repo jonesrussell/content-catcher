@@ -1,15 +1,14 @@
 "use client";
 
 import { TagInput } from "@/components/TagInput";
-import type { TagAnalysis, TagStats } from "@/hooks/useAdvancedTagging";
+import type { TagAnalysis } from "@/hooks/useAdvancedTagging";
+import { toast } from "react-hot-toast";
 
 interface TagSectionProps {
   tags: string[];
   setTags: (tags: string[]) => void;
   tagSuggestions: TagAnalysis[];
   tagSuggestionsLoading: boolean;
-  tagStats: TagStats | null;
-  language: string;
   onUpdateSuggestions: (suggestions: TagAnalysis[]) => void;
 }
 
@@ -18,8 +17,6 @@ export function TagSection({
   setTags,
   tagSuggestions,
   tagSuggestionsLoading,
-  tagStats,
-  language,
   onUpdateSuggestions,
 }: TagSectionProps) {
   return (
@@ -27,15 +24,12 @@ export function TagSection({
       <TagInput
         tags={tags}
         setTags={setTags}
-        tagSuggestions={tagSuggestions}
-        tagSuggestionsLoading={tagSuggestionsLoading}
-        tagStats={tagStats}
-        language={language}
-        onUpdateSuggestions={(suggestions) => {
-          // Pass through to parent
-          if (typeof onUpdateSuggestions === "function") {
-            onUpdateSuggestions(suggestions);
-          }
+        suggestions={tagSuggestions.map(t => t.tag)}
+        loading={tagSuggestionsLoading}
+        onAddTag={(tag) => {
+          setTags([...tags, tag]);
+          onUpdateSuggestions(tagSuggestions.filter(s => s.tag !== tag));
+          toast.success(`Added tag: ${tag}`);
         }}
       />
     </div>
