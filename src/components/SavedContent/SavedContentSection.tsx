@@ -5,15 +5,20 @@ import { motion } from "framer-motion";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/lib/supabase";
 import { MasonryGrid } from "./MasonryGrid";
-import { Loader2, Archive, ArrowUpCircle, Trash2, Edit, Pencil } from "lucide-react";
-import type { Content, ContentUpdate } from "@/hooks/useContent";
-import { toast } from "react-hot-toast";
+import { Loader2 } from "lucide-react";
+import type { Content } from "@/types/content";
 import { EditContentModal } from "../ContentEditor/EditContentModal";
-import { Button } from "../ui/button";
 
-interface DatabaseContent extends Omit<Content, "updated_at"> {
-  updated_at: string | null;
+interface DatabaseContent {
+  id: string;
+  user_id: string;
+  content: string;
+  tags: string[] | null;
   created_at: string;
+  updated_at: string | null;
+  version_number: number | null;
+  archived: boolean | null;
+  attachments: string[] | null;
 }
 
 export function SavedContentSection() {
@@ -44,13 +49,20 @@ export function SavedContentSection() {
 
         if (error) throw error;
 
-        const newContent = (data || []).map((item) => ({
-          ...item,
-          tags: item.tags || [],
-          attachments: item.attachments || [],
-          updated_at: (item as DatabaseContent).updated_at || item.created_at,
-          version_number: item.version_number || 1,
-        }));
+        const newContent = (data || []).map((item) => {
+          const dbContent = item as unknown as DatabaseContent;
+          return {
+            id: dbContent.id,
+            user_id: dbContent.user_id,
+            content: dbContent.content,
+            tags: dbContent.tags || [],
+            created_at: dbContent.created_at,
+            updated_at: dbContent.updated_at || dbContent.created_at,
+            version_number: dbContent.version_number || 1,
+            archived: dbContent.archived || false,
+            attachments: dbContent.attachments || [],
+          } as Content;
+        });
 
         if (page === 0) {
           setContent(newContent);

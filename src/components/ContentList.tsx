@@ -1,13 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
-import { Archive, ArrowUpCircle, Trash2, Edit } from "lucide-react";
-import { toast } from "react-hot-toast";
-import { supabase } from "@/lib/supabase";
-import type { Content, ContentUpdate } from "@/hooks/useContent";
+import type { Content } from "@/types/content";
 import { EditContentModal } from "./ContentEditor/EditContentModal";
-import { Button } from "./ui/button";
+import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
 
 interface ContentListProps {
@@ -20,29 +16,14 @@ export function ContentList({ contents, onContentUpdated }: ContentListProps) {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {contents.map((content) => (
         <div
           key={content.id}
-          className="border-primary/10 rounded-lg border-2 bg-white/50 p-4 backdrop-blur-sm"
+          className="group saved-content-item border-primary/5 relative mb-8 rounded-xl border bg-white/90 p-6 shadow-lg backdrop-blur-sm transition-all duration-300 hover:shadow-xl"
+          tabIndex={0}
         >
-          <div className="flex items-start justify-between">
-            <div className="space-y-2">
-              <h3 className="text-lg font-medium">{content.title}</h3>
-              <p className="text-sm text-gray-600 line-clamp-2">
-                {content.content}
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {content.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="bg-primary/10 text-primary rounded-full px-2 py-1 text-xs"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            </div>
+          <div className="absolute top-4 right-4 flex items-center gap-2 opacity-0 transition-opacity group-hover:opacity-100">
             <Button
               variant="ghost"
               size="icon"
@@ -50,9 +31,31 @@ export function ContentList({ contents, onContentUpdated }: ContentListProps) {
                 setSelectedContent(content);
                 setIsEditModalOpen(true);
               }}
+              className="rounded-full p-2 hover:bg-primary/5"
+              title="Edit"
             >
-              <Pencil className="h-4 w-4" />
+              <Pencil className="h-4 w-4 text-primary/70" />
             </Button>
+          </div>
+          <div className="space-y-4">
+            <p className="text-primary/80 whitespace-pre-wrap text-base leading-relaxed">
+              {content.content}
+            </p>
+            {content.tags && content.tags.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {content.tags.map((tag, index) => (
+                  <span
+                    key={index}
+                    className="bg-primary/10 text-primary rounded-full px-3 py-1 text-sm"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+            <div className="text-primary/60 flex items-center justify-between text-xs">
+              <span>{new Date(content.created_at).toLocaleDateString()}</span>
+            </div>
           </div>
         </div>
       ))}
@@ -66,6 +69,7 @@ export function ContentList({ contents, onContentUpdated }: ContentListProps) {
         content={selectedContent}
         onContentSaved={() => {
           onContentUpdated?.();
+          window.location.reload();
         }}
       />
     </div>

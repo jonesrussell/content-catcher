@@ -4,7 +4,8 @@ import { motion } from "framer-motion";
 import { Archive, ArrowUpCircle, Trash2, Pencil } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { supabase } from "@/lib/supabase";
-import type { Content, ContentUpdate } from "@/hooks/useContent";
+import type { Content } from "@/types/content";
+import type { ContentUpdate } from "@/hooks/useContent";
 import { Button } from "../ui/button";
 
 interface MasonryGridProps {
@@ -94,7 +95,7 @@ export function MasonryGrid({ content, onDelete, onEdit }: MasonryGridProps) {
             </p>
             {item.tags && item.tags.length > 0 && (
               <div className="flex flex-wrap gap-2">
-                {item.tags.map((tag, index) => (
+                {item.tags.map((tag: string, index: number) => (
                   <span
                     key={index}
                     className="bg-primary/10 text-primary rounded-full px-3 py-1 text-sm"

@@ -5,7 +5,7 @@ import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/lib/supabase";
 import { motion } from "framer-motion";
 import { Edit2, Save, Loader2 } from "lucide-react";
-import ContentList from "@/components/ContentList";
+import { ContentList } from "@/components/ContentList";
 import DashboardStats from "@/components/DashboardStats";
 import SearchContent from "@/components/SearchContent";
 import { toast } from "react-hot-toast";
@@ -190,7 +190,7 @@ export default function ProfileContent() {
           <h2 className="text-primary mb-6 text-2xl font-bold">
             Saved Content
           </h2>
-          <ContentList content={content} />
+          <ContentList contents={content} />
         </div>
       </motion.div>
     </div>

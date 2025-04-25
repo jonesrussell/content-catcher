@@ -8,7 +8,7 @@ import { useAuth } from "@/lib/auth-context";
 import debounce from "lodash.debounce";
 import { toast } from "react-hot-toast";
 
-import { Content } from "@/hooks/useContent";
+import type { Content } from "@/types/content";
 import { useTags } from "@/hooks/useTags";
 type SearchResult = Content;
 
@@ -46,12 +46,27 @@ export default function SearchContent() {
 
         if (error) throw error;
 
-        const processedData = (data || []).map((item) => ({
-          ...item,
-          tags: item.tags || [],
-          attachments: item.attachments || [],
-          version_number: item.version_number || 1,
-        })) as SearchResult[];
+        const processedData = (data || []).map((item) => {
+          const dbItem = item as unknown as {
+            updated_at: string | null;
+            archived: boolean | null;
+            tags: string[] | null;
+            attachments: string[] | null;
+            version_number: number | null;
+            content: string;
+            created_at: string;
+            id: string;
+            user_id: string;
+          };
+          return {
+            ...item,
+            tags: item.tags || [],
+            attachments: item.attachments || [],
+            version_number: item.version_number || 1,
+            updated_at: dbItem.updated_at || item.created_at,
+            archived: dbItem.archived || false,
+          } as SearchResult;
+        });
 
         setResults(processedData);
       } catch (error) {
