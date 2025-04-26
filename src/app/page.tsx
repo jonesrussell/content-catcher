@@ -6,7 +6,6 @@ import { SavedContentSection } from "@/components/SavedContentSection";
 import { useState } from "react";
 
 export default function Home() {
-  const [isNewContentModalOpen, setIsNewContentModalOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
 
   const handleContentSaved = () => {

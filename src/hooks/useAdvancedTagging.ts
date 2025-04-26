@@ -1,10 +1,8 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
-import { debounce } from "lodash";
-import type { TagAnalysis as TagAnalysisType, TagStats as TagStatsType } from "@/types/tags";
 
 export interface TagAnalysis {
   tag: string;
@@ -55,11 +53,11 @@ export function useAdvancedTagging(
   options: UseAdvancedTaggingOptions = {}
 ): UseAdvancedTaggingResult {
   const [suggestions, setSuggestions] = useState<TagAnalysis[]>([]);
-  const [stats, setStats] = useState<TagStatsType | null>(null);
+  const [stats, setStats] = useState<TagStats | null>(null);
   const [loading, setLoading] = useState(false);
   const [language, setLanguage] = useState<string>("en");
   const [tagSuggestions, setTagSuggestions] = useState<string[]>([]);
-  const [tagSuggestionsLoading, setTagSuggestionsLoading] = useState(false);
+  const [tagSuggestionsLoading] = useState(false);
 
   useEffect(() => {
     if (options.enabled && content) {

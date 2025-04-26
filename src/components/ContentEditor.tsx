@@ -62,21 +62,12 @@ export default function ContentEditor({
   }, [initialContent, initialTitle, initialTags]);
 
   // Custom hooks
-  const { suggestions, loading } = useAdvancedTagging(content, { enabled: !disableAI });
-
   const { tagSuggestions, tagSuggestionsLoading, setTagSuggestions } = useAdvancedTagging(content, {
     enabled: !disableAI,
-    onSuggestions: (suggestions) => {
+    onSuggestions: (suggestions: { tag: string }[]) => {
       setTagSuggestions(suggestions.map(s => s.tag));
     }
   });
-
-  const handleTagSelect = useCallback((tag: string) => {
-    if (!tags.includes(tag)) {
-      setTags([...tags, tag]);
-      setTagSuggestions([]);
-    }
-  }, [tags, setTagSuggestions]);
 
   const handleSave = useCallback(async (closeAfterSave = false) => {
     if (!user) {
@@ -160,7 +151,7 @@ export default function ContentEditor({
     } finally {
       setIsSaving(false);
     }
-  }, [content, title, tags, user, onSave, onContentSaved, isModal]);
+  }, [content, title, tags, user, onSave, onContentSaved, isModal, setTagSuggestions]);
 
   // Create debounced auto-save function
   const debouncedSave = useMemo(
