@@ -1,0 +1,25 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Content Management System
+
+This project is a content management system with advanced tagging capabilities. The main components are:
+
+## Core Components
+- [src/app/page.tsx](mdc:src/app/page.tsx) - Main page component that renders the content editor and saved content section
+- [src/components/ContentEditor.tsx](mdc:src/components/ContentEditor.tsx) - Rich content editor with auto-saving and tag management
+- [src/hooks/useAdvancedTagging.ts](mdc:src/hooks/useAdvancedTagging.ts) - Custom hook for AI-powered content tagging
+
+## Key Features
+1. Real-time content editing with auto-save
+2. AI-powered tag suggestions using NLP and GPT-4
+3. Content organization with tags and categories
+4. Masonry grid layout for saved content display
+
+## State Management
+- Content state is managed through context providers
+- Tags are processed using the advanced tagging system
+- Content is persisted using Supabase as the backend
+
