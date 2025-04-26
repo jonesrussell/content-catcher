@@ -7,28 +7,37 @@ import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth-context";
 import debounce from "lodash.debounce";
 import { ContentEditorLayout } from "./ContentEditor/ContentEditorLayout";
+import type { Content } from "@/types/content";
 
 interface ContentEditorProps {
-  onContentSaved?: () => void;
-  initialContent?: string;
+  initialContent?: Content;
   initialTitle?: string;
   initialTags?: string[];
+  onSave?: (content: string) => void;
+  onContentSaved?: () => void;
+  disableAI?: boolean;
+  isModal?: boolean;
+  onFocus?: () => void;
 }
 
-export default function ContentEditor({ 
-  onContentSaved,
-  initialContent = "",
+export default function ContentEditor({
+  initialContent,
   initialTitle = "",
   initialTags = [],
+  onSave,
+  onContentSaved,
+  disableAI = false,
+  isModal = false,
+  onFocus,
 }: ContentEditorProps) {
   const { user } = useAuth();
-  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // State management
-  const [content, setContent] = useState(initialContent);
-  const [title, setTitle] = useState(initialTitle);
+  const [content, setContent] = useState(initialContent?.content ?? "");
+  const [title, setTitle] = useState(initialContent?.title ?? "");
   const [isGeneratingTitle, setIsGeneratingTitle] = useState(false);
-  const [tags, setTags] = useState<string[]>(initialTags);
+  const [tags, setTags] = useState<string[]>(initialContent?.tags ?? []);
   const [isAutoSaving, setIsAutoSaving] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -39,7 +48,7 @@ export default function ContentEditor({
 
   useEffect(() => {
     if (prevInitialContent.current !== initialContent) {
-      setContent(initialContent);
+      setContent(initialContent?.content ?? "");
       prevInitialContent.current = initialContent;
     }
     if (prevInitialTitle.current !== initialTitle) {
@@ -53,18 +62,21 @@ export default function ContentEditor({
   }, [initialContent, initialTitle, initialTags]);
 
   // Custom hooks
-  const {
-    suggestions: initialTagSuggestions,
-    loading: tagSuggestionsLoading,
-  } = useAdvancedTagging(content);
+  const { suggestions, loading } = useAdvancedTagging(content, { enabled: !disableAI });
 
-  const [tagSuggestions, setTagSuggestions] = useState<
-    typeof initialTagSuggestions
-  >(initialTagSuggestions);
+  const { tagSuggestions, tagSuggestionsLoading, setTagSuggestions } = useAdvancedTagging(content, {
+    enabled: !disableAI,
+    onSuggestions: (suggestions) => {
+      setTagSuggestions(suggestions.map(s => s.tag));
+    }
+  });
 
-  useEffect(() => {
-    setTagSuggestions(initialTagSuggestions);
-  }, [initialTagSuggestions]);
+  const handleTagSelect = useCallback((tag: string) => {
+    if (!tags.includes(tag)) {
+      setTags([...tags, tag]);
+      setTagSuggestions([]);
+    }
+  }, [tags, setTagSuggestions]);
 
   const handleSave = useCallback(async (closeAfterSave = false) => {
     if (!user) {
@@ -95,6 +107,7 @@ export default function ContentEditor({
       const contentData = {
         user_id: user.id,
         content,
+        title,
         tags: tags ?? [],
         ...(existingContent?.[0]?.id ? { id: existingContent[0].id } : {}),
         ...(existingContent?.[0]?.id ? {} : { 
@@ -125,9 +138,10 @@ export default function ContentEditor({
       console.log("Content saved successfully:", data);
       toast.success("Content saved successfully!");
       
+      onSave?.(content);
       onContentSaved?.();
       
-      if (closeAfterSave) {
+      if (closeAfterSave || isModal) {
         setContent("");
         setTitle("");
         setTags([]);
@@ -146,7 +160,7 @@ export default function ContentEditor({
     } finally {
       setIsSaving(false);
     }
-  }, [content, tags, user, onContentSaved]);
+  }, [content, title, tags, user, onSave, onContentSaved, isModal]);
 
   // Create debounced auto-save function
   const debouncedSave = useMemo(
@@ -198,12 +212,13 @@ export default function ContentEditor({
       tags={tags}
       setTags={setTags}
       user={user}
-      textareaRef={textareaRef}
+      textareaRef={textareaRef as React.RefObject<HTMLTextAreaElement>}
       handleSave={handleSave}
       isAutoSaving={isAutoSaving}
       isSaving={isSaving}
       tagSuggestions={tagSuggestions}
       tagSuggestionsLoading={tagSuggestionsLoading}
+      onFocus={onFocus}
     />
   );
 }

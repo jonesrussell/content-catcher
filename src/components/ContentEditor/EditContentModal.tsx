@@ -1,39 +1,41 @@
 "use client";
 
-import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import ContentEditor from "../ContentEditor";
 import { Content } from "@/types/content";
+import { DialogHeader } from "@/components/ui/dialog";
 
 interface EditContentModalProps {
+  content: Content | null;
   isOpen: boolean;
   onClose: () => void;
-  content: Content | null;
+  onSave?: () => void;
+  isNew?: boolean;
   onContentSaved?: () => void;
 }
 
-export function EditContentModal({
-  isOpen,
-  onClose,
-  content,
-  onContentSaved,
+export function EditContentModal({ 
+  content, 
+  isOpen, 
+  onClose, 
+  onSave,
+  isNew = false,
+  onContentSaved 
 }: EditContentModalProps) {
-  if (!content) return null;
+  const handleSave = () => {
+    onSave?.();
+    onClose();
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-full max-w-full">
-        <DialogTitle>Edit Content</DialogTitle>
-        <DialogDescription>
-          Make changes to your content here. Click save when you&apos;re done.
-        </DialogDescription>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{isNew ? "Create New Content" : "Edit Content"}</DialogTitle>
+        </DialogHeader>
         <ContentEditor
-          initialContent={content.content}
-          initialTitle={content.title}
-          initialTags={content.tags}
-          onContentSaved={() => {
-            onContentSaved?.();
-            onClose();
-          }}
+          initialContent={content || undefined}
+          onContentSaved={isNew ? onContentSaved : handleSave}
         />
       </DialogContent>
     </Dialog>

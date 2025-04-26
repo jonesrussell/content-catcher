@@ -8,6 +8,7 @@ import { MasonryGrid } from "./MasonryGrid";
 import { Loader2 } from "lucide-react";
 import type { Content } from "@/types/content";
 import { EditContentModal } from "../ContentEditor/EditContentModal";
+import { useSearchParams } from "next/navigation";
 
 interface DatabaseContent {
   id: string;
@@ -30,6 +31,18 @@ export function SavedContentSection() {
   const itemsPerPage = 12;
   const [selectedContent, setSelectedContent] = useState<Content | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const editId = searchParams.get("edit");
+    if (editId && content.length > 0) {
+      const contentToEdit = content.find((item) => item.id === editId);
+      if (contentToEdit) {
+        setSelectedContent(contentToEdit);
+        setIsEditModalOpen(true);
+      }
+    }
+  }, [searchParams, content]);
 
   useEffect(() => {
     if (!user) {

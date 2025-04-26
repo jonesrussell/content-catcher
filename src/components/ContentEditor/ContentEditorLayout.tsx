@@ -4,7 +4,6 @@ import { TitleSection } from "./TitleSection";
 import { AIFeaturesSection } from "./AIFeaturesSection";
 import { MainEditorSection } from "./MainEditorSection";
 import { User } from "@supabase/supabase-js";
-import { TagAnalysis } from "@/hooks/useAdvancedTagging";
 
 interface ContentEditorLayoutProps {
   content: string;
@@ -12,16 +11,17 @@ interface ContentEditorLayoutProps {
   title: string;
   setTitle: (title: string) => void;
   isGeneratingTitle: boolean;
-  setIsGeneratingTitle: (value: boolean) => void;
+  setIsGeneratingTitle: (isGenerating: boolean) => void;
   tags: string[];
   setTags: (tags: string[]) => void;
   user: User | null;
-  textareaRef: React.RefObject<HTMLTextAreaElement | null>;
+  textareaRef: React.RefObject<HTMLTextAreaElement>;
   handleSave: (closeAfterSave?: boolean) => Promise<void>;
   isAutoSaving: boolean;
   isSaving: boolean;
-  tagSuggestions: TagAnalysis[];
+  tagSuggestions: string[];
   tagSuggestionsLoading: boolean;
+  onFocus?: () => void;
 }
 
 export function ContentEditorLayout({
@@ -40,6 +40,7 @@ export function ContentEditorLayout({
   isSaving,
   tagSuggestions,
   tagSuggestionsLoading,
+  onFocus,
 }: ContentEditorLayoutProps) {
   return (
     <div className="relative mx-auto w-full max-w-4xl px-4">
@@ -78,7 +79,14 @@ export function ContentEditorLayout({
               content={content}
               tags={tags}
               setTags={setTags}
-              tagSuggestions={tagSuggestions}
+              tagSuggestions={tagSuggestions.map(tag => ({
+                tag,
+                confidence: 1,
+                category: 'topic',
+                source: 'rules',
+                metadata: {},
+                explanation: 'Auto-generated tag'
+              }))}
               tagSuggestionsLoading={tagSuggestionsLoading}
             />
           ) : (
@@ -95,6 +103,14 @@ export function ContentEditorLayout({
           )}
         </div>
       </div>
+      <textarea
+        ref={textareaRef}
+        value={content}
+        onChange={(e) => setContent(e.target.value)}
+        onFocus={onFocus}
+        className="w-full h-64 p-4 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        placeholder="Start writing your content here..."
+      />
     </div>
   );
 } 
