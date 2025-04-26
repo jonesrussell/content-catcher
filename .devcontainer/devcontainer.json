@@ -29,5 +29,12 @@
 			"version": "latest"
 		}
 	},
-	"postCreateCommand": "curl https://bun.sh/install | bash"
+	"postCreateCommand": "curl https://bun.sh/install | bash",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"dbaeumer.vscode-eslint"
+			]
+		}
+	}
 }

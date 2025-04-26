@@ -3,10 +3,8 @@ import "@/styles/globals.css";
 
 import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
-import { AuthProvider } from "@/lib/auth-context";
-import { Toaster } from "react-hot-toast";
+import { Providers } from "@/components/Providers";
 import Header from "@/components/Header";
-import { GlobalErrorHandler } from "@/utils/global-error-handler";
 
 export const metadata: Metadata = {
   title: "Content Collector",
@@ -27,14 +25,12 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${GeistSans.variable}`}>
       <body className="flex min-h-screen flex-col">
-        <AuthProvider>
+        <Providers>
           <Header />
           <main className="mx-auto w-full max-w-7xl flex-1 px-4 pt-16 pb-8 sm:px-6 lg:px-8">
-            <GlobalErrorHandler />
             {children}
           </main>
-          <Toaster position="bottom-right" />
-        </AuthProvider>
+        </Providers>
       </body>
     </html>
   );
