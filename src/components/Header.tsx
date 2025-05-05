@@ -25,7 +25,7 @@ export default function Header() {
   }) => (
     <Link
       href={href}
-      className={`text-primary/80 hover:text-primary transition-colors ${className}`}
+      className={`text-gray-700 hover:text-gray-900 transition-colors ${className}`}
       onClick={() => setIsMobileMenuOpen(false)}
     >
       {children}
@@ -33,19 +33,18 @@ export default function Header() {
   );
 
   return (
-    <header className="border-primary/10 fixed top-0 right-0 left-0 z-50 border-b bg-white/80 backdrop-blur-sm">
+    <header className="border-gray-200 fixed top-0 right-0 left-0 z-50 border-b bg-white/80 backdrop-blur-sm">
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           <Link
             href="/"
-            className="text-primary hover:text-primary/80 text-lg font-bold transition-colors md:text-2xl"
+            className="text-gray-900 hover:text-gray-700 text-lg font-bold transition-colors md:text-2xl"
           >
             Collector
           </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden items-center gap-6 md:flex">
-            <NavLink href="/">Home</NavLink>
             {user ? (
               <>
                 <NavLink href="/profile" className="flex items-center gap-2">
@@ -54,25 +53,28 @@ export default function Header() {
                 </NavLink>
                 <button
                   onClick={() => signOut()}
-                  className="text-primary/80 hover:text-primary flex items-center gap-2 transition-colors"
+                  className="text-gray-700 hover:text-gray-900 flex items-center gap-2 transition-colors"
                 >
                   <LogOut className="h-4 w-4" />
                   Sign Out
                 </button>
               </>
             ) : (
-              <Link
-                href="/login"
-                className="bg-primary hover:bg-primary/90 rounded-lg px-4 py-2 text-white transition-colors"
-              >
-                Sign In
-              </Link>
+              <>
+                <NavLink href="/signup">Sign Up</NavLink>
+                <Link
+                  href="/login"
+                  className="bg-gray-900 hover:bg-gray-800 rounded-lg px-4 py-2 text-white transition-colors"
+                >
+                  Login
+                </Link>
+              </>
             )}
           </nav>
 
           {/* Mobile Menu Button */}
           <button
-            className="text-primary hover:text-primary/80 p-2 transition-colors md:hidden"
+            className="text-gray-700 hover:text-gray-900 p-2 transition-colors md:hidden"
             onClick={toggleMobileMenu}
             aria-label="Toggle menu"
           >
@@ -91,10 +93,9 @@ export default function Header() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              className="border-primary/10 border-t py-4 md:hidden"
+              className="border-gray-200 border-t py-4 md:hidden"
             >
               <div className="flex flex-col gap-4">
-                <NavLink href="/">Home</NavLink>
                 {user ? (
                   <>
                     <NavLink
@@ -109,20 +110,23 @@ export default function Header() {
                         signOut();
                         setIsMobileMenuOpen(false);
                       }}
-                      className="text-primary/80 hover:text-primary flex items-center gap-2 transition-colors"
+                      className="text-gray-700 hover:text-gray-900 flex items-center gap-2 transition-colors"
                     >
                       <LogOut className="h-4 w-4" />
                       Sign Out
                     </button>
                   </>
                 ) : (
-                  <Link
-                    href="/login"
-                    className="bg-primary hover:bg-primary/90 rounded-lg px-4 py-2 text-center text-white transition-colors"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    Sign In
-                  </Link>
+                  <>
+                    <NavLink href="/signup">Sign Up</NavLink>
+                    <Link
+                      href="/login"
+                      className="bg-gray-900 hover:bg-gray-800 rounded-lg px-4 py-2 text-center text-white transition-colors"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Login
+                    </Link>
+                  </>
                 )}
               </div>
             </motion.nav>

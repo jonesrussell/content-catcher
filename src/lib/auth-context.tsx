@@ -7,7 +7,7 @@ import { supabase } from "./supabase";
 type AuthContextType = {
   user: User | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
+  signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>;
   signUp: (
     email: string,
     password: string,
@@ -19,7 +19,7 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
-  signIn: async () => {},
+  signIn: async () => ({ error: null }),
   signUp: async () => ({ error: null }),
   resetPassword: async () => {},
   signOut: async () => {},
@@ -47,7 +47,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       email,
       password,
     });
-    if (error) throw error;
+    return { error };
   };
 
   const signUp = async (email: string, password: string) => {

@@ -49,33 +49,33 @@ export default function SignupPage() {
         className="w-full max-w-md rounded-2xl bg-white/80 p-8 shadow-xl backdrop-blur-sm"
       >
         <div className="mb-8 text-center">
-          <h1 className="text-primary text-3xl font-bold">Create Account</h1>
-          <p className="text-muted-foreground mt-2">Sign up to get started</p>
+          <h1 className="text-gray-900 text-3xl font-bold">Create Account</h1>
+          <p className="text-gray-700 mt-2">Sign up to get started</p>
         </div>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="text-primary mb-2 block text-sm font-medium">
+            <label className="text-gray-700 mb-2 block text-sm font-medium">
               Email
             </label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="border-input bg-background focus:ring-primary/20 w-full rounded-lg border px-4 py-3 transition-all focus:ring-2 focus:outline-none"
+              className="border-gray-200 bg-white focus:ring-gray-200 w-full rounded-lg border px-4 py-3 transition-all focus:ring-2 focus:outline-none"
               required
               autoComplete="email"
               name="email"
             />
           </div>
           <div>
-            <label className="text-primary mb-2 block text-sm font-medium">
+            <label className="text-gray-700 mb-2 block text-sm font-medium">
               Password
             </label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="border-input bg-background focus:ring-primary/20 w-full rounded-lg border px-4 py-3 transition-all focus:ring-2 focus:outline-none"
+              className="border-gray-200 bg-white focus:ring-gray-200 w-full rounded-lg border px-4 py-3 transition-all focus:ring-2 focus:outline-none"
               required
               autoComplete="new-password"
               name="new-password"
@@ -84,7 +84,7 @@ export default function SignupPage() {
           <button
             type="submit"
             disabled={loading}
-            className="bg-primary hover:bg-primary/90 flex w-full items-center justify-center gap-2 rounded-lg py-3 text-white transition-colors disabled:opacity-50"
+            className="bg-gray-900 hover:bg-gray-800 flex w-full items-center justify-center gap-2 rounded-lg py-3 text-white transition-colors disabled:opacity-50"
           >
             {loading ? (
               "Creating account..."
@@ -99,7 +99,7 @@ export default function SignupPage() {
         <div className="mt-6 text-center">
           <Link
             href="/login"
-            className="text-primary hover:text-primary/80 inline-flex items-center gap-2 transition-colors"
+            className="text-gray-700 hover:text-gray-900 inline-flex items-center gap-2 transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Login

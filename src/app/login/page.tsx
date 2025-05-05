@@ -30,7 +30,12 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      await signIn(formData.email, formData.password);
+      const { error } = await signIn(formData.email, formData.password);
+      if (error) {
+        setError(error.message);
+        toast.error(error.message);
+        return;
+      }
       router.push("/dashboard");
     } catch (err) {
       const error = err as Error;
@@ -49,8 +54,8 @@ export default function LoginPage() {
         className="w-full max-w-md rounded-2xl bg-white/80 p-8 shadow-xl backdrop-blur-sm"
       >
         <div className="mb-8 text-center">
-          <h1 className="text-primary text-3xl font-bold">Welcome Back</h1>
-          <p className="text-muted-foreground mt-2">Sign in to your account</p>
+          <h1 className="text-gray-900 text-3xl font-bold">Welcome Back</h1>
+          <p className="text-gray-700 mt-2">Login to your account</p>
         </div>
         {error && (
           <div className="mb-4 flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-4">
@@ -60,7 +65,7 @@ export default function LoginPage() {
         )}
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="text-primary mb-2 block text-sm font-medium">
+            <label className="text-gray-700 mb-2 block text-sm font-medium">
               Email
             </label>
             <input
@@ -69,14 +74,14 @@ export default function LoginPage() {
               onChange={(e) =>
                 setFormData({ ...formData, email: e.target.value })
               }
-              className="border-input bg-background focus:ring-primary/20 w-full rounded-lg border px-4 py-3 transition-all focus:ring-2 focus:outline-none"
+              className="border-gray-200 bg-white focus:ring-gray-200 w-full rounded-lg border px-4 py-3 transition-all focus:ring-2 focus:outline-none"
               required
-              autoComplete="username"
-              name="username"
+              autoComplete="email"
+              name="email"
             />
           </div>
           <div>
-            <label className="text-primary mb-2 block text-sm font-medium">
+            <label className="text-gray-700 mb-2 block text-sm font-medium">
               Password
             </label>
             <input
@@ -85,7 +90,7 @@ export default function LoginPage() {
               onChange={(e) =>
                 setFormData({ ...formData, password: e.target.value })
               }
-              className="border-input bg-background focus:ring-primary/20 w-full rounded-lg border px-4 py-3 transition-all focus:ring-2 focus:outline-none"
+              className="border-gray-200 bg-white focus:ring-gray-200 w-full rounded-lg border px-4 py-3 transition-all focus:ring-2 focus:outline-none"
               required
               autoComplete="current-password"
               name="password"
@@ -94,27 +99,27 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="bg-primary hover:bg-primary/90 flex w-full items-center justify-center gap-2 rounded-lg py-3 text-white transition-colors disabled:opacity-50"
+            className="bg-gray-900 hover:bg-gray-800 flex w-full items-center justify-center gap-2 rounded-lg py-3 text-white transition-colors disabled:opacity-50"
           >
             {loading ? (
-              "Signing in..."
+              "Logging in..."
             ) : (
               <>
                 <LogIn className="h-4 w-4" />
-                Sign In
+                Login!
               </>
             )}
           </button>
           <div className="mt-4 flex items-center justify-between text-sm">
             <Link
               href="/forgot-password"
-              className="text-primary hover:text-primary/80 transition-colors"
+              className="text-gray-700 hover:text-gray-900 transition-colors"
             >
               Forgot Password?
             </Link>
             <Link
               href="/signup"
-              className="text-primary hover:text-primary/80 transition-colors"
+              className="text-gray-700 hover:text-gray-900 transition-colors"
             >
               Create Account
             </Link>
