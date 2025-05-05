@@ -17,7 +17,7 @@
     "test:watch": "vitest watch",
     "test:coverage": "vitest run --coverage",
     "test:types": "tsc --noEmit --pretty",
-    "test:all": "bun run test && bun run test:types",
+    "test:all": "npm run test && npm run test:types",
     "db:generate": "npx drizzle-kit generate && npx drizzle-kit migrate && git add . && git commit -m 'chore: update migration'"
   },
   "dependencies": {
@@ -82,7 +82,6 @@
   "ct3aMetadata": {
     "initVersion": "7.38.1"
   },
-  "packageManager": "bun@1.2.10",
   "overrides": {
     "drizzle-orm": "0.41.0-29155cc"
   },

@@ -23,14 +23,14 @@ A web application that allows users to capture content from various sources and 
 - **State Management**: Zustand
 - **Real-time**: YJS
 - **Testing**: Jest
-- **Package Manager**: Bun
+- **Package Manager**: NPM
 
 ## Getting Started
 
 ### Prerequisites
 
 - Node.js 18+
-- Bun package manager
+- Node package manager
 - Supabase account
 
 ### Installation
@@ -43,7 +43,7 @@ cd content-catcher
 
 2. Install dependencies:
 ```bash
-bun install
+npm install
 ```
 
 3. Set up environment variables:
@@ -55,19 +55,19 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 
 4. Start the development server:
 ```bash
-bun run dev
+npm run dev
 ```
 
 The application will be available at `http://localhost:3000`
 
 ## Development
 
-- `bun run dev` - Start development server
-- `bun run build` - Build for production
-- `bun run start` - Start production server
-- `bun run lint` - Run ESLint
-- `bun run test` - Run tests
-- `bun run typecheck` - Run TypeScript type checking
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run start` - Start production server
+- `npm run lint` - Run ESLint
+- `npm run test` - Run tests
+- `npm run typecheck` - Run TypeScript type checking
 
 ## License
 

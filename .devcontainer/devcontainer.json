@@ -29,7 +29,6 @@
 			"version": "latest"
 		}
 	},
-	"postCreateCommand": "curl https://bun.sh/install | bash",
 	"customizations": {
 		"vscode": {
 			"extensions": [
