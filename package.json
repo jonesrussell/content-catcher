@@ -1,7 +1,8 @@
 {
-  "name": "content-catcher",
+  "name": "stash",
   "version": "0.1.0",
   "private": true,
+  "description": "A minimalist, effortless way to store and retrieve anything important",
   "scripts": {
     "build": "next build",
     "check": "next lint && tsc --noEmit",

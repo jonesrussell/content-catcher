@@ -5,10 +5,17 @@ import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 import { LogOut, User, Menu, X } from "lucide-react";
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 
 export default function Header() {
   const { user, signOut } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const pathname = usePathname();
+
+  // Don't show header on homepage
+  if (pathname === "/") {
+    return null;
+  }
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -40,7 +47,7 @@ export default function Header() {
             href="/"
             className="text-gray-900 hover:text-gray-700 text-lg font-bold transition-colors md:text-2xl"
           >
-            Collector
+            Stash
           </Link>
 
           {/* Desktop Navigation */}
