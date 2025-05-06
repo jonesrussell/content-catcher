@@ -103,14 +103,6 @@ export function ContentEditorLayout({
           )}
         </div>
       </div>
-      <textarea
-        ref={textareaRef}
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-        onFocus={onFocus}
-        className="w-full h-64 p-4 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        placeholder="Start writing your content here..."
-      />
     </div>
   );
 } 

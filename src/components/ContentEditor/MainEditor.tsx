@@ -11,6 +11,8 @@ interface MainEditorProps {
   user: User | null;
   textareaRef: React.RefObject<HTMLTextAreaElement | null>;
   contentId?: string;
+  onFocus?: () => void;
+  onBlur?: () => void;
 }
 
 import { useCollaboration } from "@/hooks/useCollaboration";
@@ -23,6 +25,8 @@ export function MainEditor({
   user,
   textareaRef,
   contentId,
+  onFocus,
+  onBlur,
 }: MainEditorProps) {
   const { updatePresence, broadcastContentUpdate } = useCollaboration(
     contentId ?? "",
@@ -62,10 +66,12 @@ export function MainEditor({
         }}
         onPaste={handlePaste}
         onKeyDown={handleKeyDown}
+        onFocus={onFocus}
+        onBlur={onBlur}
         placeholder={
           user
             ? "Start typing or paste your content here..."
-            : "Please login to start adding content..."
+            : "Login to start adding content..."
         }
         className="border-primary/10 focus:border-primary/30 min-h-[150px] w-full resize-none rounded-xl border-2 bg-white/50 p-3 text-base leading-relaxed shadow-xl backdrop-blur-sm transition-all duration-300 focus:outline-none md:min-h-[300px] md:p-6 md:text-lg"
         autoFocus

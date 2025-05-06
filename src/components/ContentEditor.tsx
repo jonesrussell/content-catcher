@@ -11,6 +11,7 @@ import type { Content } from "@/types/content";
 
 interface ContentEditorProps {
   initialContent?: Content;
+  initialContents?: Content[];
   initialTitle?: string;
   initialTags?: string[];
   onSave?: (content: string) => void;
@@ -22,6 +23,7 @@ interface ContentEditorProps {
 
 export default function ContentEditor({
   initialContent,
+  initialContents,
   initialTitle = "",
   initialTags = [],
   onSave,

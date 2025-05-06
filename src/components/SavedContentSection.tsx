@@ -8,9 +8,10 @@ import { useContent } from "@/lib/content-context";
 
 interface SavedContentSectionProps {
   onContentUpdated?: () => void;
+  initialContents?: Content[];
 }
 
-export function SavedContentSection({ onContentUpdated }: SavedContentSectionProps) {
+export function SavedContentSection({ onContentUpdated, initialContents }: SavedContentSectionProps) {
   const { contents, loading, error } = useContent();
   const [selectedContent, setSelectedContent] = useState<Content | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -29,6 +30,8 @@ export function SavedContentSection({ onContentUpdated }: SavedContentSectionPro
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
 
+  const displayContents = initialContents || contents;
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -40,7 +43,7 @@ export function SavedContentSection({ onContentUpdated }: SavedContentSectionPro
       </div>
 
       <MasonryGrid
-        content={contents}
+        content={displayContents}
         onEdit={handleEdit}
         onDelete={() => onContentUpdated?.()}
       />
