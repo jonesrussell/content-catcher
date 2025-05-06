@@ -21,7 +21,6 @@ interface ContentEditorLayoutProps {
   isSaving: boolean;
   tagSuggestions: string[];
   tagSuggestionsLoading: boolean;
-  onFocus?: () => void;
 }
 
 export function ContentEditorLayout({
@@ -40,7 +39,6 @@ export function ContentEditorLayout({
   isSaving,
   tagSuggestions,
   tagSuggestionsLoading,
-  onFocus,
 }: ContentEditorLayoutProps) {
   return (
     <div className="relative mx-auto w-full max-w-4xl px-4">

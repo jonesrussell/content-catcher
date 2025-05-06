@@ -5,9 +5,8 @@
   "scripts": {
     "build": "next build",
     "check": "next lint && tsc --noEmit",
+    "lint": "next lint",
     "dev": "next dev --turbopack",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
     "preview": "next build && next start",
     "start": "WATCHPACK_POLLING=true NEXT_TELEMETRY_DISABLED=1 next start",
     "typecheck": "tsc --noEmit",
@@ -50,15 +49,12 @@
     "lodash.debounce": "^4.0.8",
     "lucide-react": "^0.503.0",
     "natural": "^8.0.1",
-    "next": "15.3.1",
     "next-themes": "^0.4.6",
     "postcss": "^8.5.3",
     "postcss-syntax": "^0.36.2",
     "prettier": "^3.5.3",
     "prettier-plugin-tailwindcss": "^0.6.11",
-    "react": "^18.2.0",
     "react-diff-viewer-continued": "^3.4.0",
-    "react-dom": "^18.2.0",
     "react-hot-toast": "^2.5.2",
     "react-intersection-observer": "^9.16.0",
     "react-masonry-css": "^1.0.16",
@@ -75,7 +71,10 @@
     "yjs": "^13.6.26",
     "zod": "^3.24.3",
     "zod-form-data": "^2.0.7",
-    "zustand": "^5.0.3"
+    "zustand": "^5.0.3",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "next": "15.3.1"
   },
   "ct3aMetadata": {
     "initVersion": "7.38.1"
@@ -84,26 +83,26 @@
     "drizzle-orm": "0.41.0-29155cc"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3",
     "@svgr/webpack": "^8.1.0",
     "@swc/jest": "^0.2.38",
     "@tailwindcss/postcss": "^4",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^4.4.1",
-    "eslint": "^9",
-    "eslint-config-next": "15.3.1",
     "jest": "^29.7.0",
     "jsdom": "^26.1.0",
     "supabase": "^2.22.6",
     "tailwindcss": "^4",
-    "typescript": "^5",
     "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^3.1.2"
+    "vitest": "^3.1.2",
+    "typescript": "^5",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "15.3.1",
+    "@eslint/eslintrc": "^3"
   },
   "trustedDependencies": [
     "@swc/core",

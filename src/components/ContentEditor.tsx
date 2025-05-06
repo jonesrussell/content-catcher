@@ -11,26 +11,22 @@ import type { Content } from "@/types/content";
 
 interface ContentEditorProps {
   initialContent?: Content;
-  initialContents?: Content[];
   initialTitle?: string;
   initialTags?: string[];
   onSave?: (content: string) => void;
   onContentSaved?: () => void;
   disableAI?: boolean;
   isModal?: boolean;
-  onFocus?: () => void;
 }
 
 export default function ContentEditor({
   initialContent,
-  initialContents,
   initialTitle = "",
   initialTags = [],
   onSave,
   onContentSaved,
   disableAI = false,
   isModal = false,
-  onFocus,
 }: ContentEditorProps) {
   const { user } = useAuth();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -211,7 +207,6 @@ export default function ContentEditor({
       isSaving={isSaving}
       tagSuggestions={tagSuggestions}
       tagSuggestionsLoading={tagSuggestionsLoading}
-      onFocus={onFocus}
     />
   );
 }
