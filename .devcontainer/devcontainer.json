@@ -44,5 +44,5 @@
 	],
 	"forwardPorts": [3000, 54321, 54322, 54323],
 	"remoteUser": "node",
-	"postCreateCommand": "npm install"
+	"postCreateCommand": "sudo dpkg -i supabase_2.22.12_linux_amd64.deb && npm install"
 }
