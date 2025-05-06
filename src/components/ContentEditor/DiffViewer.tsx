@@ -1,5 +1,7 @@
+"use client";
+
 import { motion } from "framer-motion";
-import ReactDiffViewer from "react-diff-viewer-continued";
+import { diffWords, Change } from "diff";
 import { ContentVersion } from "@/types";
 
 interface DiffViewerProps {
@@ -13,6 +15,8 @@ export function DiffViewer({
   newVersion,
   onClose,
 }: DiffViewerProps) {
+  const differences = diffWords(oldVersion.content, newVersion.content);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -54,32 +58,36 @@ export function DiffViewer({
         </div>
 
         <div className="flex-grow overflow-auto p-4">
-          <ReactDiffViewer
-            oldValue={oldVersion.content}
-            newValue={newVersion.content}
-            splitView={true}
-            useDarkTheme={false}
-            styles={{
-              variables: {
-                light: {
-                  diffViewerBackground: "#ffffff",
-                  diffViewerColor: "#333333",
-                  addedBackground: "#e6ffec",
-                  addedColor: "#1a7f37",
-                  removedBackground: "#ffebe9",
-                  removedColor: "#cf222e",
-                  wordAddedBackground: "#abf2bc",
-                  wordRemovedBackground: "#ffd7d5",
-                  addedGutterBackground: "#ccffd8",
-                  removedGutterBackground: "#ffdcd8",
-                  gutterBackground: "#f6f8fa",
-                  gutterBackgroundDark: "#f0f1f2",
-                  highlightBackground: "#fffbdd",
-                  highlightGutterBackground: "#fff5b1",
-                },
-              },
-            }}
-          />
+          <div className="rounded-lg border bg-white">
+            <div className="grid grid-cols-2 divide-x">
+              <div className="p-4">
+                <h4 className="text-primary mb-2 text-sm font-medium">Old Version</h4>
+                <div className="whitespace-pre-wrap font-mono text-sm">
+                  {differences.map((part: Change, index: number) => (
+                    <span
+                      key={index}
+                      className={part.removed ? "bg-red-100 text-red-800" : ""}
+                    >
+                      {part.value}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <div className="p-4">
+                <h4 className="text-primary mb-2 text-sm font-medium">New Version</h4>
+                <div className="whitespace-pre-wrap font-mono text-sm">
+                  {differences.map((part: Change, index: number) => (
+                    <span
+                      key={index}
+                      className={part.added ? "bg-green-100 text-green-800" : ""}
+                    >
+                      {part.value}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         {oldVersion.tags?.length > 0 || newVersion.tags?.length > 0 ? (
