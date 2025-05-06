@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import ReactDiffViewer from "react-diff-viewer";
+import ReactDiffViewer from "react-diff-viewer-continued";
 import { ContentVersion } from "@/types";
 
 interface DiffViewerProps {

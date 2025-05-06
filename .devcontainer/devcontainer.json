@@ -37,6 +37,12 @@
 		}
 	},
 	"mounts": [
-        "type=bind,source=/home/${localEnv:USER}/.ssh,target=/home/node/.ssh"
-    ]
+		"type=bind,source=/home/${localEnv:USER}/.ssh,target=/home/node/.ssh"
+	],
+	"runArgs": [
+		"--network=host"
+	],
+	"forwardPorts": [3000, 54321, 54322, 54323],
+	"remoteUser": "node",
+	"postCreateCommand": "npm install"
 }
