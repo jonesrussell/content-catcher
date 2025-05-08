@@ -12,13 +12,7 @@
     "start": "WATCHPACK_POLLING=true NEXT_TELEMETRY_DISABLED=1 next start",
     "typecheck": "tsc --noEmit",
     "format:write": "prettier --write \"**/*.{ts,tsx,js,jsx,mdx}\" --cache",
-    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,mdx}\" --cache",
-    "test": "vitest",
-    "test:watch": "vitest watch",
-    "test:coverage": "vitest run --coverage",
-    "test:types": "tsc --noEmit --pretty",
-    "test:all": "npm run test && npm run test:types",
-    "db:generate": "npx drizzle-kit generate && npx drizzle-kit migrate && git add . && git commit -m 'chore: update migration'"
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,mdx}\" --cache"
   },
   "dependencies": {
     "@supabase/ssr": "^0.6.1",
@@ -56,16 +50,8 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
-    "@jest/globals": "^29.7.0",
     "@svgr/webpack": "^8.1.0",
-    "@swc/jest": "^0.2.38",
-    "@tailwindcss/postcss": "^4",
-    "@testing-library/dom": "^10.4.0",
-    "@testing-library/jest-dom": "^6.6.3",
-    "@testing-library/react": "^16.3.0",
     "@types/diff": "^7.0.2",
-    "@types/jest": "^29.5.14",
-    "@types/lodash.debounce": "^4.0.9",
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-beautiful-dnd": "^13.1.8",
@@ -73,7 +59,6 @@
     "@vitejs/plugin-react": "^4.4.1",
     "eslint": "^9",
     "eslint-config-next": "15.3.1",
-    "jest": "^29.7.0",
     "jsdom": "^26.1.0",
     "postcss": "^8.5.3",
     "postcss-syntax": "^0.36.2",
@@ -83,9 +68,13 @@
     "stylelint-config-standard": "^37.0.0",
     "stylelint-config-tailwindcss": "^0.0.7",
     "tailwindcss": "^4",
-    "ts-jest": "^29.3.2",
     "typescript": "^5",
-    "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^3.1.2"
-  }
+    "vite-tsconfig-paths": "^5.1.4"
+  },
+  "trustedDependencies": [
+    "@swc/core",
+    "esbuild",
+    "sharp",
+    "unrs-resolver"
+  ]
 }
