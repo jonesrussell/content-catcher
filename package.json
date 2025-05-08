@@ -23,9 +23,7 @@
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.11",
     "@radix-ui/react-slot": "^1.2.0",
-    "@supabase/auth-helpers-nextjs": "^0.10.0",
-    "@supabase/realtime-js": "^2.11.7",
-    "@supabase/ssr": "^0.1.0",
+    "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.49.4",
     "@t3-oss/env-nextjs": "^0.11.1",
     "axios": "^1.8.4",
@@ -93,7 +91,6 @@
     "stylelint": "^16.19.0",
     "stylelint-config-standard": "^37.0.0",
     "stylelint-config-tailwindcss": "^0.0.7",
-    "supabase": "^2.22.12",
     "tailwindcss": "^4",
     "ts-jest": "^29.3.2",
     "typescript": "^5",

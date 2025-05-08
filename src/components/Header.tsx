@@ -36,7 +36,7 @@ export default function Header() {
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           <Link href="/" className="text-primary text-xl font-bold">
-            Content Catcher
+            Stash
           </Link>
 
           <div className="hidden md:flex md:items-center md:gap-6">
