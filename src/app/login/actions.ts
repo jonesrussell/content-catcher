@@ -76,4 +76,11 @@ export async function signup(formData: FormData) {
       error: 'An unexpected error occurred',
     }
   }
+}
+
+export async function signOut() {
+  const supabase = await createClient()
+  await supabase.auth.signOut()
+  revalidatePath('/', 'layout')
+  redirect('/login')
 } 

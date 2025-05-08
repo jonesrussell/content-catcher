@@ -3,7 +3,6 @@
 import { useState, useCallback, useRef, useEffect, useMemo, useOptimistic } from "react";
 import { useAdvancedTagging } from "@/hooks/useAdvancedTagging";
 import { toast } from "react-hot-toast";
-import { useAuth } from "@/lib/auth-context";
 import debounce from "lodash.debounce";
 import { ContentEditorLayout } from "./ContentEditor/ContentEditorLayout";
 import type { Content } from "@/types/content";
@@ -26,7 +25,6 @@ export default function ContentEditor({
   onContentSaved,
   isModal = false,
 }: ContentEditorProps) {
-  const { user } = useAuth();
   const [content, setContent] = useState(initialContent?.content || "");
   const [title, setTitle] = useState(initialTitle);
   const [tags, setTags] = useState<string[]>(initialTags);
@@ -42,65 +40,55 @@ export default function ContentEditor({
     tagSuggestions,
     tagSuggestionsLoading,
     setTagSuggestions,
+    suggestions,
+    handleTagInput,
+    handleTagSelect,
   } = useAdvancedTagging(content);
 
-  const handleSave = useCallback(async (closeAfterSave = false) => {
-    if (!user) {
-      toast.error("Please login to save content");
-      return;
-    }
-
-    if (!content.trim()) {
-      return;
-    }
-
+  const handleSave = useCallback(async () => {
     try {
       setIsSaving(true);
-      setOptimisticContent("Saving...");
+      const result = await saveContent({
+        content: optimisticContent,
+        title,
+        tags,
+      });
 
-      await saveContent(content, title, tags);
-      
-      toast.success("Content saved successfully!");
-      
-      onSave?.(content);
-      onContentSaved?.();
-      
-      if (closeAfterSave || isModal) {
-        setContent("");
-        setTitle("");
-        setTags([]);
-        setTagSuggestions([]);
+      if (result?.error) {
+        toast.error(result.error);
+        return;
       }
+
+      toast.success("Content saved successfully");
+      onContentSaved?.();
     } catch (error) {
-      console.error("Save error:", error);
       toast.error("Failed to save content");
     } finally {
       setIsSaving(false);
-      setOptimisticContent(content);
     }
-  }, [content, title, tags, user, onSave, onContentSaved, isModal, setTagSuggestions, setOptimisticContent]);
+  }, [optimisticContent, title, tags, onContentSaved]);
 
   // Create debounced auto-save function
   const debouncedSave = useMemo(
-    () => debounce(async () => {
-      if (!content.trim() || !user) return;
-      setIsAutoSaving(true);
-      try {
-        await handleSave(false);
-      } finally {
-        setIsAutoSaving(false);
-      }
-    }, 5000),
-    [content, user, handleSave]
+    () =>
+      debounce(() => {
+        handleSave();
+      }, 1000),
+    [handleSave]
   );
 
   // Auto-save when content or tags change
   useEffect(() => {
-    debouncedSave();
     return () => {
       debouncedSave.cancel();
     };
-  }, [content, tags, debouncedSave]);
+  }, [debouncedSave]);
+
+  useEffect(() => {
+    if (content !== optimisticContent) {
+      debouncedSave();
+    }
+  }, [content, tags, debouncedSave, optimisticContent]);
 
   return (
     <ContentEditorLayout
@@ -112,11 +100,20 @@ export default function ContentEditor({
       setIsGeneratingTitle={setIsGeneratingTitle}
       tags={tags}
       setTags={setTags}
-      user={user}
-      textareaRef={textareaRef as React.RefObject<HTMLTextAreaElement>}
-      handleSave={handleSave}
-      isAutoSaving={isAutoSaving}
+      suggestions={suggestions}
       isSaving={isSaving}
+      isAutoSaving={isAutoSaving}
+      isModal={isModal}
+      textareaRef={textareaRef as React.RefObject<HTMLTextAreaElement>}
+      onContentChange={(newContent) => {
+        setContent(newContent);
+        setOptimisticContent(newContent);
+      }}
+      onTitleChange={setTitle}
+      onTagsChange={setTags}
+      onTagInput={handleTagInput}
+      onTagSelect={handleTagSelect}
+      onSave={handleSave}
       tagSuggestions={tagSuggestions}
       tagSuggestionsLoading={tagSuggestionsLoading}
     />
