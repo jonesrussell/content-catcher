@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { X } from "lucide-react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { toast } from "react-hot-toast";
@@ -25,24 +24,21 @@ export function AISuggestionsPanel({
   if (suggestions.length === 0) return null;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: 20 }}
+    <div
       className="border-primary/20 fixed top-24 right-8 z-50 w-80 rounded-xl border bg-white/95 p-4 shadow-xl backdrop-blur-sm"
     >
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-primary flex items-center gap-2 text-base font-semibold">
-          <span className="h-2 w-2 animate-pulse rounded-full bg-green-500"></span>
+          <span className="h-2 w-2 rounded-full bg-green-500"></span>
           AI Suggestions
         </h3>
         <div className="flex items-center gap-2">
           {loading && (
-            <div className="border-primary h-4 w-4 animate-spin rounded-full border-b-2"></div>
+            <div className="border-primary h-4 w-4 rounded-full border-b-2"></div>
           )}
           <button
             onClick={onClose}
-            className="hover:bg-primary/5 rounded-full p-1.5 transition-colors"
+            className="hover:bg-primary/5 rounded-full p-1.5"
           >
             <X className="text-primary/70 h-4 w-4" />
           </button>
@@ -114,6 +110,6 @@ export function AISuggestionsPanel({
           )}
         </Droppable>
       </DragDropContext>
-    </motion.div>
+    </div>
   );
 }

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useCallback, useEffect, useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { Search, Loader2 } from "lucide-react";
 import { createClient } from '@/utils/supabase/client'
 import { useAuth } from "@/lib/auth-context";
@@ -154,32 +153,27 @@ export default function SearchContent() {
           )}
         </div>
 
-        <AnimatePresence>
-          {showSuggestions && results.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 10 }}
-              className="border-primary/10 absolute top-full right-0 left-0 z-50 mt-2 overflow-hidden rounded-xl border bg-white shadow-lg"
-            >
-              <div className="max-h-96 overflow-y-auto">
-                {results.map((result) => (
-                  <div
-                    key={result.id}
-                    className="border-primary/5 hover:bg-primary/5 cursor-pointer border-b p-4 transition-colors"
-                  >
-                    <p className="text-primary/80 line-clamp-2">
-                      {highlightMatch(result.content, query)}
-                    </p>
-                    <p className="text-muted-foreground mt-1 text-sm">
-                      {new Date(result.created_at).toLocaleDateString()}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {showSuggestions && results.length > 0 && (
+          <div
+            className="border-primary/10 absolute top-full right-0 left-0 z-50 mt-2 overflow-hidden rounded-xl border bg-white shadow-lg"
+          >
+            <div className="max-h-96 overflow-y-auto">
+              {results.map((result) => (
+                <div
+                  key={result.id}
+                  className="border-primary/5 hover:bg-primary/5 cursor-pointer border-b p-4"
+                >
+                  <p className="text-primary/80 line-clamp-2">
+                    {highlightMatch(result.content, query)}
+                  </p>
+                  <p className="text-muted-foreground mt-1 text-sm">
+                    {new Date(result.created_at).toLocaleDateString()}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { diffWords, Change } from "diff";
 import { ContentVersion } from "@/types";
 
@@ -18,10 +17,7 @@ export function DiffViewer({
   const differences = diffWords(oldVersion.content, newVersion.content);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: 20 }}
+    <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-6"
     >
       <div className="flex max-h-[80vh] w-full max-w-6xl flex-col overflow-hidden rounded-xl bg-white">
@@ -37,7 +33,7 @@ export function DiffViewer({
           </div>
           <button
             onClick={onClose}
-            className="hover:bg-primary/5 rounded-lg p-2 transition-colors"
+            className="hover:bg-primary/5 rounded-lg p-2"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -126,6 +122,6 @@ export function DiffViewer({
           </div>
         ) : null}
       </div>
-    </motion.div>
+    </div>
   );
 }

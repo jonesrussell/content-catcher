@@ -1,95 +1,58 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { LogOut, Menu, X } from "lucide-react";
-import { useState } from "react";
-import { signOut } from "@/app/login/actions";
+import { createBrowserClient } from "@supabase/ssr";
+import { Button } from "./ui/button";
+import { User } from "lucide-react";
 
-export default function Header() {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
+interface HeaderProps {
+  className?: string;
+}
 
-  const NavLink = ({
-    href,
-    children,
-    className = "",
-  }: {
-    href: string;
-    children: React.ReactNode;
-    className?: string;
-  }) => (
-    <Link
-      href={href}
-      className={`text-gray-700 hover:text-gray-900 transition-colors ${className}`}
-      onClick={() => setIsMobileMenuOpen(false)}
-    >
-      {children}
-    </Link>
+export function Header({ className = "" }: HeaderProps) {
+  const router = useRouter();
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
 
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    router.refresh();
+  };
+
   return (
-    <header className="border-b bg-white">
-      <div className="container mx-auto px-4">
-        <div className="flex h-16 items-center justify-between">
-          <Link href="/" className="text-primary text-xl font-bold">
-            Stash
+    <header className={`flex items-center justify-between p-4 ${className}`}>
+      <div className="flex items-center gap-4">
+        <Link href="/" className="text-xl font-bold">
+          Content Catcher
+        </Link>
+        <nav className="hidden md:flex items-center gap-4">
+          <Link href="/dashboard" className="text-gray-700 hover:text-gray-900">
+            Dashboard
           </Link>
-
-          <div className="hidden md:flex md:items-center md:gap-6">
-            <NavLink href="/dashboard">Dashboard</NavLink>
-            <NavLink href="/profile">Profile</NavLink>
-            <form action={signOut}>
-              <button
-                type="submit"
-                className="text-gray-700 hover:text-gray-900 flex items-center gap-2 transition-colors"
-              >
-                <LogOut className="h-4 w-4" />
-                Sign Out
-              </button>
-            </form>
-          </div>
-
-          <button
-            onClick={toggleMobileMenu}
-            className="text-gray-700 hover:text-gray-900 md:hidden"
-          >
-            {isMobileMenuOpen ? (
-              <X className="h-6 w-6" />
-            ) : (
-              <Menu className="h-6 w-6" />
-            )}
-          </button>
-        </div>
-
-        <AnimatePresence>
-          {isMobileMenuOpen && (
-            <motion.nav
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="border-gray-200 border-t py-4 md:hidden"
-            >
-              <div className="flex flex-col gap-4">
-                <NavLink href="/dashboard">Dashboard</NavLink>
-                <NavLink href="/profile">Profile</NavLink>
-                <form action={signOut}>
-                  <button
-                    type="submit"
-                    className="text-gray-700 hover:text-gray-900 flex items-center gap-2 transition-colors"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    <LogOut className="h-4 w-4" />
-                    Sign Out
-                  </button>
-                </form>
-              </div>
-            </motion.nav>
-          )}
-        </AnimatePresence>
+          <Link href="/saved" className="text-gray-700 hover:text-gray-900">
+            Saved Content
+          </Link>
+        </nav>
+      </div>
+      <div className="flex items-center gap-4">
+        <Button
+          variant="ghost"
+          className="text-gray-700 hover:text-gray-900 flex items-center gap-2"
+          onClick={() => router.push("/profile")}
+        >
+          <User className="w-4 h-4" />
+          Profile
+        </Button>
+        <Button
+          variant="ghost"
+          className="text-gray-700 hover:text-gray-900 flex items-center gap-2"
+          onClick={handleSignOut}
+        >
+          Sign Out
+        </Button>
       </div>
     </header>
   );

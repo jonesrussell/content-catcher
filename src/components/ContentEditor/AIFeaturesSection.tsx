@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import type { TagAnalysis } from "@/hooks/useAdvancedTagging";
 import { TagInput } from "@/components/TagInput";
 import { toast } from "react-hot-toast";
@@ -25,10 +24,7 @@ export function AIFeaturesSection({
   if (content.length < 100 || (tags.length === 0 && tagSuggestions.length === 0)) return null;
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.3 }}
+    <div
       className="flex flex-col gap-6"
     >
       {/* Tags Section */}
@@ -36,7 +32,7 @@ export function AIFeaturesSection({
         <h3 className="text-primary/40 mb-4 text-lg font-semibold">Tags</h3>
         {tagSuggestionsLoading ? (
           <div className="flex items-center gap-2 text-primary/60">
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <Loader2 className="h-4 w-4" />
             <span>Analyzing content...</span>
           </div>
         ) : (
@@ -51,6 +47,6 @@ export function AIFeaturesSection({
           />
         )}
       </div>
-    </motion.div>
+    </div>
   );
 }

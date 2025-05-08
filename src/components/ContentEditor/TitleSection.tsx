@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import { useEffect, useCallback, useRef } from "react";
@@ -86,17 +85,13 @@ export function TitleSection({
 
   return (
     <div className="relative">
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-      >
+      <div>
         <input
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Enter or generate a title..."
-          className="border-primary/10 focus:border-primary/30 placeholder:text-primary/40 w-full max-w-full min-w-0 rounded-xl border-2 bg-white/50 p-3 text-base font-semibold shadow-lg backdrop-blur-sm transition-all focus:outline-none md:p-4 md:text-xl"
+          className="border-primary/10 focus:border-primary/30 placeholder:text-primary/40 w-full max-w-full min-w-0 rounded-xl border-2 bg-white/50 p-3 text-base font-semibold shadow-lg backdrop-blur-sm focus:outline-none md:p-4 md:text-xl"
           disabled={disabled}
         />
         <TitleGenerator
@@ -104,7 +99,7 @@ export function TitleSection({
           onTitleGenerated={generateTitle}
           isGenerating={isGeneratingTitle}
         />
-      </motion.div>
+      </div>
     </div>
   );
 }

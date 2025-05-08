@@ -1,111 +1,92 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
-import { useAuth } from "@/lib/auth-context";
-import { toast } from "react-hot-toast";
-import { UserPlus, ArrowLeft } from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { signup } from "./actions";
+import { Loader2 } from "lucide-react";
 
-export default function SignupPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const { signUp } = useAuth();
-  const router = useRouter();
+export default function SignUpPage() {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setLoading(true);
+    setIsLoading(true);
+    setError(null);
+
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+
     try {
-      const { error } = await signUp(email, password);
-      if (error) {
-        if (error.message.includes("email_not_confirmed")) {
-          toast.success("Please check your email to confirm your account");
-          router.push("/login");
-        } else {
-          throw error;
-        }
-      } else {
-        toast.success(
-          "Account created successfully! Please check your email to confirm your account",
-        );
-        router.push("/login");
-      }
+      const { error } = await signup(email, password);
+      if (error) throw error;
     } catch (err) {
-      const error = err as Error;
-      toast.error(error.message || "Failed to create account");
+      setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md rounded-2xl bg-white/80 p-8 shadow-xl backdrop-blur-sm"
-      >
-        <div className="mb-8 text-center">
-          <h1 className="text-gray-900 text-3xl font-bold">Create Account</h1>
-          <p className="text-gray-700 mt-2">Sign up to get started</p>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+      <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-xl shadow-lg">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold text-gray-900">Create an Account</h1>
+          <p className="mt-2 text-gray-600">Sign up to get started</p>
         </div>
+
         <form onSubmit={handleSubmit} className="space-y-6">
+          {error && (
+            <div className="p-3 text-sm text-red-500 bg-red-50 rounded-lg">
+              {error}
+            </div>
+          )}
+
           <div>
-            <label className="text-gray-700 mb-2 block text-sm font-medium">
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
               Email
             </label>
             <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="border-gray-200 bg-white focus:ring-gray-200 w-full rounded-lg border px-4 py-3 transition-all focus:ring-2 focus:outline-none"
-              required
-              autoComplete="email"
+              id="email"
               name="email"
+              type="email"
+              required
+              className="border-gray-200 bg-white focus:ring-gray-200 w-full rounded-lg border px-4 py-3 focus:ring-2 focus:outline-none"
             />
           </div>
+
           <div>
-            <label className="text-gray-700 mb-2 block text-sm font-medium">
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
               Password
             </label>
             <input
+              id="password"
+              name="password"
               type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="border-gray-200 bg-white focus:ring-gray-200 w-full rounded-lg border px-4 py-3 transition-all focus:ring-2 focus:outline-none"
               required
-              autoComplete="new-password"
-              name="new-password"
+              className="border-gray-200 bg-white focus:ring-gray-200 w-full rounded-lg border px-4 py-3 focus:ring-2 focus:outline-none"
             />
           </div>
+
           <button
             type="submit"
-            disabled={loading}
-            className="bg-gray-900 hover:bg-gray-800 flex w-full items-center justify-center gap-2 rounded-lg py-3 text-white transition-colors disabled:opacity-50"
+            disabled={isLoading}
+            className="bg-gray-900 hover:bg-gray-800 flex w-full items-center justify-center gap-2 rounded-lg py-3 text-white disabled:opacity-50"
           >
-            {loading ? (
-              "Creating account..."
+            {isLoading ? (
+              <Loader2 className="w-5 h-5 mx-auto" />
             ) : (
-              <>
-                <UserPlus className="h-4 w-4" />
-                Create Account
-              </>
+              "Sign up"
             )}
           </button>
+
+          <div className="text-center">
+            <a href="/login" className="text-gray-700 hover:text-gray-900 inline-flex items-center gap-2">
+              Already have an account? Sign in
+            </a>
+          </div>
         </form>
-        <div className="mt-6 text-center">
-          <Link
-            href="/login"
-            className="text-gray-700 hover:text-gray-900 inline-flex items-center gap-2 transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to Login
-          </Link>
-        </div>
-      </motion.div>
+      </div>
     </div>
   );
 }

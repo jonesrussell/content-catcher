@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { Archive, ArrowUpCircle, Trash2, Pencil } from "lucide-react";
 import { toast } from "react-hot-toast";
 import type { Content } from "@/types/content";
@@ -49,11 +48,9 @@ export function MasonryGrid({ content, onDelete, onEdit, showTags }: MasonryGrid
         });
 
         return (
-          <motion.div
+          <div
             key={item.id}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className={`group saved-content-item border-primary/5 relative mb-8 rounded-xl border bg-white/90 p-6 shadow-lg backdrop-blur-sm transition-all duration-300 hover:shadow-xl ${
+            className={`group saved-content-item border-primary/5 relative mb-8 rounded-xl border bg-white/90 p-6 shadow-lg backdrop-blur-sm ${
               item.archived ? "opacity-60" : ""
             }`}
             tabIndex={0}
@@ -88,13 +85,13 @@ export function MasonryGrid({ content, onDelete, onEdit, showTags }: MasonryGrid
                 title={item.archived ? "Restore" : "Archive"}
               >
                 {item.archived ? (
-                  <motion.div whileHover={{ scale: 1.1 }}>
+                  <div>
                     <ArrowUpCircle className="text-primary/70 h-5 w-5" />
-                  </motion.div>
+                  </div>
                 ) : (
-                  <motion.div whileHover={{ scale: 1.1 }}>
+                  <div>
                     <Archive className="text-primary/70 h-5 w-5" />
-                  </motion.div>
+                  </div>
                 )}
               </button>
               <button
@@ -117,9 +114,9 @@ export function MasonryGrid({ content, onDelete, onEdit, showTags }: MasonryGrid
                 className="rounded-full p-2 transition-colors hover:bg-red-50"
                 title="Delete"
               >
-                <motion.div whileHover={{ scale: 1.1 }}>
+                <div>
                   <Trash2 className="h-5 w-5 text-red-500/70" />
-                </motion.div>
+                </div>
               </button>
             </div>
             <div className="space-y-4">
@@ -142,7 +139,7 @@ export function MasonryGrid({ content, onDelete, onEdit, showTags }: MasonryGrid
                 <span>{new Date(item.created_at).toLocaleDateString()}</span>
               </div>
             </div>
-          </motion.div>
+          </div>
         );
       })}
     </div>
