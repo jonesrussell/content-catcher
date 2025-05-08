@@ -1,26 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useDeferredValue } from "react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/lib/auth-context";
-import { supabase } from "@/lib/supabase";
 import { MasonryGrid } from "./MasonryGrid";
 import { Loader2 } from "lucide-react";
 import type { Content } from "@/types/content";
 import { EditContentModal } from "../ContentEditor/EditContentModal";
 import { useSearchParams } from "next/navigation";
-
-interface DatabaseContent {
-  id: string;
-  user_id: string;
-  content: string;
-  tags: string[] | null;
-  created_at: string;
-  updated_at: string | null;
-  version_number: number | null;
-  archived: boolean | null;
-  attachments: string[] | null;
-}
+import { fetchUserContent } from "@/app/actions/content";
 
 export function SavedContentSection() {
   const { user } = useAuth();
@@ -33,6 +21,9 @@ export function SavedContentSection() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [showTags, setShowTags] = useState(false);
   const searchParams = useSearchParams();
+
+  // Use deferred value for content to avoid unnecessary re-renders
+  const deferredContent = useDeferredValue(content);
 
   useEffect(() => {
     const editId = searchParams.get("edit");
@@ -54,42 +45,25 @@ export function SavedContentSection() {
 
     const loadContent = async () => {
       try {
-        const { data, error } = await supabase
-          .from("content")
-          .select("*")
-          .eq("user_id", user.id)
-          .order("created_at", { ascending: false })
-          .range(page * itemsPerPage, (page + 1) * itemsPerPage - 1);
-
-        if (error) throw error;
-
-        const newContent = (data || []).map((item) => {
-          const dbContent = item as unknown as DatabaseContent;
-          return {
-            id: dbContent.id,
-            user_id: dbContent.user_id,
-            content: dbContent.content,
-            tags: dbContent.tags || [],
-            created_at: dbContent.created_at,
-            updated_at: dbContent.updated_at || dbContent.created_at,
-            version_number: dbContent.version_number || 1,
-            archived: dbContent.archived || false,
-            attachments: dbContent.attachments || [],
-          } as Content;
-        });
+        const data = await fetchUserContent();
+        
+        // Handle pagination
+        const start = page * itemsPerPage;
+        const end = start + itemsPerPage;
+        const paginatedData = data.slice(start, end);
 
         if (page === 0) {
-          setContent(newContent);
+          setContent(paginatedData);
         } else {
           setContent((prev) => {
             const existingIds = new Set(prev.map((item) => item.id));
-            const uniqueNewContent = newContent.filter(
+            const uniqueNewContent = paginatedData.filter(
               (item) => !existingIds.has(item.id),
             );
             return [...prev, ...uniqueNewContent];
           });
         }
-        setHasMore(data.length === itemsPerPage);
+        setHasMore(paginatedData.length === itemsPerPage);
       } catch (error) {
         console.error("Error loading content:", error);
       } finally {
@@ -102,15 +76,53 @@ export function SavedContentSection() {
 
   // Show tags after initial load
   useEffect(() => {
+    console.log('Tag visibility effect triggered:', {
+      loading,
+      contentLength: content.length,
+      showTags
+    });
+
     if (!loading && content.length > 0) {
+      console.log('Content loaded, checking for AI tags:', {
+        contentItems: content.map(item => ({
+          id: item.id,
+          contentLength: item.content.length,
+          hasTags: item.tags && item.tags.length > 0,
+          tags: item.tags
+        }))
+      });
+
       const timer = setTimeout(() => {
-        // Only show tags for content that has AI-generated tags (content length >= 100)
-        const hasAIGeneratedTags = content.some(item => item.content.length >= 100);
+        // Only show tags for content that has AI-generated tags
+        const hasAIGeneratedTags = content.some(item => {
+          const shouldShow = item.content.length >= 100 && 
+            item.tags && 
+            item.tags.length > 0;
+          
+          console.log('Checking item for AI tags:', {
+            id: item.id,
+            contentLength: item.content.length,
+            hasTags: item.tags && item.tags.length > 0,
+            shouldShow
+          });
+          
+          return shouldShow;
+        });
+
+        console.log('Setting showTags to:', hasAIGeneratedTags);
         setShowTags(hasAIGeneratedTags);
       }, 1000); // Show tags after 1 second
       return () => clearTimeout(timer);
     }
-  }, [loading, content]);
+  }, [loading, content, showTags]);
+
+  // Add debug log for render
+  console.log('SavedContentSection render:', {
+    loading,
+    contentLength: content.length,
+    showTags,
+    hasMore
+  });
 
   if (!user) return null;
 
@@ -135,7 +147,7 @@ export function SavedContentSection() {
       ) : (
         <>
           <MasonryGrid
-            content={content}
+            content={deferredContent}
             onDelete={(id) => {
               setContent((prev) => prev.filter((item) => item.id !== id));
             }}

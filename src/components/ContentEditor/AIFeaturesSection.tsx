@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import type { TagAnalysis } from "@/hooks/useAdvancedTagging";
 import { TagInput } from "@/components/TagInput";
 import { toast } from "react-hot-toast";
+import { Loader2 } from "lucide-react";
 
 interface AIFeaturesSectionProps {
   content: string;
@@ -20,7 +21,8 @@ export function AIFeaturesSection({
   tagSuggestions,
   tagSuggestionsLoading,
 }: AIFeaturesSectionProps) {
-  if (content.length < 100) return null;
+  // Only show if content is long enough AND we have either tags or suggestions
+  if (content.length < 100 || (tags.length === 0 && tagSuggestions.length === 0)) return null;
 
   return (
     <motion.div
@@ -32,26 +34,21 @@ export function AIFeaturesSection({
       {/* Tags Section */}
       <div className="border-primary/5 rounded-xl border-2 bg-white/30 p-6 shadow-sm backdrop-blur-sm">
         <h3 className="text-primary/40 mb-4 text-lg font-semibold">Tags</h3>
-        {content.length >= 100 ? (
+        {tagSuggestionsLoading ? (
+          <div className="flex items-center gap-2 text-primary/60">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            <span>Analyzing content...</span>
+          </div>
+        ) : (
           <TagInput
             tags={tags}
             setTags={setTags}
             suggestions={tagSuggestions.map(t => t.tag)}
-            loading={tagSuggestionsLoading}
             onAddTag={(tag) => {
               setTags([...tags, tag]);
               toast.success(`Added tag: ${tag}`);
             }}
           />
-        ) : (
-          <div className="flex flex-wrap gap-2">
-            <span className="bg-primary/5 text-primary/30 rounded-full px-3 py-1 text-sm">
-              Tag placeholder
-            </span>
-            <span className="bg-primary/5 text-primary/30 rounded-full px-3 py-1 text-sm">
-              Another tag
-            </span>
-          </div>
         )}
       </div>
     </motion.div>
