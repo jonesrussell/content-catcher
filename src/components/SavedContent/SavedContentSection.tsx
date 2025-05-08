@@ -31,6 +31,7 @@ export function SavedContentSection() {
   const itemsPerPage = 12;
   const [selectedContent, setSelectedContent] = useState<Content | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [showTags, setShowTags] = useState(false);
   const searchParams = useSearchParams();
 
   useEffect(() => {
@@ -99,6 +100,18 @@ export function SavedContentSection() {
     loadContent();
   }, [user, page]);
 
+  // Show tags after initial load
+  useEffect(() => {
+    if (!loading && content.length > 0) {
+      const timer = setTimeout(() => {
+        // Only show tags for content that has AI-generated tags (content length >= 100)
+        const hasAIGeneratedTags = content.some(item => item.content.length >= 100);
+        setShowTags(hasAIGeneratedTags);
+      }, 1000); // Show tags after 1 second
+      return () => clearTimeout(timer);
+    }
+  }, [loading, content]);
+
   if (!user) return null;
 
   return (
@@ -130,6 +143,7 @@ export function SavedContentSection() {
               setSelectedContent(content);
               setIsEditModalOpen(true);
             }}
+            showTags={showTags}
           />
 
           {hasMore && (

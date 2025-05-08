@@ -12,9 +12,10 @@ interface MasonryGridProps {
   content: Content[];
   onDelete: (id: string) => void;
   onEdit: (content: Content) => void;
+  showTags: boolean;
 }
 
-export function MasonryGrid({ content, onDelete, onEdit }: MasonryGridProps) {
+export function MasonryGrid({ content, onDelete, onEdit, showTags }: MasonryGridProps) {
   return (
     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
       {content.map((item) => (
@@ -93,7 +94,7 @@ export function MasonryGrid({ content, onDelete, onEdit }: MasonryGridProps) {
             <p className="text-primary/80 whitespace-pre-wrap text-base leading-relaxed">
               {item.content}
             </p>
-            {item.tags && item.tags.length > 0 && (
+            {showTags && item.tags && item.tags.length > 0 && item.content.length >= 100 && (
               <div className="flex flex-wrap gap-2">
                 {item.tags.map((tag: string, index: number) => (
                   <span

@@ -7,7 +7,7 @@ import ContentEditor from "@/components/ContentEditor";
 import { SavedContentSection } from "@/components/SavedContent/SavedContentSection";
 import type { Content } from "@/types/content";
 import { Toaster } from "react-hot-toast";
-import { createClient } from '@/utils/supabase/client';
+import { supabase } from '@/lib/supabase';
 
 export default function DashboardPage() {
   const { user, loading } = useAuth();
@@ -25,13 +25,26 @@ export default function DashboardPage() {
     async function fetchContents() {
       if (!user) return;
       
-      const supabase = createClient();
       const { data } = await supabase
         .from('content')
         .select('*')
         .order('created_at', { ascending: false });
       
-      setContents(data || []);
+      const mappedContent = (data || []).map(item => ({
+        id: item.id,
+        user_id: item.user_id,
+        content: item.content,
+        tags: item.tags || [],
+        created_at: item.created_at,
+        updated_at: item.created_at,
+        version_number: item.version_number || 1,
+        archived: false,
+        attachments: item.attachments || [],
+        parent_version_id: item.parent_version_id || null,
+        fts: item.fts || null
+      }));
+      
+      setContents(mappedContent);
       setIsLoading(false);
     }
 
