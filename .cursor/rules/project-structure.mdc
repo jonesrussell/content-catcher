@@ -1,0 +1,40 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Project Structure and Dependencies
+
+## Core Technologies
+- Next.js 15
+- React 19
+- TypeScript
+- Supabase for authentication and database
+- Tailwind CSS for styling
+
+## Key Dependencies
+- `@supabase/ssr` - Server-side Supabase integration
+- `zod` - Schema validation
+- `lucide-react` - Icon library
+- `next/headers` - Cookie handling
+- `next/cache` - Cache management
+
+## Project Organization
+```
+src/
+├── app/                    # Next.js app directory
+│   ├── login/             # Authentication pages
+│   ├── signup/            # Signup flow
+│   └── dashboard/         # Protected dashboard area
+├── components/            # React components
+├── utils/                 # Utility functions
+│   └── supabase/         # Supabase client setup
+└── lib/                   # Shared libraries
+```
+
+## Key Architectural Decisions
+1. Server Components by default
+2. Client Components only when needed (e.g., forms with optimistic updates)
+3. Server Actions for data mutations
+4. Selective cache invalidation
+5. Type-safe database operations with Supabase

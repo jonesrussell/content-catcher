@@ -28,8 +28,18 @@ export async function login(email: string, password: string) {
       }
     }
 
-    revalidatePath('/')
-    redirect('/dashboard')
+    // Get session to check authentication state
+    const { data: { session } } = await supabase.auth.getSession()
+    
+    if (session) {
+      // Only revalidate the dashboard layout since that's where we're going
+      revalidatePath('/dashboard', 'layout')
+      redirect('/dashboard')
+    } else {
+      return {
+        error: 'Failed to create session',
+      }
+    }
   } catch (error) {
     if (error instanceof z.ZodError) {
       return {
@@ -60,8 +70,18 @@ export async function signup(email: string, password: string) {
       }
     }
 
-    revalidatePath('/')
-    redirect('/dashboard')
+    // Get session to check authentication state
+    const { data: { session } } = await supabase.auth.getSession()
+    
+    if (session) {
+      // Only revalidate the dashboard layout since that's where we're going
+      revalidatePath('/dashboard', 'layout')
+      redirect('/dashboard')
+    } else {
+      return {
+        error: 'Failed to create session',
+      }
+    }
   } catch (error) {
     if (error instanceof z.ZodError) {
       return {
@@ -77,6 +97,7 @@ export async function signup(email: string, password: string) {
 export async function signOut() {
   const supabase = await createClient()
   await supabase.auth.signOut()
+  // Only revalidate the layout since we're redirecting to login
   revalidatePath('/', 'layout')
   redirect('/login')
 } 

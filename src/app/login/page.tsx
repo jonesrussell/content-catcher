@@ -1,16 +1,16 @@
 "use client";
 
-import { useState } from 'react'
+import { useState, useOptimistic } from 'react'
 import { login } from './actions'
 import { Loader2 } from 'lucide-react'
 
 export default function LoginPage() {
-  const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [optimisticIsLoading, setOptimisticIsLoading] = useOptimistic(false)
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setIsLoading(true)
+    setOptimisticIsLoading(true)
     setError(null)
 
     const formData = new FormData(e.currentTarget)
@@ -23,7 +23,7 @@ export default function LoginPage() {
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {
-      setIsLoading(false)
+      setOptimisticIsLoading(false)
     }
   }
 
@@ -70,10 +70,10 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            disabled={isLoading}
+            disabled={optimisticIsLoading}
             className="bg-gray-900 hover:bg-gray-800 flex w-full items-center justify-center gap-2 rounded-lg py-3 text-white disabled:opacity-50"
           >
-            {isLoading ? (
+            {optimisticIsLoading ? (
               <Loader2 className="w-5 h-5 mx-auto animate-spin" />
             ) : (
               'Sign in'
@@ -81,8 +81,8 @@ export default function LoginPage() {
           </button>
 
           <div className="text-center">
-            <a href="/forgot-password" className="text-gray-700 hover:text-gray-900 inline-flex items-center gap-2">
-              Forgot your password?
+            <a href="/signup" className="text-gray-700 hover:text-gray-900 inline-flex items-center gap-2">
+              Don&apos;t have an account? Sign up
             </a>
           </div>
         </form>

@@ -1,0 +1,29 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Authentication Flow
+
+The authentication system uses Supabase for user management and follows a server-side authentication pattern with optimistic UI updates.
+
+## Key Files
+- [src/app/login/page.tsx](mdc:src/app/login/page.tsx) - Login page with optimistic updates
+- [src/app/signup/page.tsx](mdc:src/app/signup/page.tsx) - Signup page with optimistic updates
+- [src/app/login/actions.ts](mdc:src/app/login/actions.ts) - Server actions for auth operations
+- [src/utils/supabase/server.ts](mdc:src/utils/supabase/server.ts) - Supabase server client setup
+
+## Authentication Flow
+1. User submits credentials through login/signup form
+2. Form uses `useOptimistic` for immediate UI feedback
+3. Server action validates input using Zod schema
+4. Supabase client handles authentication
+5. Session is verified before redirect
+6. Cache is selectively revalidated using `revalidatePath`
+
+## Key Features
+- Optimistic UI updates for better UX
+- Server-side validation with Zod
+- Selective cache invalidation
+- Secure cookie handling
+- Error handling with user-friendly messages

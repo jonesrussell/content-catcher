@@ -1,16 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useOptimistic } from "react";
 import { signup } from "./actions";
 import { Loader2 } from "lucide-react";
 
 export default function SignUpPage() {
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [optimisticIsLoading, setOptimisticIsLoading] = useOptimistic(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsLoading(true);
+    setOptimisticIsLoading(true);
     setError(null);
 
     const formData = new FormData(e.currentTarget);
@@ -23,7 +23,7 @@ export default function SignUpPage() {
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
-      setIsLoading(false);
+      setOptimisticIsLoading(false);
     }
   };
 
@@ -70,11 +70,11 @@ export default function SignUpPage() {
 
           <button
             type="submit"
-            disabled={isLoading}
+            disabled={optimisticIsLoading}
             className="bg-gray-900 hover:bg-gray-800 flex w-full items-center justify-center gap-2 rounded-lg py-3 text-white disabled:opacity-50"
           >
-            {isLoading ? (
-              <Loader2 className="w-5 h-5 mx-auto" />
+            {optimisticIsLoading ? (
+              <Loader2 className="w-5 h-5 mx-auto animate-spin" />
             ) : (
               "Sign up"
             )}
