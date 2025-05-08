@@ -1,8 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import axios from "axios";
-import JSON5 from "json5";
 
 interface APISuggestion {
   id?: string;
@@ -77,77 +75,83 @@ export function useAISuggestions(content: string) {
       setError(null);
 
       try {
-        const response = await axios.post(
+        const response = await fetch(
           "https://openai.getcreatr.xyz/v1/chat/completions",
           {
-            messages: [
-              {
-                role: "user",
-                content: `You are an expert content editor and writing analyst. Analyze this content deeply and provide intelligent suggestions for improvement. Consider tone, structure, clarity, engagement, and emotional impact. Use this json schema: {
-                  "suggestions": [
-                    {
-                      "id": "string",
-                      "suggestion": "string",
-                      "type": "structure" | "enhancement" | "summary" | "tone" | "engagement",
-                      "improvedContent": "string",
-                      "explanation": "string",
-                      "analysis": {
-                        "readability": {
-                          "score": number,
-                          "level": "string",
-                          "improvements": ["string"]
-                        },
-                        "tone": {
-                          "current": "string",
-                          "suggested": "string",
-                          "reason": "string"
-                        },
-                        "structure": {
-                          "issues": ["string"],
-                          "recommendations": ["string"]
-                        }
-                      },
-                      "example": {
-                        "before": "string",
-                        "after": "string",
-                        "context": "string",
-                        "impact": "string"
-                      }
-                    }
-                  ]
-                }. 
-                
-                Provide 5 suggestions that cover:
-                1. structure: Analyze and improve document organization, flow, and hierarchy
-                2. enhancement: Enhance clarity, precision, and impact of key points
-                3. tone: Adjust tone for better audience engagement and emotional resonance
-                4. engagement: Add elements that increase reader interaction and understanding
-                5. summary: Create a concise version while preserving core message and impact
-
-                For each suggestion:
-                - Provide detailed analysis of current content strengths and weaknesses
-                - Include readability metrics and specific improvement areas
-                - Analyze tone and emotional impact
-                - Suggest structural improvements with clear reasoning
-                - Show before/after examples with explanation of impact
-                - Keep core message intact while enhancing delivery`,
-              },
-              {
-                role: "user",
-                content: content,
-              },
-            ],
-            jsonMode: true,
-          },
-          {
+            method: "POST",
             headers: {
               "x-api-key": "67d49aba0baa5ec70723c474",
               "Content-Type": "application/json",
             },
-          },
+            body: JSON.stringify({
+              messages: [
+                {
+                  role: "user",
+                  content: `You are an expert content editor and writing analyst. Analyze this content deeply and provide intelligent suggestions for improvement. Consider tone, structure, clarity, engagement, and emotional impact. Use this json schema: {
+                    "suggestions": [
+                      {
+                        "id": "string",
+                        "suggestion": "string",
+                        "type": "structure" | "enhancement" | "summary" | "tone" | "engagement",
+                        "improvedContent": "string",
+                        "explanation": "string",
+                        "analysis": {
+                          "readability": {
+                            "score": number,
+                            "level": "string",
+                            "improvements": ["string"]
+                          },
+                          "tone": {
+                            "current": "string",
+                            "suggested": "string",
+                            "reason": "string"
+                          },
+                          "structure": {
+                            "issues": ["string"],
+                            "recommendations": ["string"]
+                          }
+                        },
+                        "example": {
+                          "before": "string",
+                          "after": "string",
+                          "context": "string",
+                          "impact": "string"
+                        }
+                      }
+                    ]
+                  }. 
+                  
+                  Provide 5 suggestions that cover:
+                  1. structure: Analyze and improve document organization, flow, and hierarchy
+                  2. enhancement: Enhance clarity, precision, and impact of key points
+                  3. tone: Adjust tone for better audience engagement and emotional resonance
+                  4. engagement: Add elements that increase reader interaction and understanding
+                  5. summary: Create a concise version while preserving core message and impact
+
+                  For each suggestion:
+                  - Provide detailed analysis of current content strengths and weaknesses
+                  - Include readability metrics and specific improvement areas
+                  - Analyze tone and emotional impact
+                  - Suggest structural improvements with clear reasoning
+                  - Show before/after examples with explanation of impact
+                  - Keep core message intact while enhancing delivery`,
+                },
+                {
+                  role: "user",
+                  content: content,
+                },
+              ],
+              jsonMode: true,
+            }),
+          }
         );
 
-        const jsonContent = response.data?.choices?.[0]?.message?.content;
+        if (!response.ok) {
+          throw new Error("API request failed");
+        }
+
+        const data = await response.json();
+        const jsonContent = data?.choices?.[0]?.message?.content;
         if (!jsonContent) {
           throw new Error("Invalid API response format");
         }
@@ -163,7 +167,7 @@ export function useAISuggestions(content: string) {
         // Parse the content using JSON5 which handles comments and trailing commas
         let parsedContent;
         try {
-          parsedContent = JSON5.parse(cleanedContent);
+          parsedContent = JSON.parse(cleanedContent);
         } catch {
           console.error("Failed to parse API response:", cleanedContent);
           throw new Error("Could not parse AI response as JSON");

@@ -1,6 +1,5 @@
 "use client";
 
-import axios from "axios";
 import { toast } from "react-hot-toast";
 import { useEffect, useCallback, useRef } from "react";
 import { TitleGenerator } from "./TitleGenerator";
@@ -29,28 +28,34 @@ export function TitleSection({
 
     setIsGeneratingTitle(true);
     try {
-      const response = await axios.post(
+      const response = await fetch(
         "https://openai.getcreatr.xyz/v1/chat/completions",
         {
-          messages: [
-            {
-              role: "user",
-              content: `You are a professional content writer. Generate a concise, engaging, and descriptive title for this content. The title should be between 4-10 words and capture the main theme. Use this json schema: {
-                "title": "string"
-              }. Content: ${content.slice(0, 1000)}`,
-            },
-          ],
-          jsonMode: true,
-        },
-        {
-          headers: {
-            "x-api-key": process.env.NEXT_PUBLIC_OPENAI_API_KEY,
+          method: "POST",
+          headers: new Headers({
+            "x-api-key": process.env.NEXT_PUBLIC_OPENAI_API_KEY ?? "",
             "Content-Type": "application/json",
-          },
-        },
+          }),
+          body: JSON.stringify({
+            messages: [
+              {
+                role: "user",
+                content: `You are a professional content writer. Generate a concise, engaging, and descriptive title for this content. The title should be between 4-10 words and capture the main theme. Use this json schema: {
+                  "title": "string"
+                }. Content: ${content.slice(0, 1000)}`,
+              },
+            ],
+            jsonMode: true,
+          }),
+        }
       );
 
-      const jsonContent = response.data?.choices?.[0]?.message?.content;
+      if (!response.ok) {
+        throw new Error("API request failed");
+      }
+
+      const data = await response.json();
+      const jsonContent = data?.choices?.[0]?.message?.content;
       if (!jsonContent) throw new Error("Invalid API response");
 
       // Clean the response by removing markdown code block syntax

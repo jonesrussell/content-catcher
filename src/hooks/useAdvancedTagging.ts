@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import axios from "axios";
 import { toast } from "react-hot-toast";
 import { deduplicateTags, getTopTags } from "@/utils/tags";
 
@@ -103,12 +102,18 @@ export function useAdvancedTagging(
 
           while (retries <= maxRetries) {
             try {
-              const response = await Promise.race<{
-                data: { choices: Array<{ message: { content: string } }> };
-              }>([
-                axios.post<{ choices: Array<{ message: { content: string } }> }>(
-                  "https://openai.getcreatr.xyz/v1/chat/completions",
-                  {
+              const controller = new AbortController();
+              const timeoutId = setTimeout(() => controller.abort(), timeoutDuration);
+
+              const response = await fetch(
+                "https://openai.getcreatr.xyz/v1/chat/completions",
+                {
+                  method: "POST",
+                  headers: new Headers({
+                    "x-api-key": process.env.NEXT_PUBLIC_OPENAI_API_KEY ?? "",
+                    "Content-Type": "application/json",
+                  }),
+                  body: JSON.stringify({
                     messages: [
                       {
                         role: "user",
@@ -136,20 +141,19 @@ export function useAdvancedTagging(
                     temperature: 0.7,
                     max_tokens: 1000,
                     response_format: { type: "json_object" },
-                  },
-                  {
-                    headers: {
-                      "x-api-key": process.env.NEXT_PUBLIC_OPENAI_API_KEY,
-                      "Content-Type": "application/json",
-                    },
-                  },
-                ),
-                new Promise((_, reject) =>
-                  setTimeout(() => reject(new Error("AI analysis timeout")), timeoutDuration),
-                ),
-              ]);
+                  }),
+                  signal: controller.signal,
+                }
+              );
 
-              const jsonContent = response.data.choices[0].message.content;
+              clearTimeout(timeoutId);
+
+              if (!response.ok) {
+                throw new Error("AI analysis failed");
+              }
+
+              const data = await response.json();
+              const jsonContent = data.choices[0].message.content;
               if (!jsonContent) throw new Error("Invalid API response");
 
               // Clean the response by removing markdown code block syntax
