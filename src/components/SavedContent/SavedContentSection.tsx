@@ -105,20 +105,10 @@ export function SavedContentSection() {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{
-        duration: 0.5,
-        ease: [0.4, 0, 0.2, 1],
-      }}
-      className="border-primary/5 saved-content-section mt-8 border-t-2 bg-gradient-to-br from-indigo-50/50 via-white to-purple-50/50 px-4 py-6 backdrop-blur-sm md:mt-32 md:px-6 md:py-20"
+      className="container mx-auto px-4 py-8"
     >
-      <div className="mb-16 text-center">
-        <h2 className="from-primary to-primary/70 mb-4 bg-gradient-to-r bg-clip-text text-4xl font-bold text-transparent">
-          Saved Content
-        </h2>
-        <p className="text-muted-foreground text-lg">
-          Your collection of saved thoughts and ideas
-        </p>
-        <div className="from-primary/20 via-primary/10 mx-auto mt-6 h-1 w-20 rounded-full bg-gradient-to-r to-transparent" />
+      <div className="mb-8">
+        <h2 className="text-primary text-2xl font-bold">Your Content</h2>
       </div>
 
       {loading && page === 0 ? (

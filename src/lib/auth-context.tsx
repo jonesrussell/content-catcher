@@ -51,11 +51,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signUp = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signUp({
+    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
     });
-    return { error };
+
+    if (signUpError) {
+      return { error: signUpError };
+    }
+
+    if (signUpData.user) {
+      // Create a profile for the new user
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert({
+          id: signUpData.user.id,
+          username: email.split('@')[0], // Use the part before @ as initial username
+          full_name: null,
+          avatar_url: null,
+        });
+
+      if (profileError) {
+        console.error('Failed to create profile:', profileError);
+        // Don't return the profile error as it would prevent account creation
+        // The profile can be created later when the user first accesses their profile page
+      }
+    }
+
+    return { error: null };
   };
 
   const resetPassword = async (email: string) => {

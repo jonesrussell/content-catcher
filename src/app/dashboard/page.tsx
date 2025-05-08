@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import ContentEditor from "@/components/ContentEditor";
-import { SavedContentSection } from "@/components/SavedContentSection";
+import { SavedContentSection } from "@/components/SavedContent/SavedContentSection";
 import type { Content } from "@/types/content";
 import { Toaster } from "react-hot-toast";
 import { createClient } from '@/utils/supabase/client';
@@ -54,7 +54,7 @@ export default function DashboardPage() {
     <main className="flex min-h-screen flex-col items-center justify-between p-4 md:p-24">
       <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm">
         <ContentEditor initialContent={contents[0]} />
-        <SavedContentSection initialContents={contents} />
+        <SavedContentSection />
       </div>
       <Toaster />
     </main>

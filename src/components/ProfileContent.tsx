@@ -47,10 +47,31 @@ export default function ProfileContent() {
           .eq("id", user.id)
           .single();
 
-        if (profileError) throw profileError;
-        setProfile(profileData);
-        setEditedProfile(profileData);
-      } catch {
+        if (profileError) {
+          // If profile doesn't exist, create it
+          if (profileError.code === 'PGRST116') {
+            const { data: newProfile, error: createError } = await supabase
+              .from("profiles")
+              .insert({
+                id: user.id,
+                username: user.email?.split('@')[0] || null,
+                full_name: null,
+                avatar_url: null,
+              })
+              .select()
+              .single();
+
+            if (createError) throw createError;
+            setProfile(newProfile);
+            setEditedProfile(newProfile);
+          } else {
+            throw profileError;
+          }
+        } else {
+          setProfile(profileData);
+          setEditedProfile(profileData);
+        }
+      } catch (error) {
         toast.error("Failed to load profile data");
       } finally {
         setLoading(false);
