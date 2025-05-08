@@ -1,7 +1,6 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
-import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import type { Content } from "@/types/content";
 import type { Database } from "@/lib/supabase.types";
@@ -11,8 +10,7 @@ export async function saveContent(
   title: string,
   tags: string[],
 ) {
-  const cookieStore = cookies();
-  const supabase = await createClient(cookieStore);
+  const supabase = await createClient();
 
   const {
     data: { session },
@@ -57,8 +55,7 @@ export async function saveContent(
 }
 
 export async function fetchUserContent() {
-  const cookieStore = cookies();
-  const supabase = await createClient(cookieStore);
+  const supabase = await createClient();
 
   const {
     data: { session },
@@ -89,8 +86,7 @@ export async function fetchUserContent() {
 }
 
 export async function updateContent(id: string, updates: Partial<Content>) {
-  const cookieStore = cookies();
-  const supabase = await createClient(cookieStore);
+  const supabase = await createClient();
 
   const {
     data: { session },
@@ -122,8 +118,7 @@ export async function updateContent(id: string, updates: Partial<Content>) {
 }
 
 export async function deleteContent(id: string) {
-  const cookieStore = cookies();
-  const supabase = await createClient(cookieStore);
+  const supabase = await createClient();
 
   const {
     data: { session },
@@ -139,5 +134,12 @@ export async function deleteContent(id: string) {
   if (error) throw error;
 
   revalidatePath("/dashboard");
+  return true;
+}
+
+export async function createContent(data: Omit<Content, "id" | "created_at" | "updated_at">) {
+  const supabase = await createClient();
+  const { error } = await supabase.from("content").insert(data);
+  if (error) throw error;
   return true;
 }

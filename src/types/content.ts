@@ -8,6 +8,9 @@ export interface Content {
   user_id: string;
   attachments?: string[];
   version_number?: number;
+  archived?: boolean;
+  parent_version_id?: string | null;
+  fts?: Record<string, unknown> | null;
 }
 
 export interface ContentVersion {
