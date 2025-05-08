@@ -5,18 +5,11 @@ import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 import { LogOut, User, Menu, X } from "lucide-react";
 import { useState } from "react";
-import { usePathname } from "next/navigation";
 
 export default function Header() {
   const { user, signOut } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const pathname = usePathname();
-
-  // Don't show header on homepage
-  if (pathname === "/") {
-    return null;
-  }
-
+  
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
