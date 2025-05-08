@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/utils/supabase/client'
 import { Content } from '@/types/content';
 import { useAuth } from './auth-context';
 
@@ -17,6 +17,7 @@ export function ContentProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const { user } = useAuth();
+  const supabase = createClient()
 
   const fetchContents = useCallback(async () => {
     if (!user) return;

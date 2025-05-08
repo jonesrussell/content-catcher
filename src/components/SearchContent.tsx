@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Loader2 } from "lucide-react";
-import { supabase } from "@/lib/supabase";
+import { createClient } from '@/utils/supabase/client'
 import { useAuth } from "@/lib/auth-context";
 import debounce from "lodash.debounce";
 import { toast } from "react-hot-toast";
@@ -20,6 +20,8 @@ export default function SearchContent() {
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
+
+  const supabase = createClient()
 
   const performSearch = useCallback(
     async (searchQuery: string, userId: string, tags: string[]) => {
@@ -76,7 +78,7 @@ export default function SearchContent() {
         setLoading(false);
       }
     },
-    [],
+    [supabase],
   );
 
   const debouncedSearch = useMemo(

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { createClient } from '@/utils/supabase/client'
 import { toast } from "react-hot-toast";
 import type { User } from "@supabase/supabase-js";
 import type { RealtimeChannel } from "@supabase/supabase-js";
@@ -27,6 +27,7 @@ interface PresenceState {
 }
 
 export function useCollaboration(contentId: string, user: User | null) {
+  const supabase = createClient()
   const [collaborators, setCollaborators] = useState<CollaboratorPresence[]>(
     [],
   );

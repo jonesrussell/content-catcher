@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { createClient } from '@/utils/supabase/client'
 import { motion } from "framer-motion";
 import {
   BarChart,
@@ -25,6 +25,7 @@ interface ContentStats {
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
 
 export default function DashboardStats({ userId }: { userId: string }) {
+  const supabase = createClient()
   const [stats, setStats] = useState<ContentStats>({
     totalCount: 0,
     tagCounts: [],

@@ -1,13 +1,12 @@
 "use client";
 
-import { useState, useEffect, useDeferredValue } from "react";
-import { motion } from "framer-motion";
+import { useState, useEffect, useDeferredValue, useTransition } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { MasonryGrid } from "./MasonryGrid";
 import { Loader2 } from "lucide-react";
 import type { Content } from "@/types/content";
 import { EditContentModal } from "../ContentEditor/EditContentModal";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { fetchUserContent } from "@/app/actions/content";
 
 export function SavedContentSection() {
@@ -21,6 +20,8 @@ export function SavedContentSection() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [showTags, setShowTags] = useState(false);
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
 
   // Use deferred value for content to avoid unnecessary re-renders
   const deferredContent = useDeferredValue(content);
@@ -38,13 +39,16 @@ export function SavedContentSection() {
 
   useEffect(() => {
     if (!user) {
-      setContent([]);
-      setLoading(false);
+      console.log('No user found, redirecting to login');
+      startTransition(() => {
+        router.replace('/login');
+      });
       return;
     }
 
     const loadContent = async () => {
       try {
+        console.log('Loading content for user:', user.id);
         const data = await fetchUserContent();
         
         // Handle pagination
@@ -66,13 +70,21 @@ export function SavedContentSection() {
         setHasMore(paginatedData.length === itemsPerPage);
       } catch (error) {
         console.error("Error loading content:", error);
+        if (error instanceof Error && error.message === 'Not authenticated') {
+          console.log('Authentication error, redirecting to login');
+          startTransition(() => {
+            router.replace('/login');
+          });
+          return;
+        }
+        setContent([]);
       } finally {
         setLoading(false);
       }
     };
 
     loadContent();
-  }, [user, page]);
+  }, [user, page, router]);
 
   // Show tags after initial load
   useEffect(() => {
@@ -124,71 +136,70 @@ export function SavedContentSection() {
     hasMore
   });
 
-  if (!user) return null;
+  if (loading) {
+    return (
+      <div className="flex min-h-[200px] items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="container mx-auto px-4 py-8"
-    >
-      <div className="mb-8">
-        <h2 className="text-primary text-2xl font-bold">Your Content</h2>
+    <div className="space-y-8">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold">Saved Content</h2>
+        <button
+          onClick={() => setShowTags(!showTags)}
+          className="text-sm text-gray-600 hover:text-gray-900"
+        >
+          {showTags ? "Hide Tags" : "Show Tags"}
+        </button>
       </div>
 
-      {loading && page === 0 ? (
-        <div className="flex items-center justify-center py-12">
-          <Loader2 className="text-primary/50 h-8 w-8 animate-spin" />
-        </div>
-      ) : content.length === 0 ? (
-        <div className="text-primary/60 py-12 text-center">
-          No content saved yet
+      {deferredContent.length === 0 ? (
+        <div className="text-center text-gray-500">
+          No content saved yet. Start by creating some content!
         </div>
       ) : (
-        <>
-          <MasonryGrid
-            content={deferredContent}
-            onDelete={(id) => {
-              setContent((prev) => prev.filter((item) => item.id !== id));
-            }}
-            onEdit={(content) => {
-              setSelectedContent(content);
-              setIsEditModalOpen(true);
-            }}
-            showTags={showTags}
-          />
-
-          {hasMore && (
-            <div className="mt-8 flex justify-center">
-              <button
-                onClick={() => setPage((prev) => prev + 1)}
-                className="text-primary rounded-xl bg-white px-6 py-3 shadow-md transition-all hover:shadow-lg"
-              >
-                {loading ? (
-                  <div className="flex items-center gap-2">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Loading more...
-                  </div>
-                ) : (
-                  "Load More"
-                )}
-              </button>
-            </div>
-          )}
-        </>
+        <MasonryGrid
+          content={deferredContent}
+          onEdit={(content) => {
+            setSelectedContent(content);
+            setIsEditModalOpen(true);
+          }}
+          onDelete={(id) => {
+            setContent((prev) => prev.filter((item) => item.id !== id));
+          }}
+          showTags={showTags}
+        />
       )}
 
-      <EditContentModal
-        isOpen={isEditModalOpen}
-        onClose={() => {
-          setIsEditModalOpen(false);
-          setSelectedContent(null);
-        }}
-        content={selectedContent}
-        onContentSaved={() => {
-          window.location.reload();
-        }}
-      />
-    </motion.div>
+      {hasMore && (
+        <div className="flex justify-center">
+          <button
+            onClick={() => setPage((p) => p + 1)}
+            className="text-gray-600 hover:text-gray-900"
+            disabled={isPending}
+          >
+            Load More
+          </button>
+        </div>
+      )}
+
+      {selectedContent && (
+        <EditContentModal
+          content={selectedContent}
+          isOpen={isEditModalOpen}
+          onClose={() => {
+            setIsEditModalOpen(false);
+            setSelectedContent(null);
+          }}
+        />
+      )}
+    </div>
   );
 }

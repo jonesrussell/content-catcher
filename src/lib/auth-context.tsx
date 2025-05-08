@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { User, AuthError } from "@supabase/supabase-js";
 import { supabase } from "./supabase";
 
@@ -29,10 +29,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Initialize auth state
   useEffect(() => {
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
+    const initializeAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        setUser(session?.user ?? null);
+      } catch (error) {
+        console.error('Failed to initialize auth:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initializeAuth();
+
+    // Subscribe to auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('Auth state changed:', event, session?.user?.email);
       setUser(session?.user ?? null);
       setLoading(false);
     });
@@ -42,54 +56,72 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    return { error };
-  };
-
-  const signUp = async (email: string, password: string) => {
-    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-      email,
-      password,
-    });
-
-    if (signUpError) {
-      return { error: signUpError };
+  const signIn = useCallback(async (email: string, password: string) => {
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      return { error };
+    } catch (error) {
+      console.error('Sign in error:', error);
+      return { error: error as AuthError };
     }
+  }, []);
 
-    if (signUpData.user) {
-      // Create a profile for the new user
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .insert({
-          id: signUpData.user.id,
-          username: email.split('@')[0], // Use the part before @ as initial username
-          full_name: null,
-          avatar_url: null,
-        });
+  const signUp = useCallback(async (email: string, password: string) => {
+    try {
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+      });
 
-      if (profileError) {
-        console.error('Failed to create profile:', profileError);
-        // Don't return the profile error as it would prevent account creation
-        // The profile can be created later when the user first accesses their profile page
+      if (signUpError) {
+        return { error: signUpError };
       }
+
+      if (signUpData.user) {
+        // Create a profile for the new user
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert({
+            id: signUpData.user.id,
+            username: email.split('@')[0],
+            full_name: null,
+            avatar_url: null,
+          });
+
+        if (profileError) {
+          console.error('Failed to create profile:', profileError);
+        }
+      }
+
+      return { error: null };
+    } catch (error) {
+      console.error('Sign up error:', error);
+      return { error: error as AuthError };
     }
+  }, []);
 
-    return { error: null };
-  };
+  const resetPassword = useCallback(async (email: string) => {
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email);
+      if (error) throw error;
+    } catch (error) {
+      console.error('Reset password error:', error);
+      throw error;
+    }
+  }, []);
 
-  const resetPassword = async (email: string) => {
-    const { error } = await supabase.auth.resetPasswordForEmail(email);
-    if (error) throw error;
-  };
-
-  const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
-  };
+  const signOut = useCallback(async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+    } catch (error) {
+      console.error('Sign out error:', error);
+      throw error;
+    }
+  }, []);
 
   return (
     <AuthContext.Provider
@@ -100,4 +132,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};

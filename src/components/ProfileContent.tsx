@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth-context";
-import { supabase } from "@/lib/supabase";
+import { createClient } from '@/utils/supabase/client'
 import { motion } from "framer-motion";
 import { Edit2, Save, Loader2 } from "lucide-react";
 import { ContentList } from "@/components/ContentList";
@@ -29,6 +29,7 @@ function LoadingSpinner() {
 
 export default function ProfileContent() {
   const { user } = useAuth();
+  const supabase = createClient()
   const [profile, setProfile] = useState<Profile | null>(null);
   const { content } = useContent(user?.id);
   const [loading, setLoading] = useState(true);

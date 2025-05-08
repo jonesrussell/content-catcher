@@ -10,19 +10,19 @@ export async function saveContent(content: string, title: string, tags: string[]
   const cookieStore = cookies();
   const supabase = await createClient(cookieStore);
   
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Not authenticated');
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) throw new Error('Not authenticated');
 
   // Get the most recent content entry for this user
   const { data: existingContent } = await supabase
     .from("content")
     .select("id, content, tags")
-    .eq("user_id", user.id)
+    .eq("user_id", session.user.id)
     .order("created_at", { ascending: false })
     .limit(1);
 
   const contentData = {
-    user_id: user.id,
+    user_id: session.user.id,
     content,
     title,
     tags: tags ?? [],
@@ -52,13 +52,13 @@ export async function fetchUserContent() {
   const cookieStore = cookies();
   const supabase = await createClient(cookieStore);
   
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Not authenticated');
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) throw new Error('Not authenticated');
 
   const { data, error } = await supabase
     .from("content")
     .select("*")
-    .eq("user_id", user.id)
+    .eq("user_id", session.user.id)
     .order("created_at", { ascending: false });
 
   if (error) throw error;
@@ -82,8 +82,8 @@ export async function updateContent(id: string, updates: Partial<Content>) {
   const cookieStore = cookies();
   const supabase = await createClient(cookieStore);
   
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Not authenticated');
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) throw new Error('Not authenticated');
 
   // Filter out fields that don't exist in the database schema
   const dbUpdates = Object.fromEntries(
@@ -99,7 +99,7 @@ export async function updateContent(id: string, updates: Partial<Content>) {
       created_at: new Date().toISOString()
     })
     .eq("id", id)
-    .eq("user_id", user.id)
+    .eq("user_id", session.user.id)
     .select()
     .single();
 
@@ -113,14 +113,14 @@ export async function deleteContent(id: string) {
   const cookieStore = cookies();
   const supabase = await createClient(cookieStore);
   
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Not authenticated');
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) throw new Error('Not authenticated');
 
   const { error } = await supabase
     .from("content")
     .delete()
     .eq("id", id)
-    .eq("user_id", user.id);
+    .eq("user_id", session.user.id);
 
   if (error) throw error;
   

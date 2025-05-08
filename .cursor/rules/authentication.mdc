@@ -1,0 +1,45 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Authentication Patterns
+
+The application uses a combination of Supabase Auth and Next.js middleware for authentication.
+
+## Auth Context
+
+The `[src/lib/auth-context.tsx](mdc:src/lib/auth-context.tsx)` provides authentication state and methods:
+
+```typescript
+import { useAuth } from '@/lib/auth-context'
+
+export function MyComponent() {
+  const { user, signIn, signOut } = useAuth()
+  // Use auth methods and state
+}
+```
+
+## Protected Routes
+
+Protected routes are handled by middleware in `[src/middleware.ts](mdc:src/middleware.ts)`:
+
+1. Unauthenticated users are redirected to `/login`
+2. Authenticated users are redirected to `/dashboard` when accessing `/login` or `/signup`
+3. Session refresh is handled automatically
+
+## Authentication Flow
+
+1. User signs in via `signIn` method from auth context
+2. Session is stored in cookies
+3. Middleware validates session on each request
+4. Auth context provides real-time session updates
+
+## Best Practices
+
+1. Always check `user` state before accessing protected data
+2. Use `useAuth` hook for authentication state and methods
+3. Handle loading states appropriately
+4. Implement proper error handling for auth operations
+5. Use middleware for route protection
+6. Keep sensitive operations server-side

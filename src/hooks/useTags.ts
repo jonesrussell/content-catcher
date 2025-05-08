@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
+import { createClient } from '@/utils/supabase/client'
 
 export function useTags(userId: string | undefined) {
   const [tags, setTags] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const supabase = createClient()
 
   useEffect(() => {
     async function fetchTags() {

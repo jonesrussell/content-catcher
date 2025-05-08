@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { toast } from "react-hot-toast";
-import { supabase } from "@/lib/supabase";
+import { createClient } from '@/utils/supabase/client'
 import { useContentVersions } from "@/hooks/useContentVersions";
 import { Content, ContentVersion } from "@/types";
 import { motion, AnimatePresence } from "framer-motion";
@@ -33,6 +33,7 @@ export default function EditContentModal({
     createVersion,
     revertToVersion,
   } = useContentVersions(content.id);
+  const supabase = createClient()
 
   const handleSave = async () => {
     try {
