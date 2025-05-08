@@ -1,9 +1,9 @@
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
-import type { Database } from '@/lib/supabase.types'
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
+import type { Database } from "@/lib/supabase.types";
 
 export async function createClient() {
-  const cookieStore = await cookies()
+  const cookieStore = await cookies();
 
   return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -11,11 +11,15 @@ export async function createClient() {
     {
       cookies: {
         get(name: string) {
-          return cookieStore.get(name)?.value
+          return cookieStore.get(name)?.value;
         },
-        set(name: string, value: string, options: { path?: string; maxAge?: number }) {
+        set(
+          name: string,
+          value: string,
+          options: { path?: string; maxAge?: number },
+        ) {
           try {
-            cookieStore.set({ name, value, ...options })
+            cookieStore.set({ name, value, ...options });
           } catch {
             // The `set` method was called from a Server Component.
             // This can be ignored if you have middleware refreshing
@@ -24,7 +28,7 @@ export async function createClient() {
         },
         remove(name: string, options: { path?: string }) {
           try {
-            cookieStore.set({ name, value: '', ...options })
+            cookieStore.set({ name, value: "", ...options });
           } catch {
             // The `remove` method was called from a Server Component.
             // This can be ignored if you have middleware refreshing
@@ -32,6 +36,6 @@ export async function createClient() {
           }
         },
       },
-    }
-  )
-} 
+    },
+  );
+}

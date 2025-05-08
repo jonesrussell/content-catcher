@@ -58,7 +58,9 @@ export function ContentEditorLayout({
         )}
 
         {/* Main Editor Section - Middle section */}
-        <div className={`border-primary/10 ${title ? 'border-x-2' : 'rounded-t-xl border-2'} bg-white/50 backdrop-blur-sm`}>
+        <div
+          className={`border-primary/10 ${title ? "border-x-2" : "rounded-t-xl border-2"} bg-white/50 backdrop-blur-sm`}
+        >
           <MainEditorSection
             content={content}
             setContent={setContent}
@@ -77,13 +79,13 @@ export function ContentEditorLayout({
               content={content}
               tags={tags}
               setTags={setTags}
-              tagSuggestions={tagSuggestions.map(tag => ({
+              tagSuggestions={tagSuggestions.map((tag) => ({
                 tag,
                 confidence: 1,
-                category: 'topic',
-                source: 'rules',
+                category: "topic",
+                source: "rules",
                 metadata: {},
-                explanation: 'Auto-generated tag'
+                explanation: "Auto-generated tag",
               }))}
               tagSuggestionsLoading={tagSuggestionsLoading}
             />
@@ -103,4 +105,4 @@ export function ContentEditorLayout({
       </div>
     </div>
   );
-} 
+}

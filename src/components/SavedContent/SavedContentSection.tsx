@@ -38,9 +38,9 @@ export function SavedContentSection() {
   useEffect(() => {
     const loadContent = async () => {
       try {
-        console.log('Loading content...');
+        console.log("Loading content...");
         const data = await fetchUserContent();
-        
+
         // Handle pagination
         const start = page * itemsPerPage;
         const end = start + itemsPerPage;
@@ -52,7 +52,7 @@ export function SavedContentSection() {
           setContent((prev) => {
             const existingIds = new Set(prev.map((item) => item.id));
             const uniqueNewContent = paginatedData.filter(
-              (item) => !existingIds.has(item.id)
+              (item) => !existingIds.has(item.id),
             );
             return [...prev, ...uniqueNewContent];
           });
@@ -60,10 +60,10 @@ export function SavedContentSection() {
         setHasMore(paginatedData.length === itemsPerPage);
       } catch (error) {
         console.error("Error loading content:", error);
-        if (error instanceof Error && error.message === 'Not authenticated') {
-          console.log('Authentication error, redirecting to login');
+        if (error instanceof Error && error.message === "Not authenticated") {
+          console.log("Authentication error, redirecting to login");
           startTransition(() => {
-            router.replace('/login');
+            router.replace("/login");
           });
           return;
         }
@@ -92,7 +92,7 @@ export function SavedContentSection() {
 
   if (!loading && content.length === 0) {
     return (
-      <div className="text-center py-12">
+      <div className="py-12 text-center">
         <p className="text-gray-500">No content saved yet</p>
       </div>
     );
@@ -132,7 +132,7 @@ export function SavedContentSection() {
             {loading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
-              'Load More'
+              "Load More"
             )}
           </button>
         </div>

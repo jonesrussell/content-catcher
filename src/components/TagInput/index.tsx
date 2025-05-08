@@ -35,7 +35,7 @@ export function TagInput({
         {tags.map((tag, index) => (
           <span
             key={index}
-            className="group flex items-center gap-1 rounded-full bg-primary/10 px-3 py-1 text-sm text-primary"
+            className="group bg-primary/10 text-primary flex items-center gap-1 rounded-full px-3 py-1 text-sm"
           >
             {tag}
             <button
@@ -54,7 +54,7 @@ export function TagInput({
         <input
           type="text"
           placeholder="Add a tag..."
-          className="rounded-md border border-primary/20 bg-transparent px-3 py-1 text-sm focus:border-primary/40 focus:outline-none"
+          className="border-primary/20 focus:border-primary/40 rounded-md border bg-transparent px-3 py-1 text-sm focus:outline-none"
           value={tagInput}
           onChange={(e) => setTagInput(e.target.value)}
           onKeyDown={(e) => {
@@ -72,7 +72,7 @@ export function TagInput({
                 <button
                   key={suggestion}
                   onClick={() => handleAddTag(suggestion)}
-                  className="rounded-full bg-primary/5 px-3 py-1 text-sm text-primary/70 hover:bg-primary/10"
+                  className="bg-primary/5 text-primary/70 hover:bg-primary/10 rounded-full px-3 py-1 text-sm"
                 >
                   {suggestion}
                 </button>

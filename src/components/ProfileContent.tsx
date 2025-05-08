@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createClient } from '@/utils/supabase/client'
+import { createClient } from "@/utils/supabase/client";
 import { motion } from "framer-motion";
 import { Edit2, Save, Loader2 } from "lucide-react";
 import { ContentList } from "@/components/ContentList";
@@ -9,7 +9,7 @@ import DashboardStats from "@/components/DashboardStats";
 import SearchContent from "@/components/SearchContent";
 import { toast } from "react-hot-toast";
 import { useContent } from "@/hooks/useContent";
-import { updateProfile } from '@/app/actions/profile'
+import { updateProfile } from "@/app/actions/profile";
 
 interface Profile {
   username: string | null;
@@ -28,7 +28,7 @@ function LoadingSpinner() {
 }
 
 export default function ProfileContent() {
-  const supabase = createClient()
+  const supabase = createClient();
   const [profile, setProfile] = useState<Profile | null>(null);
   const { content } = useContent(profile?.id);
   const [loading, setLoading] = useState(true);
@@ -36,97 +36,99 @@ export default function ProfileContent() {
   const [editedProfile, setEditedProfile] = useState<Profile | null>(null);
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState({
-    username: '',
-    full_name: '',
-    avatar_url: '',
+    username: "",
+    full_name: "",
+    avatar_url: "",
   });
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadProfile() {
       try {
-        const { data: { user } } = await supabase.auth.getUser()
-        if (!user) return
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        if (!user) return;
 
         const { data: profileData, error: profileError } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single()
+          .from("profiles")
+          .select("*")
+          .eq("id", user.id)
+          .single();
 
         if (profileError) {
           // If profile doesn't exist, create it
-          if (profileError.code === 'PGRST116') {
+          if (profileError.code === "PGRST116") {
             const { data: newProfile, error: createError } = await supabase
-              .from('profiles')
+              .from("profiles")
               .insert({
                 id: user.id,
-                username: user.email?.split('@')[0] || null,
+                username: user.email?.split("@")[0] || null,
                 full_name: null,
                 avatar_url: null,
               })
               .select()
-              .single()
+              .single();
 
-            if (createError) throw createError
-            setProfile(newProfile)
-            setEditedProfile(newProfile)
+            if (createError) throw createError;
+            setProfile(newProfile);
+            setEditedProfile(newProfile);
             setFormData({
-              username: newProfile.username || '',
-              full_name: newProfile.full_name || '',
-              avatar_url: newProfile.avatar_url || '',
-            })
+              username: newProfile.username || "",
+              full_name: newProfile.full_name || "",
+              avatar_url: newProfile.avatar_url || "",
+            });
           } else {
-            throw profileError
+            throw profileError;
           }
         } else {
-          setProfile(profileData)
-          setEditedProfile(profileData)
+          setProfile(profileData);
+          setEditedProfile(profileData);
           setFormData({
-            username: profileData.username || '',
-            full_name: profileData.full_name || '',
-            avatar_url: profileData.avatar_url || '',
-          })
+            username: profileData.username || "",
+            full_name: profileData.full_name || "",
+            avatar_url: profileData.avatar_url || "",
+          });
         }
       } catch (error) {
-        console.error('Error loading profile:', error)
-        setError('Failed to load profile data')
+        console.error("Error loading profile:", error);
+        setError("Failed to load profile data");
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     }
 
-    loadProfile()
-  }, [supabase])
+    loadProfile();
+  }, [supabase]);
 
   const handleSave = async () => {
-    if (!editedProfile) return
+    if (!editedProfile) return;
 
     try {
-      setSaving(true)
+      setSaving(true);
       const result = await updateProfile({
         ...editedProfile,
         ...formData,
-      })
+      });
 
       if (result.error) {
-        throw new Error(result.error)
+        throw new Error(result.error);
       }
 
       setProfile({
         ...editedProfile,
         ...formData,
-      })
-      setEditing(false)
-      setError(null)
-      toast.success('Profile updated successfully')
+      });
+      setEditing(false);
+      setError(null);
+      toast.success("Profile updated successfully");
     } catch (error) {
-      console.error('Error updating profile:', error)
-      setError('Failed to update profile')
+      console.error("Error updating profile:", error);
+      setError("Failed to update profile");
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
-  }
+  };
 
   if (loading) {
     return <LoadingSpinner />;
@@ -134,10 +136,10 @@ export default function ProfileContent() {
 
   if (!profile) {
     return (
-      <div className="text-center py-12">
+      <div className="py-12 text-center">
         <p className="text-gray-500">Profile not found</p>
       </div>
-    )
+    );
   }
 
   return (
@@ -187,7 +189,7 @@ export default function ProfileContent() {
           </div>
 
           {error && (
-            <div className="mb-4 p-4 text-sm text-red-700 bg-red-100 rounded-lg">
+            <div className="mb-4 rounded-lg bg-red-100 p-4 text-sm text-red-700">
               {error}
             </div>
           )}

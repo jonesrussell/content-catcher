@@ -17,13 +17,15 @@ export function DashboardStats() {
   const [loading, setLoading] = useState(true);
   const supabase = createBrowserClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
   );
 
   useEffect(() => {
     async function fetchStats() {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
         if (!session) return;
 
         const { data: content } = await supabase
@@ -40,8 +42,13 @@ export function DashboardStats() {
 
         const totalContent = content.length;
         const totalVersions = versions?.length || 0;
-        const totalTags = content.reduce((acc, item) => acc + (item.tags?.length || 0), 0);
-        const averageContentLength = content.reduce((acc, item) => acc + item.content.length, 0) / totalContent;
+        const totalTags = content.reduce(
+          (acc, item) => acc + (item.tags?.length || 0),
+          0,
+        );
+        const averageContentLength =
+          content.reduce((acc, item) => acc + item.content.length, 0) /
+          totalContent;
 
         setStats({
           totalContent,
@@ -62,7 +69,7 @@ export function DashboardStats() {
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
-        <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+        <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
       </div>
     );
   }
@@ -72,22 +79,32 @@ export function DashboardStats() {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      <div className="bg-white p-6 rounded-lg shadow">
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="rounded-lg bg-white p-6 shadow">
         <h3 className="text-sm font-medium text-gray-500">Total Content</h3>
-        <p className="mt-2 text-3xl font-semibold text-gray-900">{stats.totalContent}</p>
+        <p className="mt-2 text-3xl font-semibold text-gray-900">
+          {stats.totalContent}
+        </p>
       </div>
-      <div className="bg-white p-6 rounded-lg shadow">
+      <div className="rounded-lg bg-white p-6 shadow">
         <h3 className="text-sm font-medium text-gray-500">Total Versions</h3>
-        <p className="mt-2 text-3xl font-semibold text-gray-900">{stats.totalVersions.toLocaleString()}</p>
+        <p className="mt-2 text-3xl font-semibold text-gray-900">
+          {stats.totalVersions.toLocaleString()}
+        </p>
       </div>
-      <div className="bg-white p-6 rounded-lg shadow">
+      <div className="rounded-lg bg-white p-6 shadow">
         <h3 className="text-sm font-medium text-gray-500">Total Tags</h3>
-        <p className="mt-2 text-3xl font-semibold text-gray-900">{stats.totalTags.toLocaleString()}</p>
+        <p className="mt-2 text-3xl font-semibold text-gray-900">
+          {stats.totalTags.toLocaleString()}
+        </p>
       </div>
-      <div className="bg-white p-6 rounded-lg shadow">
-        <h3 className="text-sm font-medium text-gray-500">Avg. Content Length</h3>
-        <p className="mt-2 text-3xl font-semibold text-gray-900">{Math.round(stats.averageContentLength)}</p>
+      <div className="rounded-lg bg-white p-6 shadow">
+        <h3 className="text-sm font-medium text-gray-500">
+          Avg. Content Length
+        </h3>
+        <p className="mt-2 text-3xl font-semibold text-gray-900">
+          {Math.round(stats.averageContentLength)}
+        </p>
       </div>
     </div>
   );

@@ -28,22 +28,27 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
-      <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-xl shadow-lg">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+      <div className="w-full max-w-md space-y-8 rounded-xl bg-white p-8 shadow-lg">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900">Create an Account</h1>
+          <h1 className="text-3xl font-bold text-gray-900">
+            Create an Account
+          </h1>
           <p className="mt-2 text-gray-600">Sign up to get started</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {error && (
-            <div className="p-3 text-sm text-red-500 bg-red-50 rounded-lg">
+            <div className="rounded-lg bg-red-50 p-3 text-sm text-red-500">
               {error}
             </div>
           )}
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700"
+            >
               Email
             </label>
             <input
@@ -51,12 +56,15 @@ export default function SignUpPage() {
               name="email"
               type="email"
               required
-              className="border-gray-200 bg-white focus:ring-gray-200 w-full rounded-lg border px-4 py-3 focus:ring-2 focus:outline-none"
+              className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 focus:ring-2 focus:ring-gray-200 focus:outline-none"
             />
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-700"
+            >
               Password
             </label>
             <input
@@ -64,24 +72,27 @@ export default function SignUpPage() {
               name="password"
               type="password"
               required
-              className="border-gray-200 bg-white focus:ring-gray-200 w-full rounded-lg border px-4 py-3 focus:ring-2 focus:outline-none"
+              className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 focus:ring-2 focus:ring-gray-200 focus:outline-none"
             />
           </div>
 
           <button
             type="submit"
             disabled={optimisticIsLoading}
-            className="bg-gray-900 hover:bg-gray-800 flex w-full items-center justify-center gap-2 rounded-lg py-3 text-white disabled:opacity-50"
+            className="flex w-full items-center justify-center gap-2 rounded-lg bg-gray-900 py-3 text-white hover:bg-gray-800 disabled:opacity-50"
           >
             {optimisticIsLoading ? (
-              <Loader2 className="w-5 h-5 mx-auto animate-spin" />
+              <Loader2 className="mx-auto h-5 w-5 animate-spin" />
             ) : (
               "Sign up"
             )}
           </button>
 
           <div className="text-center">
-            <a href="/login" className="text-gray-700 hover:text-gray-900 inline-flex items-center gap-2">
+            <a
+              href="/login"
+              className="inline-flex items-center gap-2 text-gray-700 hover:text-gray-900"
+            >
               Already have an account? Sign in
             </a>
           </div>

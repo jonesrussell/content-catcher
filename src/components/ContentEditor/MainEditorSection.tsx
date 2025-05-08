@@ -26,7 +26,8 @@ export function MainEditorSection({
   isAutoSaving,
   isSaving,
 }: MainEditorSectionProps) {
-  const { pushContent, undo, redo, canUndo, canRedo } = useContentHistory(content);
+  const { pushContent, undo, redo, canUndo, canRedo } =
+    useContentHistory(content);
   const [isFocused, setIsFocused] = useState(false);
   const [hasContentChanged, setHasContentChanged] = useState(false);
   const [initialContent] = useState(content);
@@ -56,7 +57,7 @@ export function MainEditorSection({
         }
       }
     },
-    [handleSave, undo, redo, setContent]
+    [handleSave, undo, redo, setContent],
   );
 
   return (
@@ -128,14 +129,14 @@ export function MainEditorSection({
             <button
               onClick={() => handleSave(false)}
               disabled={isSaving || !content.trim() || !user}
-              className="text-primary/70 bg-primary/10 rounded-lg px-3 py-1.5 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-70 hover:bg-primary/20 transition-colors"
+              className="text-primary/70 bg-primary/10 hover:bg-primary/20 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-70"
             >
               {isSaving ? "Saving..." : "Save"}
             </button>
             <button
               onClick={() => handleSave(true)}
               disabled={isSaving || !content.trim() || !user}
-              className="text-primary/70 bg-primary/10 rounded-lg px-3 py-1.5 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-70 hover:bg-primary/20 transition-colors"
+              className="text-primary/70 bg-primary/10 hover:bg-primary/20 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-70"
             >
               {isSaving ? "Saving..." : "Save & Close"}
             </button>
@@ -147,4 +148,4 @@ export function MainEditorSection({
       )}
     </div>
   );
-} 
+}

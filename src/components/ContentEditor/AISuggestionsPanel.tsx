@@ -24,9 +24,7 @@ export function AISuggestionsPanel({
   if (suggestions.length === 0) return null;
 
   return (
-    <div
-      className="border-primary/20 fixed top-24 right-8 z-50 w-80 rounded-xl border bg-white/95 p-4 shadow-xl backdrop-blur-sm"
-    >
+    <div className="border-primary/20 fixed top-24 right-8 z-50 w-80 rounded-xl border bg-white/95 p-4 shadow-xl backdrop-blur-sm">
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-primary flex items-center gap-2 text-base font-semibold">
           <span className="h-2 w-2 rounded-full bg-green-500"></span>

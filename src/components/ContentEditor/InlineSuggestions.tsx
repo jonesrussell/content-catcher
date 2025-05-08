@@ -14,9 +14,7 @@ export function InlineSuggestions({
   onApply,
 }: InlineSuggestionsProps) {
   return (
-    <div
-      className="border-primary/10 w-full overflow-hidden rounded-xl border bg-gradient-to-r from-blue-50/50 via-purple-50/50 to-blue-50/50 p-4 backdrop-blur-sm"
-    >
+    <div className="border-primary/10 w-full overflow-hidden rounded-xl border bg-gradient-to-r from-blue-50/50 via-purple-50/50 to-blue-50/50 p-4 backdrop-blur-sm">
       <div className="space-y-3">
         {loading ? (
           <div className="text-primary/60 flex items-center gap-2 text-sm">

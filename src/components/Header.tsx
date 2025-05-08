@@ -14,7 +14,7 @@ export function Header({ className = "" }: HeaderProps) {
   const router = useRouter();
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
   );
 
   const handleSignOut = async () => {
@@ -28,7 +28,7 @@ export function Header({ className = "" }: HeaderProps) {
         <Link href="/" className="text-xl font-bold">
           Content Catcher
         </Link>
-        <nav className="hidden md:flex items-center gap-4">
+        <nav className="hidden items-center gap-4 md:flex">
           <Link href="/dashboard" className="text-gray-700 hover:text-gray-900">
             Dashboard
           </Link>
@@ -40,15 +40,15 @@ export function Header({ className = "" }: HeaderProps) {
       <div className="flex items-center gap-4">
         <Button
           variant="ghost"
-          className="text-gray-700 hover:text-gray-900 flex items-center gap-2"
+          className="flex items-center gap-2 text-gray-700 hover:text-gray-900"
           onClick={() => router.push("/profile")}
         >
-          <User className="w-4 h-4" />
+          <User className="h-4 w-4" />
           Profile
         </Button>
         <Button
           variant="ghost"
-          className="text-gray-700 hover:text-gray-900 flex items-center gap-2"
+          className="flex items-center gap-2 text-gray-700 hover:text-gray-900"
           onClick={handleSignOut}
         >
           Sign Out

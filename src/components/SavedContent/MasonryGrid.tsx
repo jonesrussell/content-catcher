@@ -15,36 +15,42 @@ interface MasonryGridProps {
   showTags: boolean;
 }
 
-export function MasonryGrid({ content, onDelete, onEdit, showTags }: MasonryGridProps) {
+export function MasonryGrid({
+  content,
+  onDelete,
+  onEdit,
+  showTags,
+}: MasonryGridProps) {
   // Use optimistic updates for content
   const [optimisticContent, setOptimisticContent] = useOptimistic(content);
 
   // Add debug log for render
-  console.log('MasonryGrid render:', {
+  console.log("MasonryGrid render:", {
     contentLength: content.length,
     showTags,
-    itemsWithTags: content.map(item => ({
+    itemsWithTags: content.map((item) => ({
       id: item.id,
       contentLength: item.content.length,
       hasTags: item.tags && item.tags.length > 0,
-      tags: item.tags
-    }))
+      tags: item.tags,
+    })),
   });
 
   return (
     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
       {optimisticContent.map((item) => {
-        const shouldShowItemTags = showTags && 
-          item.content.length >= 100 && 
-          item.tags && 
+        const shouldShowItemTags =
+          showTags &&
+          item.content.length >= 100 &&
+          item.tags &&
           item.tags.length > 0;
 
-        console.log('Rendering item:', {
+        console.log("Rendering item:", {
           id: item.id,
           contentLength: item.content.length,
           hasTags: item.tags && item.tags.length > 0,
           showTags,
-          shouldShowItemTags
+          shouldShowItemTags,
         });
 
         return (
@@ -60,18 +66,20 @@ export function MasonryGrid({ content, onDelete, onEdit, showTags }: MasonryGrid
                 variant="ghost"
                 size="icon"
                 onClick={() => onEdit(item)}
-                className="rounded-full p-2 hover:bg-primary/5"
+                className="hover:bg-primary/5 rounded-full p-2"
                 title="Edit"
               >
-                <Pencil className="h-4 w-4 text-primary/70" />
+                <Pencil className="text-primary/70 h-4 w-4" />
               </Button>
               <button
                 onClick={async () => {
                   try {
-                    setOptimisticContent(prev => 
-                      prev.map(c => c.id === item.id ? { ...c, archived: !c.archived } : c)
+                    setOptimisticContent((prev) =>
+                      prev.map((c) =>
+                        c.id === item.id ? { ...c, archived: !c.archived } : c,
+                      ),
                     );
-                    
+
                     await updateContent(item.id, { archived: !item.archived });
                     toast.success(
                       item.archived ? "Content restored" : "Content archived",
@@ -96,12 +104,14 @@ export function MasonryGrid({ content, onDelete, onEdit, showTags }: MasonryGrid
               </button>
               <button
                 onClick={async () => {
-                  if (confirm("Are you sure you want to delete this content?")) {
+                  if (
+                    confirm("Are you sure you want to delete this content?")
+                  ) {
                     try {
-                      setOptimisticContent(prev => 
-                        prev.filter(c => c.id !== item.id)
+                      setOptimisticContent((prev) =>
+                        prev.filter((c) => c.id !== item.id),
                       );
-                      
+
                       await deleteContent(item.id);
                       onDelete(item.id);
                       toast.success("Content deleted");
@@ -120,7 +130,7 @@ export function MasonryGrid({ content, onDelete, onEdit, showTags }: MasonryGrid
               </button>
             </div>
             <div className="space-y-4">
-              <p className="text-primary/80 whitespace-pre-wrap text-base leading-relaxed">
+              <p className="text-primary/80 text-base leading-relaxed whitespace-pre-wrap">
                 {item.content}
               </p>
               {shouldShowItemTags && (

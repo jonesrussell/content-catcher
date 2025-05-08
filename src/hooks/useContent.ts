@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { createClient } from '@/utils/supabase/client'
+import { createClient } from "@/utils/supabase/client";
 import type { Content } from "@/types/content";
 import { toast } from "react-hot-toast";
 
@@ -37,7 +37,7 @@ export interface ContentUpdate {
 }
 
 export function useContent(userId?: string) {
-  const supabase = createClient()
+  const supabase = createClient();
   const [content, setContent] = useState<Content[]>([]);
   const [loading, setLoading] = useState(true);
 

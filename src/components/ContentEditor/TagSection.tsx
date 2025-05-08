@@ -24,11 +24,11 @@ export function TagSection({
       <TagInput
         tags={tags}
         setTags={setTags}
-        suggestions={tagSuggestions.map(t => t.tag)}
+        suggestions={tagSuggestions.map((t) => t.tag)}
         loading={tagSuggestionsLoading}
         onAddTag={(tag) => {
           setTags([...tags, tag]);
-          onUpdateSuggestions(tagSuggestions.filter(s => s.tag !== tag));
+          onUpdateSuggestions(tagSuggestions.filter((s) => s.tag !== tag));
           toast.success(`Added tag: ${tag}`);
         }}
       />

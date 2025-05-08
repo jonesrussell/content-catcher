@@ -31,14 +31,14 @@ export function ContentList({ contents, onContentUpdated }: ContentListProps) {
                 setSelectedContent(content);
                 setIsEditModalOpen(true);
               }}
-              className="rounded-full p-2 hover:bg-primary/5"
+              className="hover:bg-primary/5 rounded-full p-2"
               title="Edit"
             >
-              <Pencil className="h-4 w-4 text-primary/70" />
+              <Pencil className="text-primary/70 h-4 w-4" />
             </Button>
           </div>
           <div className="space-y-4">
-            <p className="text-primary/80 whitespace-pre-wrap text-base leading-relaxed">
+            <p className="text-primary/80 text-base leading-relaxed whitespace-pre-wrap">
               {content.content}
             </p>
             {content.tags && content.tags.length > 0 && (

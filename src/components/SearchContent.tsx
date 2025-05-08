@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect, useMemo } from "react";
 import { Search, Loader2 } from "lucide-react";
-import { createClient } from '@/utils/supabase/client'
+import { createClient } from "@/utils/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import debounce from "lodash.debounce";
 import { toast } from "react-hot-toast";
@@ -20,7 +20,7 @@ export default function SearchContent() {
   const [loading, setLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
 
-  const supabase = createClient()
+  const supabase = createClient();
 
   const performSearch = useCallback(
     async (searchQuery: string, userId: string, tags: string[]) => {
@@ -154,9 +154,7 @@ export default function SearchContent() {
         </div>
 
         {showSuggestions && results.length > 0 && (
-          <div
-            className="border-primary/10 absolute top-full right-0 left-0 z-50 mt-2 overflow-hidden rounded-xl border bg-white shadow-lg"
-          >
+          <div className="border-primary/10 absolute top-full right-0 left-0 z-50 mt-2 overflow-hidden rounded-xl border bg-white shadow-lg">
             <div className="max-h-96 overflow-y-auto">
               {results.map((result) => (
                 <div

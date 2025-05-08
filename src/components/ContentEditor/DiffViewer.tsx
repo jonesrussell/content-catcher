@@ -17,9 +17,7 @@ export function DiffViewer({
   const differences = diffWords(oldVersion.content, newVersion.content);
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-6"
-    >
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-6">
       <div className="flex max-h-[80vh] w-full max-w-6xl flex-col overflow-hidden rounded-xl bg-white">
         <div className="flex items-center justify-between border-b p-4">
           <div>
@@ -57,8 +55,10 @@ export function DiffViewer({
           <div className="rounded-lg border bg-white">
             <div className="grid grid-cols-2 divide-x">
               <div className="p-4">
-                <h4 className="text-primary mb-2 text-sm font-medium">Old Version</h4>
-                <div className="whitespace-pre-wrap font-mono text-sm">
+                <h4 className="text-primary mb-2 text-sm font-medium">
+                  Old Version
+                </h4>
+                <div className="font-mono text-sm whitespace-pre-wrap">
                   {differences.map((part: Change, index: number) => (
                     <span
                       key={index}
@@ -70,12 +70,16 @@ export function DiffViewer({
                 </div>
               </div>
               <div className="p-4">
-                <h4 className="text-primary mb-2 text-sm font-medium">New Version</h4>
-                <div className="whitespace-pre-wrap font-mono text-sm">
+                <h4 className="text-primary mb-2 text-sm font-medium">
+                  New Version
+                </h4>
+                <div className="font-mono text-sm whitespace-pre-wrap">
                   {differences.map((part: Change, index: number) => (
                     <span
                       key={index}
-                      className={part.added ? "bg-green-100 text-green-800" : ""}
+                      className={
+                        part.added ? "bg-green-100 text-green-800" : ""
+                      }
                     >
                       {part.value}
                     </span>

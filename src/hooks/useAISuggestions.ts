@@ -143,7 +143,7 @@ export function useAISuggestions(content: string) {
               ],
               jsonMode: true,
             }),
-          }
+          },
         );
 
         if (!response.ok) {
@@ -158,12 +158,14 @@ export function useAISuggestions(content: string) {
 
         // Clean and validate the response
         let cleanedContent = jsonContent;
-        
+
         // Remove markdown code blocks if present
-        if (cleanedContent.includes('```')) {
-          cleanedContent = cleanedContent.replace(/```json\n?|\n?```/g, '').trim();
+        if (cleanedContent.includes("```")) {
+          cleanedContent = cleanedContent
+            .replace(/```json\n?|\n?```/g, "")
+            .trim();
         }
-        
+
         // Parse the content using JSON5 which handles comments and trailing commas
         let parsedContent;
         try {
@@ -173,7 +175,10 @@ export function useAISuggestions(content: string) {
           throw new Error("Could not parse AI response as JSON");
         }
 
-        if (!parsedContent?.suggestions || !Array.isArray(parsedContent.suggestions)) {
+        if (
+          !parsedContent?.suggestions ||
+          !Array.isArray(parsedContent.suggestions)
+        ) {
           throw new Error("Invalid suggestions format received from API");
         }
 

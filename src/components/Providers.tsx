@@ -9,4 +9,4 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <Toaster position="bottom-right" />
     </>
   );
-} 
+}

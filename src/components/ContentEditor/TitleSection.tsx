@@ -47,7 +47,7 @@ export function TitleSection({
             ],
             jsonMode: true,
           }),
-        }
+        },
       );
 
       if (!response.ok) {
@@ -59,7 +59,9 @@ export function TitleSection({
       if (!jsonContent) throw new Error("Invalid API response");
 
       // Clean the response by removing markdown code block syntax
-      const cleanedContent = jsonContent.replace(/```json\n?|\n?```/g, '').trim();
+      const cleanedContent = jsonContent
+        .replace(/```json\n?|\n?```/g, "")
+        .trim();
       const parsed = JSON.parse(cleanedContent);
       if (!parsed?.title || typeof parsed.title !== "string") {
         throw new Error("Invalid title format received");

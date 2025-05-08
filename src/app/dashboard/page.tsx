@@ -7,7 +7,7 @@ import ContentEditor from "@/components/ContentEditor";
 import { SavedContentSection } from "@/components/SavedContent/SavedContentSection";
 import type { Content } from "@/types/content";
 import { Toaster } from "react-hot-toast";
-import { supabase } from '@/lib/supabase';
+import { supabase } from "@/lib/supabase";
 
 export default function DashboardPage() {
   const { user, loading } = useAuth();
@@ -24,13 +24,13 @@ export default function DashboardPage() {
   useEffect(() => {
     async function fetchContents() {
       if (!user) return;
-      
+
       const { data } = await supabase
-        .from('content')
-        .select('*')
-        .order('created_at', { ascending: false });
-      
-      const mappedContent = (data || []).map(item => ({
+        .from("content")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      const mappedContent = (data || []).map((item) => ({
         id: item.id,
         user_id: item.user_id,
         content: item.content,
@@ -41,9 +41,9 @@ export default function DashboardPage() {
         archived: false,
         attachments: item.attachments || [],
         parent_version_id: item.parent_version_id || null,
-        fts: item.fts || null
+        fts: item.fts || null,
       }));
-      
+
       setContents(mappedContent);
       setIsLoading(false);
     }
@@ -65,7 +65,7 @@ export default function DashboardPage() {
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-4 md:p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm">
+      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm">
         <ContentEditor initialContent={contents[0]} />
         <SavedContentSection />
       </div>

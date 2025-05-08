@@ -14,13 +14,13 @@ interface EditContentModalProps {
   onContentSaved?: () => void;
 }
 
-export function EditContentModal({ 
-  content, 
-  isOpen, 
-  onClose, 
+export function EditContentModal({
+  content,
+  isOpen,
+  onClose,
   onSave,
   isNew = false,
-  onContentSaved 
+  onContentSaved,
 }: EditContentModalProps) {
   const handleSave = () => {
     onSave?.();
@@ -31,7 +31,9 @@ export function EditContentModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{isNew ? "Create New Content" : "Edit Content"}</DialogTitle>
+          <DialogTitle>
+            {isNew ? "Create New Content" : "Edit Content"}
+          </DialogTitle>
         </DialogHeader>
         <ContentEditor
           initialContent={content || undefined}
@@ -40,4 +42,4 @@ export function EditContentModal({
       </DialogContent>
     </Dialog>
   );
-} 
+}

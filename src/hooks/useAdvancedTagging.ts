@@ -50,7 +50,7 @@ interface UseAdvancedTaggingResult {
 
 export function useAdvancedTagging(
   content: string,
-  options: UseAdvancedTaggingOptions = {}
+  options: UseAdvancedTaggingOptions = {},
 ): UseAdvancedTaggingResult {
   const [suggestions, setSuggestions] = useState<TagAnalysis[]>([]);
   const [stats, setStats] = useState<TagStats | null>(null);
@@ -103,7 +103,10 @@ export function useAdvancedTagging(
           while (retries <= maxRetries) {
             try {
               const controller = new AbortController();
-              const timeoutId = setTimeout(() => controller.abort(), timeoutDuration);
+              const timeoutId = setTimeout(
+                () => controller.abort(),
+                timeoutDuration,
+              );
 
               const response = await fetch(
                 "https://openai.getcreatr.xyz/v1/chat/completions",
@@ -143,7 +146,7 @@ export function useAdvancedTagging(
                     response_format: { type: "json_object" },
                   }),
                   signal: controller.signal,
-                }
+                },
               );
 
               clearTimeout(timeoutId);
@@ -157,7 +160,9 @@ export function useAdvancedTagging(
               if (!jsonContent) throw new Error("Invalid API response");
 
               // Clean the response by removing markdown code block syntax
-              const cleanedContent = jsonContent.replace(/```json\n?|\n?```/g, '').trim();
+              const cleanedContent = jsonContent
+                .replace(/```json\n?|\n?```/g, "")
+                .trim();
               let parsed;
               try {
                 parsed = JSON.parse(cleanedContent);
@@ -187,7 +192,9 @@ export function useAdvancedTagging(
               }
               retries++;
               console.warn(`Retry attempt ${retries} after error:`, error);
-              await new Promise(resolve => setTimeout(resolve, 1000 * retries)); // Exponential backoff
+              await new Promise((resolve) =>
+                setTimeout(resolve, 1000 * retries),
+              ); // Exponential backoff
             }
           }
         } catch (error) {
@@ -206,8 +213,8 @@ export function useAdvancedTagging(
   const calculateTagStats = (tags: TagAnalysis[]): TagStats => {
     const tagCounts = new Map<string, number>();
     let totalConfidence = 0;
-    
-    tags.forEach(tag => {
+
+    tags.forEach((tag) => {
       tagCounts.set(tag.tag, (tagCounts.get(tag.tag) || 0) + 1);
       totalConfidence += tag.confidence;
     });
@@ -221,7 +228,7 @@ export function useAdvancedTagging(
       uniqueTags: tagCounts.size,
       mostUsedTags: sortedTags.slice(0, 5),
       averageConfidence: tags.length > 0 ? totalConfidence / tags.length : 0,
-      topTags: sortedTags.slice(0, 10).map(t => t.tag),
+      topTags: sortedTags.slice(0, 10).map((t) => t.tag),
     };
   };
 
