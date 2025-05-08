@@ -1,59 +1,62 @@
 "use client";
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { login, signup } from './actions'
 import { motion } from 'framer-motion'
 import { Loader2 } from 'lucide-react'
 
 export default function LoginPage() {
-  const router = useRouter()
   const [error, setError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
-  async function handleSubmit(formData: FormData, action: 'login' | 'signup') {
-    setLoading(true)
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
     setError(null)
+    setIsLoading(true)
+
+    const formData = new FormData(e.currentTarget)
+    const email = formData.get('email') as string
+    const password = formData.get('password') as string
+    const isSignUp = formData.get('action') === 'signup'
 
     try {
-      const result = await (action === 'login' ? login(formData) : signup(formData))
-      
-      if ('error' in result) {
-        setError(result.error)
+      if (isSignUp) {
+        await signup(email, password)
+      } else {
+        await login(email, password)
       }
-    } catch (err) {
-      setError('An unexpected error occurred')
+    } catch (error) {
+      if (error instanceof Error) {
+        setError(error.message)
+      } else {
+        setError('An unexpected error occurred')
+      }
     } finally {
-      setLoading(false)
+      setIsLoading(false)
     }
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-primary/5 to-primary/10">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md space-y-8 rounded-2xl bg-white p-8 shadow-xl"
+        className="w-full max-w-md p-8 space-y-8 bg-white rounded-xl shadow-lg"
       >
         <div className="text-center">
-          <h1 className="text-primary text-3xl font-bold">Welcome Back</h1>
-          <p className="text-muted-foreground mt-2">
-            Sign in to your account or create a new one
-          </p>
+          <h1 className="text-3xl font-bold text-gray-900">Welcome Back</h1>
+          <p className="mt-2 text-gray-600">Sign in to your account</p>
         </div>
 
         {error && (
-          <div className="bg-destructive/10 text-destructive rounded-lg p-4 text-sm">
+          <div className="p-4 text-sm text-red-700 bg-red-100 rounded-lg">
             {error}
           </div>
         )}
 
-        <form className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label
-              htmlFor="email"
-              className="text-primary block text-sm font-medium"
-            >
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
               Email
             </label>
             <input
@@ -61,16 +64,12 @@ export default function LoginPage() {
               name="email"
               type="email"
               required
-              className="border-input bg-background focus:ring-primary/20 mt-1 block w-full rounded-lg border px-4 py-2 transition-all focus:ring-2 focus:outline-none"
-              placeholder="you@example.com"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
             />
           </div>
 
           <div>
-            <label
-              htmlFor="password"
-              className="text-primary block text-sm font-medium"
-            >
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
               Password
             </label>
             <input
@@ -78,30 +77,33 @@ export default function LoginPage() {
               name="password"
               type="password"
               required
-              className="border-input bg-background focus:ring-primary/20 mt-1 block w-full rounded-lg border px-4 py-2 transition-all focus:ring-2 focus:outline-none"
-              placeholder="••••••••"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
             />
           </div>
 
           <div className="flex gap-4">
             <button
-              formAction={(formData) => handleSubmit(formData, 'login')}
-              disabled={loading}
-              className="bg-primary hover:bg-primary/90 flex-1 rounded-lg px-4 py-2 text-white transition-colors disabled:opacity-50"
+              type="submit"
+              name="action"
+              value="login"
+              disabled={isLoading}
+              className="flex-1 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
             >
-              {loading ? (
-                <Loader2 className="mx-auto h-5 w-5 animate-spin" />
+              {isLoading ? (
+                <Loader2 className="w-5 h-5 mx-auto animate-spin" />
               ) : (
                 'Sign In'
               )}
             </button>
             <button
-              formAction={(formData) => handleSubmit(formData, 'signup')}
-              disabled={loading}
-              className="text-primary hover:bg-primary/5 flex-1 rounded-lg border px-4 py-2 transition-colors disabled:opacity-50"
+              type="submit"
+              name="action"
+              value="signup"
+              disabled={isLoading}
+              className="flex-1 px-4 py-2 text-sm font-medium text-blue-600 bg-blue-100 rounded-md hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
             >
-              {loading ? (
-                <Loader2 className="mx-auto h-5 w-5 animate-spin" />
+              {isLoading ? (
+                <Loader2 className="w-5 h-5 mx-auto animate-spin" />
               ) : (
                 'Sign Up'
               )}

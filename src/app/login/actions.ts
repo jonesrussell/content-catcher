@@ -6,23 +6,21 @@ import { createClient } from '@/utils/supabase/server'
 import { z } from 'zod'
 
 const authSchema = z.object({
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  email: z.string().email(),
+  password: z.string().min(6),
 })
 
-export async function login(formData: FormData) {
+export async function login(email: string, password: string) {
   const supabase = await createClient()
 
   try {
-    const data = {
-      email: formData.get('email') as string,
-      password: formData.get('password') as string,
-    }
-
     // Validate input
-    const validatedData = authSchema.parse(data)
+    const validatedData = authSchema.parse({ email, password })
 
-    const { error } = await supabase.auth.signInWithPassword(validatedData)
+    const { error } = await supabase.auth.signInWithPassword({
+      email: validatedData.email,
+      password: validatedData.password,
+    })
 
     if (error) {
       return {
@@ -30,7 +28,7 @@ export async function login(formData: FormData) {
       }
     }
 
-    revalidatePath('/', 'layout')
+    revalidatePath('/')
     redirect('/dashboard')
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -44,19 +42,17 @@ export async function login(formData: FormData) {
   }
 }
 
-export async function signup(formData: FormData) {
+export async function signup(email: string, password: string) {
   const supabase = await createClient()
 
   try {
-    const data = {
-      email: formData.get('email') as string,
-      password: formData.get('password') as string,
-    }
-
     // Validate input
-    const validatedData = authSchema.parse(data)
+    const validatedData = authSchema.parse({ email, password })
 
-    const { error } = await supabase.auth.signUp(validatedData)
+    const { error } = await supabase.auth.signUp({
+      email: validatedData.email,
+      password: validatedData.password,
+    })
 
     if (error) {
       return {
@@ -64,7 +60,7 @@ export async function signup(formData: FormData) {
       }
     }
 
-    revalidatePath('/', 'layout')
+    revalidatePath('/')
     redirect('/dashboard')
   } catch (error) {
     if (error instanceof z.ZodError) {

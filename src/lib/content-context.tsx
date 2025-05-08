@@ -1,68 +1,70 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+'use client'
+
+import { createContext, useContext, useState, useCallback } from 'react'
 import { createClient } from '@/utils/supabase/client'
-import { Content } from '@/types/content';
-import { useAuth } from './auth-context';
+import type { Content } from '@/types/content'
 
 interface ContentContextType {
-  contents: Content[];
-  loading: boolean;
-  error: Error | null;
-  fetchContents: () => Promise<void>;
+  content: Content[]
+  loading: boolean
+  error: string | null
+  refreshContent: () => Promise<void>
 }
 
-const ContentContext = createContext<ContentContextType | null>(null);
+const ContentContext = createContext<ContentContextType | undefined>(undefined)
 
 export function ContentProvider({ children }: { children: React.ReactNode }) {
-  const [contents, setContents] = useState<Content[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
-  const { user } = useAuth();
+  const [content, setContent] = useState<Content[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const supabase = createClient()
 
-  const fetchContents = useCallback(async () => {
-    if (!user) return;
-    
-    setLoading(true);
-    setError(null);
-    
+  const refreshContent = useCallback(async () => {
     try {
+      setLoading(true)
+      setError(null)
+
       const { data, error } = await supabase
         .from('content')
         .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
 
-      if (error) throw error;
-      
+      if (error) throw error
+
+      // Transform the data to match the Content type
       const transformedData = (data || []).map(item => ({
         ...item,
         updated_at: item.created_at,
         archived: false,
-      })) as Content[];
-      
-      setContents(transformedData);
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error('Failed to fetch contents'));
-    } finally {
-      setLoading(false);
-    }
-  }, [user]);
+      })) as Content[]
 
-  useEffect(() => {
-    fetchContents();
-  }, [fetchContents]);
+      setContent(transformedData)
+    } catch (err) {
+      console.error('Error fetching content:', err)
+      setError('Failed to load content')
+    } finally {
+      setLoading(false)
+    }
+  }, [supabase])
 
   return (
-    <ContentContext.Provider value={{ contents, loading, error, fetchContents }}>
+    <ContentContext.Provider
+      value={{
+        content,
+        loading,
+        error,
+        refreshContent,
+      }}
+    >
       {children}
     </ContentContext.Provider>
-  );
+  )
 }
 
 export function useContent() {
-  const context = useContext(ContentContext);
-  if (!context) {
-    throw new Error('useContent must be used within a ContentProvider');
+  const context = useContext(ContentContext)
+  if (context === undefined) {
+    throw new Error('useContent must be used within a ContentProvider')
   }
-  return context;
+  return context
 } 

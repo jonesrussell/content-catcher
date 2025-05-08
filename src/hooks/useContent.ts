@@ -128,7 +128,7 @@ export function useContent(userId?: string) {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [userId]);
+  }, [userId, supabase]);
 
   return { content, loading };
 }

@@ -14,7 +14,7 @@ import {
   Pie,
   Cell,
 } from "recharts";
-import { FileText, Hash, Clock } from "lucide-react";
+import { FileText, Hash, Clock, Loader2 } from "lucide-react";
 
 interface ContentStats {
   totalCount: number;
@@ -24,7 +24,11 @@ interface ContentStats {
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
 
-export default function DashboardStats({ userId }: { userId: string }) {
+interface DashboardStatsProps {
+  userId: string
+}
+
+export default function DashboardStats({ userId }: DashboardStatsProps) {
   const supabase = createClient()
   const [stats, setStats] = useState<ContentStats>({
     totalCount: 0,
@@ -34,7 +38,7 @@ export default function DashboardStats({ userId }: { userId: string }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchStats() {
+    const fetchStats = async () => {
       try {
         // Fetch total count
         const { count: totalCount, error: countError } = await supabase
@@ -87,12 +91,12 @@ export default function DashboardStats({ userId }: { userId: string }) {
     }
 
     fetchStats();
-  }, [userId]);
+  }, [userId, supabase]);
 
   if (loading) {
     return (
-      <div className="flex h-64 items-center justify-center">
-        <div className="border-primary h-8 w-8 animate-spin rounded-full border-b-2"></div>
+      <div className="flex items-center justify-center p-8">
+        <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
       </div>
     );
   }

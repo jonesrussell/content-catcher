@@ -77,7 +77,7 @@ export function useCollaboration(contentId: string, user: User | null) {
     return () => {
       channel.unsubscribe();
     };
-  }, [contentId, user]);
+  }, [contentId, user, supabase]);
 
   const updatePresence = async (
     cursorPosition: number | null = null,
