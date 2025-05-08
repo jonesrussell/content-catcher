@@ -1,88 +1,85 @@
 "use client";
 
 import { useState } from "react";
-import { toast } from "react-hot-toast";
+import { X } from "lucide-react";
+import { cleanTag, validateTag } from "@/utils/tags";
 
 interface TagInputProps {
   tags: string[];
   setTags: (tags: string[]) => void;
-  suggestions: string[];
-  loading: boolean;
-  onAddTag: (tag: string) => void;
+  suggestions?: string[];
+  onAddTag?: (tag: string) => void;
+  onRemoveTag?: (tag: string) => void;
 }
 
 export function TagInput({
   tags,
   setTags,
-  suggestions,
-  loading,
+  suggestions = [],
   onAddTag,
+  onRemoveTag,
 }: TagInputProps) {
   const [tagInput, setTagInput] = useState("");
 
+  const handleAddTag = (tag: string) => {
+    const cleanedTag = cleanTag(tag);
+    if (validateTag(cleanedTag) && !tags.includes(cleanedTag)) {
+      setTags([...tags, cleanedTag]);
+      onAddTag?.(cleanedTag);
+    }
+  };
+
   return (
-    <div className="flex w-full flex-col gap-2">
-      <div className="flex min-h-[32px] flex-wrap gap-2">
+    <div className="space-y-2">
+      <div className="flex flex-wrap gap-2">
         {tags.map((tag, index) => (
           <span
             key={index}
-            className="bg-primary/10 text-primary flex items-center gap-2 rounded-full px-3 py-1 text-sm"
+            className="group flex items-center gap-1 rounded-full bg-primary/10 px-3 py-1 text-sm text-primary"
           >
             {tag}
             <button
-              onClick={() => setTags(tags.filter((_, i) => i !== index))}
-              className="hover:text-primary/70"
+              onClick={() => {
+                setTags(tags.filter((_, i) => i !== index));
+                onRemoveTag?.(tag);
+              }}
+              className="text-primary/60 hover:text-primary"
             >
-              ×
+              <X className="h-3 w-3" />
             </button>
           </span>
         ))}
       </div>
-
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap gap-2">
         <input
           type="text"
+          placeholder="Add a tag..."
+          className="rounded-md border border-primary/20 bg-transparent px-3 py-1 text-sm focus:border-primary/40 focus:outline-none"
           value={tagInput}
           onChange={(e) => setTagInput(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter" && tagInput.trim()) {
-              e.preventDefault();
-              if (!tags.includes(tagInput.trim())) {
-                setTags([...tags, tagInput.trim()]);
-                onAddTag(tagInput.trim());
-              }
+              handleAddTag(tagInput.trim());
               setTagInput("");
             }
           }}
-          placeholder="Add tags..."
-          className="flex-grow border-none bg-transparent px-2 py-1 text-sm outline-none"
         />
-        {loading && (
-          <div className="border-primary h-4 w-4 animate-spin rounded-full border-b-2"></div>
+        {suggestions.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {suggestions
+              .filter((suggestion) => !tags.includes(suggestion))
+              .map((suggestion) => (
+                <button
+                  key={suggestion}
+                  onClick={() => handleAddTag(suggestion)}
+                  className="rounded-full bg-primary/5 px-3 py-1 text-sm text-primary/70 hover:bg-primary/10"
+                >
+                  {suggestion}
+                </button>
+              ))}
+          </div>
         )}
       </div>
-
-      {suggestions.length > 0 && (
-        <div className="space-y-4">
-          <div className="bg-primary/5 flex flex-wrap gap-2 rounded-lg p-2">
-            {suggestions.map((suggestion, index) => (
-              <button
-                key={index}
-                onClick={() => {
-                  if (!tags.includes(suggestion)) {
-                    setTags([...tags, suggestion]);
-                    onAddTag(suggestion);
-                    toast.success(`Added tag: ${suggestion}`);
-                  }
-                }}
-                className={`group text-primary hover:bg-primary relative flex items-center gap-2 rounded-full bg-white px-3 py-1 text-sm shadow-sm transition-colors hover:text-white`}
-              >
-                {suggestion}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 }

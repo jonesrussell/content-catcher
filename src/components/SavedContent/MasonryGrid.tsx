@@ -7,6 +7,7 @@ import { supabase } from "@/lib/supabase";
 import type { Content } from "@/types/content";
 import type { ContentUpdate } from "@/hooks/useContent";
 import { Button } from "../ui/button";
+import { cleanTag, shouldShowTags } from "@/utils/tags";
 
 interface MasonryGridProps {
   content: Content[];
@@ -94,14 +95,14 @@ export function MasonryGrid({ content, onDelete, onEdit, showTags }: MasonryGrid
             <p className="text-primary/80 whitespace-pre-wrap text-base leading-relaxed">
               {item.content}
             </p>
-            {showTags && item.tags && item.tags.length > 0 && item.content.length >= 100 && (
+            {showTags && shouldShowTags(item.content, item.tags) && (
               <div className="flex flex-wrap gap-2">
-                {item.tags.map((tag: string, index: number) => (
+                {item.tags?.map((tag: string, index: number) => (
                   <span
                     key={index}
                     className="bg-primary/10 text-primary rounded-full px-3 py-1 text-sm"
                   >
-                    {tag}
+                    {cleanTag(tag)}
                   </span>
                 ))}
               </div>

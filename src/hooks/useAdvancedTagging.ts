@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
+import { deduplicateTags, getTopTags } from "@/utils/tags";
 
 export interface TagAnalysis {
   tag: string;
@@ -167,28 +168,14 @@ export function useAdvancedTagging(
 
               const aiTags = parsed.suggestions;
 
-              // Clean HTML tags from tag text
-              const cleanTags = (tags: TagAnalysis[]): TagAnalysis[] => {
-                return tags.map(tag => ({
-                  ...tag,
-                  tag: tag.tag.replace(/<[^>]*>/g, ' ').trim().replace(/\s+/g, ' ')
-                }));
-              };
-
-              // Combine and deduplicate tags
+              // Combine and deduplicate tags using utility functions
               const allTags = [...nlpTags, ...aiTags];
-              const uniqueTags = Array.from(
-                new Map(cleanTags(allTags).map((tag) => [tag.tag, tag])).values(),
-              );
+              const uniqueTags = deduplicateTags(allTags);
+              const topTags = getTopTags(uniqueTags, 5);
 
-              // Sort tags by confidence and limit to top 5
-              const sortedTags = uniqueTags
-                .sort((a, b) => b.confidence - a.confidence)
-                .slice(0, 5);
-
-              setSuggestions(sortedTags);
-              setStats(calculateTagStats(sortedTags));
-              options.onSuggestions?.(sortedTags);
+              setSuggestions(topTags);
+              setStats(calculateTagStats(topTags));
+              options.onSuggestions?.(topTags);
               break; // Success, exit retry loop
             } catch (error) {
               if (retries === maxRetries) {
