@@ -2,10 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
-import { motion } from "framer-motion";
 import { Edit2, Save, Loader2 } from "lucide-react";
 import { ContentList } from "@/components/ContentList";
-import DashboardStats from "@/components/DashboardStats";
 import SearchContent from "@/components/SearchContent";
 import { toast } from "react-hot-toast";
 import { useContent } from "@/hooks/useContent";
@@ -144,21 +142,12 @@ export default function ProfileContent() {
 
   return (
     <div className="container mx-auto px-4 py-12">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mx-auto max-w-4xl"
-      >
+      <div className="mx-auto max-w-4xl">
         <div className="mb-8 rounded-2xl bg-white/80 p-8 shadow-xl backdrop-blur-sm">
           <div className="flex flex-col gap-6">
             <h2 className="text-primary text-2xl font-bold">Search Content</h2>
             <SearchContent />
           </div>
-        </div>
-
-        <div className="mb-8 rounded-2xl bg-white/80 p-8 shadow-xl backdrop-blur-sm">
-          <h2 className="text-primary mb-6 text-2xl font-bold">Dashboard</h2>
-          {profile && <DashboardStats userId={profile.id} />}
         </div>
 
         <div className="mb-8 rounded-2xl bg-white/80 p-8 shadow-xl backdrop-blur-sm">
@@ -266,7 +255,7 @@ export default function ProfileContent() {
           </h2>
           <ContentList contents={content} />
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 }

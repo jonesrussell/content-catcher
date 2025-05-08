@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { useAISuggestions } from "@/hooks/useAISuggestions";
 
 interface AIFeaturesProps {
@@ -20,11 +19,7 @@ export function AIFeatures({
   if (content.length < 100) return null;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="space-y-4"
-    >
+    <div className="space-y-4">
       {/* AI Features content */}
       {aiSuggestionsLoading && (
         <div className="text-primary/40 text-center">
@@ -45,6 +40,6 @@ export function AIFeatures({
           ))}
         </div>
       )}
-    </motion.div>
+    </div>
   );
 }

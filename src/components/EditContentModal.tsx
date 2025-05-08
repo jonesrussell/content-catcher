@@ -4,8 +4,7 @@ import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { createClient } from "@/utils/supabase/client";
 import { useContentVersions } from "@/hooks/useContentVersions";
-import { Content, ContentVersion } from "@/types";
-import { motion, AnimatePresence } from "framer-motion";
+import type { Content, ContentVersion } from "@/types/content";
 import { X, History, RotateCcw } from "lucide-react";
 import { DiffViewer } from "./ContentEditor/DiffViewer";
 
@@ -113,11 +112,7 @@ export default function EditContentModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="mx-4 w-full max-w-4xl rounded-xl bg-white p-6"
-      >
+      <div className="mx-4 w-full max-w-4xl rounded-xl bg-white p-6">
         <div className="mb-4 flex items-center justify-between">
           <h3 className="text-primary text-xl font-semibold">Edit Content</h3>
           <button
@@ -227,15 +222,13 @@ export default function EditContentModal({
                   ))}
                 </div>
 
-                <AnimatePresence>
-                  {diffVersions && (
-                    <DiffViewer
-                      oldVersion={diffVersions.oldVersion}
-                      newVersion={diffVersions.newVersion}
-                      onClose={() => setDiffVersions(null)}
-                    />
-                  )}
-                </AnimatePresence>
+                {diffVersions && (
+                  <DiffViewer
+                    oldVersion={diffVersions.oldVersion}
+                    newVersion={diffVersions.newVersion}
+                    onClose={() => setDiffVersions(null)}
+                  />
+                )}
               </div>
             )}
           </div>
@@ -255,7 +248,7 @@ export default function EditContentModal({
             Save Changes
           </button>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 }

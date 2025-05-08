@@ -1,6 +1,5 @@
 "use client";
 
-import { AnimatePresence } from "framer-motion";
 import { RotateCcw } from "lucide-react";
 import type { ContentVersion } from "@/hooks/useContent";
 import { DiffViewer } from "./DiffViewer";
@@ -104,7 +103,7 @@ export function VersionHistory({
         ))}
       </div>
 
-      <AnimatePresence>
+      <div>
         {diffVersions && (
           <DiffViewer
             oldVersion={diffVersions.oldVersion}
@@ -112,7 +111,7 @@ export function VersionHistory({
             onClose={() => setDiffVersions(null)}
           />
         )}
-      </AnimatePresence>
+      </div>
     </div>
   );
 }
