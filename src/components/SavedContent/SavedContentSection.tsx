@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useDeferredValue, useTransition } from "react";
-import { useAuth } from "@/lib/auth-context";
 import { MasonryGrid } from "./MasonryGrid";
 import { Loader2 } from "lucide-react";
 import type { Content } from "@/types/content";
@@ -10,7 +9,6 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { fetchUserContent } from "@/app/actions/content";
 
 export function SavedContentSection() {
-  const { user } = useAuth();
   const [content, setContent] = useState<Content[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
@@ -21,7 +19,7 @@ export function SavedContentSection() {
   const [showTags, setShowTags] = useState(false);
   const searchParams = useSearchParams();
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
 
   // Use deferred value for content to avoid unnecessary re-renders
   const deferredContent = useDeferredValue(content);
@@ -38,17 +36,9 @@ export function SavedContentSection() {
   }, [searchParams, content]);
 
   useEffect(() => {
-    if (!user) {
-      console.log('No user found, redirecting to login');
-      startTransition(() => {
-        router.replace('/login');
-      });
-      return;
-    }
-
     const loadContent = async () => {
       try {
-        console.log('Loading content for user:', user.id);
+        console.log('Loading content...');
         const data = await fetchUserContent();
         
         // Handle pagination
@@ -62,7 +52,7 @@ export function SavedContentSection() {
           setContent((prev) => {
             const existingIds = new Set(prev.map((item) => item.id));
             const uniqueNewContent = paginatedData.filter(
-              (item) => !existingIds.has(item.id),
+              (item) => !existingIds.has(item.id)
             );
             return [...prev, ...uniqueNewContent];
           });
@@ -84,59 +74,15 @@ export function SavedContentSection() {
     };
 
     loadContent();
-  }, [user, page, router]);
+  }, [page, router]);
 
-  // Show tags after initial load
-  useEffect(() => {
-    console.log('Tag visibility effect triggered:', {
-      loading,
-      contentLength: content.length,
-      showTags
-    });
-
-    if (!loading && content.length > 0) {
-      console.log('Content loaded, checking for AI tags:', {
-        contentItems: content.map(item => ({
-          id: item.id,
-          contentLength: item.content.length,
-          hasTags: item.tags && item.tags.length > 0,
-          tags: item.tags
-        }))
-      });
-
-      const timer = setTimeout(() => {
-        // Only show tags for content that has AI-generated tags
-        const hasAIGeneratedTags = content.some(item => {
-          const shouldShow = item.content.length >= 100 && 
-            item.tags && 
-            item.tags.length > 0;
-          
-          console.log('Checking item for AI tags:', {
-            id: item.id,
-            contentLength: item.content.length,
-            hasTags: item.tags && item.tags.length > 0,
-            shouldShow
-          });
-          
-          return shouldShow;
-        });
-
-        console.log('Setting showTags to:', hasAIGeneratedTags);
-        setShowTags(hasAIGeneratedTags);
-      }, 1000); // Show tags after 1 second
-      return () => clearTimeout(timer);
+  const handleLoadMore = () => {
+    if (!loading && hasMore) {
+      setPage((prev) => prev + 1);
     }
-  }, [loading, content, showTags]);
+  };
 
-  // Add debug log for render
-  console.log('SavedContentSection render:', {
-    loading,
-    contentLength: content.length,
-    showTags,
-    hasMore
-  });
-
-  if (loading) {
+  if (loading && page === 0) {
     return (
       <div className="flex min-h-[200px] items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
@@ -144,8 +90,12 @@ export function SavedContentSection() {
     );
   }
 
-  if (!user) {
-    return null;
+  if (!loading && content.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-gray-500">No content saved yet</p>
+      </div>
+    );
   }
 
   return (
@@ -160,32 +110,30 @@ export function SavedContentSection() {
         </button>
       </div>
 
-      {deferredContent.length === 0 ? (
-        <div className="text-center text-gray-500">
-          No content saved yet. Start by creating some content!
-        </div>
-      ) : (
-        <MasonryGrid
-          content={deferredContent}
-          onEdit={(content) => {
-            setSelectedContent(content);
-            setIsEditModalOpen(true);
-          }}
-          onDelete={(id) => {
-            setContent((prev) => prev.filter((item) => item.id !== id));
-          }}
-          showTags={showTags}
-        />
-      )}
+      <MasonryGrid
+        content={deferredContent}
+        onEdit={(content) => {
+          setSelectedContent(content);
+          setIsEditModalOpen(true);
+        }}
+        onDelete={(id) => {
+          setContent((prev) => prev.filter((item) => item.id !== id));
+        }}
+        showTags={showTags}
+      />
 
       {hasMore && (
         <div className="flex justify-center">
           <button
-            onClick={() => setPage((p) => p + 1)}
-            className="text-gray-600 hover:text-gray-900"
-            disabled={isPending}
+            onClick={handleLoadMore}
+            disabled={loading}
+            className="text-primary hover:text-primary/80 flex items-center gap-2 transition-colors disabled:opacity-50"
           >
-            Load More
+            {loading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              'Load More'
+            )}
           </button>
         </div>
       )}

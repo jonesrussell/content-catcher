@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useAuth } from "@/lib/auth-context";
 import { createClient } from '@/utils/supabase/client'
 import { motion } from "framer-motion";
 import { Edit2, Save, Loader2 } from "lucide-react";
@@ -10,6 +9,7 @@ import DashboardStats from "@/components/DashboardStats";
 import SearchContent from "@/components/SearchContent";
 import { toast } from "react-hot-toast";
 import { useContent } from "@/hooks/useContent";
+import { updateProfile } from '@/app/actions/profile'
 
 interface Profile {
   username: string | null;
@@ -28,31 +28,37 @@ function LoadingSpinner() {
 }
 
 export default function ProfileContent() {
-  const { user } = useAuth();
   const supabase = createClient()
   const [profile, setProfile] = useState<Profile | null>(null);
-  const { content } = useContent(user?.id);
+  const { content } = useContent(profile?.id);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [editedProfile, setEditedProfile] = useState<Profile | null>(null);
   const [saving, setSaving] = useState(false);
+  const [formData, setFormData] = useState({
+    username: '',
+    full_name: '',
+    avatar_url: '',
+  });
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadProfile() {
-      if (!user) return;
-
       try {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return
+
         const { data: profileData, error: profileError } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", user.id)
-          .single();
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single()
 
         if (profileError) {
           // If profile doesn't exist, create it
           if (profileError.code === 'PGRST116') {
             const { data: newProfile, error: createError } = await supabase
-              .from("profiles")
+              .from('profiles')
               .insert({
                 id: user.id,
                 username: user.email?.split('@')[0] || null,
@@ -60,55 +66,78 @@ export default function ProfileContent() {
                 avatar_url: null,
               })
               .select()
-              .single();
+              .single()
 
-            if (createError) throw createError;
-            setProfile(newProfile);
-            setEditedProfile(newProfile);
+            if (createError) throw createError
+            setProfile(newProfile)
+            setEditedProfile(newProfile)
+            setFormData({
+              username: newProfile.username || '',
+              full_name: newProfile.full_name || '',
+              avatar_url: newProfile.avatar_url || '',
+            })
           } else {
-            throw profileError;
+            throw profileError
           }
         } else {
-          setProfile(profileData);
-          setEditedProfile(profileData);
+          setProfile(profileData)
+          setEditedProfile(profileData)
+          setFormData({
+            username: profileData.username || '',
+            full_name: profileData.full_name || '',
+            avatar_url: profileData.avatar_url || '',
+          })
         }
       } catch (error) {
-        toast.error("Failed to load profile data");
+        console.error('Error loading profile:', error)
+        setError('Failed to load profile data')
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
     }
 
-    loadProfile();
-  }, [user]);
+    loadProfile()
+  }, [supabase])
 
-  const handleSaveProfile = async () => {
-    if (!user || !editedProfile) return;
+  const handleSave = async () => {
+    if (!editedProfile) return
 
-    setSaving(true);
     try {
-      const { error } = await supabase
-        .from("profiles")
-        .update({
-          username: editedProfile.username,
-          full_name: editedProfile.full_name,
-          avatar_url: editedProfile.avatar_url,
-        })
-        .eq("id", user.id);
+      setSaving(true)
+      const result = await updateProfile({
+        ...editedProfile,
+        ...formData,
+      })
 
-      if (error) throw error;
-      setProfile(editedProfile);
-      setEditing(false);
-      toast.success("Profile updated successfully");
-    } catch {
-      toast.error("Failed to update profile");
+      if (result.error) {
+        throw new Error(result.error)
+      }
+
+      setProfile({
+        ...editedProfile,
+        ...formData,
+      })
+      setEditing(false)
+      setError(null)
+      toast.success('Profile updated successfully')
+    } catch (error) {
+      console.error('Error updating profile:', error)
+      setError('Failed to update profile')
     } finally {
-      setSaving(false);
+      setSaving(false)
     }
-  };
+  }
 
   if (loading) {
     return <LoadingSpinner />;
+  }
+
+  if (!profile) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-gray-500">Profile not found</p>
+      </div>
+    )
   }
 
   return (
@@ -127,7 +156,7 @@ export default function ProfileContent() {
 
         <div className="mb-8 rounded-2xl bg-white/80 p-8 shadow-xl backdrop-blur-sm">
           <h2 className="text-primary mb-6 text-2xl font-bold">Dashboard</h2>
-          {user && <DashboardStats userId={user.id} />}
+          {profile && <DashboardStats userId={profile.id} />}
         </div>
 
         <div className="mb-8 rounded-2xl bg-white/80 p-8 shadow-xl backdrop-blur-sm">
@@ -143,7 +172,7 @@ export default function ProfileContent() {
               </button>
             ) : (
               <button
-                onClick={handleSaveProfile}
+                onClick={handleSave}
                 disabled={saving}
                 className="bg-primary hover:bg-primary/90 flex items-center gap-2 rounded-lg px-4 py-2 text-white transition-colors disabled:opacity-50"
               >
@@ -157,6 +186,12 @@ export default function ProfileContent() {
             )}
           </div>
 
+          {error && (
+            <div className="mb-4 p-4 text-sm text-red-700 bg-red-100 rounded-lg">
+              {error}
+            </div>
+          )}
+
           {editing ? (
             <div className="space-y-4">
               <div>
@@ -165,11 +200,9 @@ export default function ProfileContent() {
                 </label>
                 <input
                   type="text"
-                  value={editedProfile?.username ?? ""}
+                  value={formData.username}
                   onChange={(e) =>
-                    setEditedProfile((prev) =>
-                      prev ? { ...prev, username: e.target.value } : null,
-                    )
+                    setFormData({ ...formData, username: e.target.value })
                   }
                   className="border-input bg-background focus:ring-primary/20 w-full rounded-lg border px-4 py-2 transition-all focus:ring-2 focus:outline-none"
                 />
@@ -180,11 +213,22 @@ export default function ProfileContent() {
                 </label>
                 <input
                   type="text"
-                  value={editedProfile?.full_name ?? ""}
+                  value={formData.full_name}
                   onChange={(e) =>
-                    setEditedProfile((prev) =>
-                      prev ? { ...prev, full_name: e.target.value } : null,
-                    )
+                    setFormData({ ...formData, full_name: e.target.value })
+                  }
+                  className="border-input bg-background focus:ring-primary/20 w-full rounded-lg border px-4 py-2 transition-all focus:ring-2 focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="text-primary mb-2 block text-sm font-medium">
+                  Avatar URL
+                </label>
+                <input
+                  type="text"
+                  value={formData.avatar_url}
+                  onChange={(e) =>
+                    setFormData({ ...formData, avatar_url: e.target.value })
                   }
                   className="border-input bg-background focus:ring-primary/20 w-full rounded-lg border px-4 py-2 transition-all focus:ring-2 focus:outline-none"
                 />
@@ -203,6 +247,12 @@ export default function ProfileContent() {
                   Full Name
                 </label>
                 <p className="text-primary text-lg">{profile?.full_name}</p>
+              </div>
+              <div>
+                <label className="text-muted-foreground block text-sm font-medium">
+                  Avatar URL
+                </label>
+                <p className="text-primary text-lg">{profile?.avatar_url}</p>
               </div>
             </div>
           )}
