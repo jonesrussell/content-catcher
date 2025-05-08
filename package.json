@@ -21,14 +21,10 @@
     "db:generate": "npx drizzle-kit generate && npx drizzle-kit migrate && git add . && git commit -m 'chore: update migration'"
   },
   "dependencies": {
-    "@radix-ui/react-dialog": "^1.1.11",
-    "@radix-ui/react-slot": "^1.2.0",
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.49.4",
     "@t3-oss/env-nextjs": "^0.11.1",
     "axios": "^1.8.4",
-    "class-variance-authority": "^0.7.1",
-    "clsx": "^2.1.1",
     "compromise": "^14.14.4",
     "date-fns": "^4.1.0",
     "diff": "^7.0.0",
@@ -43,11 +39,8 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hot-toast": "^2.5.2",
-    "react-intersection-observer": "^9.16.0",
-    "react-masonry-css": "^1.0.16",
     "react-textarea-autosize": "^8.5.9",
     "recharts": "^2.15.3",
-    "tailwind-merge": "^3.2.0",
     "y-indexeddb": "^9.0.12",
     "y-websocket": "^3.0.0",
     "yjs": "^13.6.26",
@@ -94,11 +87,5 @@
     "typescript": "^5",
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^3.1.2"
-  },
-  "trustedDependencies": [
-    "@swc/core",
-    "esbuild",
-    "sharp",
-    "unrs-resolver"
-  ]
+  }
 }
