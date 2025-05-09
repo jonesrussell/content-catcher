@@ -7,7 +7,7 @@ import ContentEditor from "@/components/ContentEditor";
 import { SavedContentSection } from "@/components/SavedContent/SavedContentSection";
 import type { Content } from "@/types/content";
 import { Toaster } from "react-hot-toast";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/utils/supabase/client";
 
 export default function DashboardPage() {
   const { user, loading } = useAuth();
@@ -25,26 +25,29 @@ export default function DashboardPage() {
     async function fetchContents() {
       if (!user) return;
 
-      const { data } = await supabase
+      const { data } = await createClient()
         .from("content")
         .select("*")
+        .eq("user_id", user.id)
         .order("created_at", { ascending: false });
 
-      const mappedContent = (data || []).map((item) => ({
-        id: item.id,
-        user_id: item.user_id,
-        content: item.content,
-        tags: item.tags || [],
-        created_at: item.created_at,
-        updated_at: item.created_at,
-        version_number: item.version_number || 1,
-        archived: false,
-        attachments: item.attachments || [],
-        parent_version_id: item.parent_version_id || null,
-        fts: item.fts || null,
-      }));
-
-      setContents(mappedContent);
+      if (data) {
+        const mappedContent = data.map((item) => ({
+          id: item.id,
+          title: item.title || "",
+          content: item.content,
+          tags: item.tags || [],
+          created_at: item.created_at,
+          updated_at: item.updated_at,
+          user_id: item.user_id,
+          version_number: item.version_number || 1,
+          archived: item.archived || false,
+          attachments: item.attachments || [],
+          parent_version_id: item.parent_version_id || null,
+          fts: item.fts || null,
+        }));
+        setContents(mappedContent);
+      }
       setIsLoading(false);
     }
 
@@ -66,7 +69,13 @@ export default function DashboardPage() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-4 md:p-24">
       <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm">
-        <ContentEditor initialContent={contents[0]} />
+        {contents.length > 0 && (
+          <ContentEditor
+            contentId={contents[0].id}
+            initialContent={contents[0].content}
+            initialTags={contents[0].tags}
+          />
+        )}
         <SavedContentSection />
       </div>
       <Toaster />
